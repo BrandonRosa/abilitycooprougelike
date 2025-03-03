@@ -7,18 +7,15 @@ namespace BrannPack
     public class Item
     {
         private static ItemTier Tier;
-        private static List<ItemTierModifier> Modifiers;
+        private static List<ItemTierModifier> DefaultModifiers;
         private static string Name;
         private static string CodeName;
         private static string Description;
         private static string AdvancedDescription;
 
-    }
+        private float Count;
+        private List<(float count, float duration)> TemporaryStacks;
 
-    public class TemporaryItem
-    {
-        private Item Item;
-        private Dictionary<float, float> CountAndDuration;
     }
     public class ItemTier
     {
