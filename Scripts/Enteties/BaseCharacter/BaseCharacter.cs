@@ -77,9 +77,11 @@ namespace BrannPack
 			public float SpeedGainMultAdd = 0f;
 			public float SpeedGainFlatAdd = 0f;
 
-			//Resistance
-			public Dictionary<string, float> ResistanceMultAdd = new Dictionary<string, float>();
-			public Dictionary<string, float> DamageReductionFlatAdd = new Dictionary<string, float>();
+            //Resistance (-100%,100%)
+            //[1-(1-PositiveResist1)(1-PositiveResist2)...]-[1-(1-NegativeResist1)(1-NegativeResist2)...]
+            public Dictionary<string, List<float>> ResistanceMultAdd = new Dictionary<string, List<float>>(); 
+
+            public Dictionary<string, float> DamageReductionFlatAdd = new Dictionary<string, float>();
 
             //Damage
             public Dictionary<string, float> DamageDeltMultAdd = new Dictionary<string, float>();
@@ -113,5 +115,11 @@ namespace BrannPack
 		{
 			return null;
 		}
+	}
+
+	public enum FromCondition
+	{
+		Primary, Secondary, Utility, Special, Ult,
+		Boss, NonBoss, Elite, Player
 	}
 }
