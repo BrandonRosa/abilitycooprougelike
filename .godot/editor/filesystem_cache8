@@ -1,0 +1,13 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1740968029
+icon.svg::CompressedTexture2D::2438256346257621760::1740941300::1740941312::1::::<><>::
+::res://Scene/::1740944940
+::res://Scene/Testing/::1740954492
+TestScene1.tscn::PackedScene::4013863284941204384::1740954492::0::1::::<><>::res://Scripts/Enteties/BaseCharacter/BaseCharacter.cs
+::res://Scripts/::1740944220
+::res://Scripts/Enteties/::1740944361
+::res://Scripts/Enteties/BaseCharacter/::1740954643
+Ability.cs::CSharpScript::-1::1740954643::0::1::::<><>::
+BaseCharacter.cs::CSharpScript::-1::1740954622::0::1::::<>CharacterBody2D<>::
+::res://Scripts/Enteties/BaseItem/::1740954644
+Item.cs::CSharpScript::-1::1740954644::0::1::::<><>::

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxgl0hup43srg"]
+
+[ext_resource type="Script" path="res://Scripts/Enteties/BaseCharacter/BaseCharacter.cs" id="1_3r4he"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_3r4he")
