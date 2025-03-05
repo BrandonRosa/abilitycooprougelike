@@ -42,44 +42,41 @@ namespace BrannPack
 
 		private Dictionary<string, Ability> Abilities;
 		private Inventory Inventory;
+		private List<BaseCharacter> Minions;
+		private List<BaseCharacter> Familiars;
 
-		public void CalculateStats()
-		{
-			
-		}
+        public partial class StatHookEventArgs : EventArgs
+        {
+            //Health
+            public float MaxHealthMultAdd = 0f;
+            public float MaxHealthFlatAdd = 0f;
 
-		public partial class StatHookEventArgs: EventArgs
-		{
-			//Health
-			public float MaxHealthMultAdd = 0f;
-			public float MaxHealthFlatAdd = 0f;
+            //Regen
+            public float RegenMultAdd = 0f;
+            public float RegenFlatAdd = 0f;
 
-			//Regen
-			public float RegenMultAdd = 0f;
-			public float RegenFlatAdd = 0f;
+            //Shield
+            public float MaxShieldMultAdd = 0f;
+            public float MaxShieldFlatAdd = 0f;
+            public float ShieldRegenDelayMultAdd = 0f;
+            public float ShieldRegenDelayFlatAdd = 0f;
+            public float ShieldRegenRateMultAdd = 0f;
+            public float ShieldRegenRateFlatAdd = 0f;
 
-			//Shield
-			public float MaxShieldMultAdd = 0f;
-			public float MaxShieldFlatAdd = 0f;
-			public float ShieldRegenDelayMultAdd = 0f;
-			public float ShieldRegenDelayFlatAdd = 0f;
-			public float ShieldRegenRateMultAdd = 0f;
-			public float ShieldRegenRateFlatAdd = 0f;
+            //Armor
+            public float ArmorGainMultAdd = 0f;
 
-			//Armor
-			public float ArmorGainMultAdd = 0f;
+            //Barrier
+            public float BarrierGainMultAdd = 0f;
+            public float BarrierDecayMultAdd = 0f;
 
-			//Barrier
-			public float BarrierGainMultAdd = 0f;
-			public float BarrierDecayMultAdd = 0f;
-
-			//Speed
-			public float SpeedGainMultAdd = 0f;
-			public float SpeedGainFlatAdd = 0f;
+            //Speed
+            public float SpeedGainMultAdd = 0f;
+            public float SpeedGainFlatAdd = 0f;
 
             //Resistance (-100%,100%)
             //[1-(1-PositiveResist1)(1-PositiveResist2)...]-[1-(1-NegativeResist1)(1-NegativeResist2)...]
-            public Dictionary<string, List<float>> ResistanceMultAdd = new Dictionary<string, List<float>>(); 
+            public Dictionary<string, List<float>> ResistanceMultAdd = new Dictionary<string, List<float>>();
 
             public Dictionary<string, float> DamageReductionFlatAdd = new Dictionary<string, float>();
 
@@ -105,7 +102,27 @@ namespace BrannPack
 
         }
 
-	}
+        public event EventHandler<StatHookEventArgs> OnStatCalculation;
+
+        public void RecalculateStats()
+        {
+            // Step 1: Create a new event argument object to hold stat modifications
+            StatHookEventArgs statArgs = new StatHookEventArgs();
+
+            // Step 2: Invoke the event for all listeners (items, buffs, etc.)
+            OnStatCalculation?.Invoke(this, statArgs);
+
+            // Step 3: Apply stat modifications
+            ApplyStatChanges(statArgs);
+        }
+
+		private void ApplyStatChanges(StatHookEventArgs statArgs)
+		{
+		}
+
+        
+
+    }
 
 	public class Inventory
 	{
