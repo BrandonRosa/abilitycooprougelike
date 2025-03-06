@@ -2,8 +2,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using static BrannPack.ItemHandling.ItemCatalog;
 
-namespace BrannPack
+namespace BrannPack.ItemHandling
 {
     public abstract class Item<T> : Item where T : Item<T>
     {
@@ -18,45 +19,42 @@ namespace BrannPack
 
     public abstract class Item
     {
-        public static Dictionary<string, ItemFilter> ItemPools;
-        public static List<ItemSet> ItemSets;
 
-        private static ItemTier Tier;
-        private static ItemSubTier SubTier;
-        private static List<ItemTierModifier> DefaultModifiers;
-        private static string Name;
-        private static string CodeName;
-        private static string Description;
-        private static string AdvancedDescription;
-        private static bool RequiresConfirmation;
-        private static Dictionary<EffectTag, float> EffectWeights;
-
-        private float Count;
-        private List<(float count, float duration)> TemporaryStacks;
-
-        public struct ItemFilter
+        public abstract ItemTier Tier { get; init; }
+        public abstract ItemSubTier SubTier { get; init; }
+        public abstract ItemTierModifier[] DefaultModifiers { get; init; }
+        public abstract ItemTierModifier[] PossibleModifiers { get; init; }
+        private int _itemIndex;
+        public int ItemIndex
         {
-            public ItemTier[] InTiers;
-            public ItemTier[] NotInTiers;
-            public ItemSubTier[] InSubTeirs;
-            public ItemSubTier[] NotInSubTiers;
-            public ItemTierModifier[] InModifiers;
-            public ItemTierModifier[] NotInModifiers;
-            public Item[] Items;
-            public Item[] NotItems;
-            public EffectTag[] EffectTags;
-            public EffectTag[] NotEffectTags;
+            get => _itemIndex;
+            set
+            {
+                if (_itemIndex == 0) // Assuming 0 means "uninitialized"
+                    _itemIndex = value;
+            }
         }
 
-        public struct ItemSet
-        {
-            public string Name;
-            public string Description;
-            public Item[] RequiredItems;
-            public Item[] SustitutableItems;
-            public int NumberOfSubstitutableItemsToGetReward;
-            public Item Reward;
-        }
+        public abstract string Name { get; init; }
+        public abstract string CodeName { get; init; }
+        public abstract string Description { get; init; }
+        public abstract string AdvancedDescription { get; init; }
+
+        public abstract bool RequiresConfirmation { get; init; }
+        public abstract bool IsSharable { get; init; }
+
+        //Weight ranges from -3 to 3
+        // 0 = No Effect (no tag needed)
+        // 1 = Slight Positive Effect
+        // 2 = Good Positive Effect
+        // 3 = Strong Positive Effect
+        // NOTE: Weight is compared to items in similar rarity, so a Tier0 item CAN have weights of 3
+        public abstract Dictionary<EffectTag, int> EffectWeight { get; init; }
+
+        public readonly float Count;
+        public readonly List<(float count, float duration)> TemporaryStacks;
+
+        
 
         public static Item[] FindPerfectItems(Item[] currentItems, ItemFilter itemFilter, int count)
         {
@@ -135,11 +133,6 @@ namespace BrannPack
 
 
     }
-    public enum ItemIndex
-    {
-        None = -1,
-        Count
-    }
 
     public class ItemTier
     {
@@ -192,8 +185,8 @@ namespace BrannPack
         IsFamiliarBoost, IsFamiliarEnabler, IsMinionBoost, IsMinionEnabler, IsAllyBoost, IsAllyEnabler,IsHealingBoost, IsHealingEnabler,IsOnKillBoost, IsOnKillEnabler,  
             IsDiscoverBoost, IsDiscoverEnabler, IsHighDamageHitBoost, IsHighDamageHitEnabler, IsFastHitsBoost, IsFastHitsEnabler, IsSEDebuffBooster, IsSEDebuffEnabler, IsSEBuffBooster, IsSEBuffEnabler,IsAdditionalItemBooster, IsAdditionalItemEnabler, 
             IsHealthBoost, IsHealthEnabler, IsRegenBoost, IsRegenEnabler, IsHealBoost, IsHealEnabler,IsArmorBoost, IsArmorEnabler, IsShieldBoost, IsShieldEnabler, IsBarrierBoost, IsBarrierEnabler, IsStandStillBoost, IsStandStillEnabler, IsInDangerBoost, 
-            IsInDangerEnabler,IsOutOfDangerBoost, IsOutOfDangerEnabl, IsCloseRangeBoost, IsCloseRangeEnabler, IsMediumRangeBoost, IsMediumRangeEnabler, IsLowHPBoost, IsLowHPEnabler, ISHighHPBoost, IsHighHPBoost,
-            IsPercentBossHeathBoost, IsPercentBossHealthEnabler, IsPercentEnemyHealthBoost, IsPercentEnemyHealthEnabler, IsPercentYourHealthBoost, IsPercentYourHealthEnabler, IsSingleTargetEnemyBoost, IsSingleTargetEnemyEnabler, IsAOEEnemyBoost, IsAOEEnemyEnabler,
+            IsInDangerEnabler,IsOutOfDangerBoost, IsOutOfDangerEnabler, IsCloseRangeBoost, IsCloseRangeEnabler, IsMediumRangeBoost, IsMediumRangeEnabler, IsLowHPBoost, IsLowHPEnabler, IsHighHPBoost, IsHighHPEnabler,
+            IsPercentBossHealthBoost, IsPercentBossHealthEnabler, IsPercentEnemyHealthBoost, IsPercentEnemyHealthEnabler, IsPercentYourHealthBoost, IsPercentYourHealthEnabler, IsSingleTargetEnemyBoost, IsSingleTargetEnemyEnabler, IsAOEEnemyBoost, IsAOEEnemyEnabler,
             IsSingleTargetAllyBoost, IsSingleTargetAllyEnabler, IsAOEAllyBoost, IsAOEAllyEnabler, IsBossTargetBoost, IsBossTargetEnabler, IsEliteTargetBoost, IsEliteTargetEnabler, IsNegativeEffectsReducerBoost, IsNegativeEffectsReducerEnabler, 
             IsPerfectItemBoost, IsPerfectItemEnabler
 
