@@ -1,9 +1,21 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace BrannPack
 {
+    public abstract class Item<T> : Item where T : Item<T>
+    {
+        public static T instance { get; private set; }
+
+        public Item()
+        {
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
+            instance = this as T;
+        }
+    }
+
     public abstract class Item
     {
         public static Dictionary<string, ItemFilter> ItemPools;
@@ -77,6 +89,56 @@ namespace BrannPack
             return null;
         }
 
+    }
+
+    public class ItemDef
+    {
+        public ItemIndex _itemIndex;
+        public ItemIndex itemIndex
+        {
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            get
+            {
+                throw null;
+            }
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            set
+            {
+                throw null;
+            }
+        }
+        //Whats this do??
+        public struct Pair : IEquatable<Pair>
+        {
+            public ItemDef itemDef1;
+
+            public ItemDef itemDef2;
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            public override int GetHashCode()
+            {
+                throw null;
+            }
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            public override bool Equals(object obj)
+            {
+                throw null;
+            }
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            public bool Equals(Pair other)
+            {
+                throw null;
+            }
+        }
+
+
+    }
+    public enum ItemIndex
+    {
+        None = -1,
+        Count
     }
 
     public class ItemTier
