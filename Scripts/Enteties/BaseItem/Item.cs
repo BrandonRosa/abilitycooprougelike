@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static BrannPack.ItemHandling.ItemCatalog;
+using BrannPack.Tiers;
 
 namespace BrannPack.ItemHandling
 {
@@ -134,20 +135,7 @@ namespace BrannPack.ItemHandling
 
     }
 
-    public class ItemTier
-    {
-        private static string Name;
-        private static string CodeName;
-        private static List<Item> AllItemsInTier;
-        private static List<Item> AllUnlockedItems;
-    }
-
-    public class ItemSubTier:ItemTier
-    {
-        public static ItemSubTier Essences;
-        public static ItemSubTier Promices;
-        public static ItemSubTier Elite;
-    }
+    
     public class ItemTierModifier
     {
         private static string Name;
