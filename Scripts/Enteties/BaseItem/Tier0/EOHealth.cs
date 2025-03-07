@@ -1,5 +1,6 @@
 ﻿using BrannPack;
 using BrannPack.ItemHandling;
+using BrannPack.Tiers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,10 @@ namespace AbilityCoopRougelike.Items
 {
     public class EOHealth : Item<EOHealth>
     {
-        public override ItemTier Tier { get; init; } =;
-        public override ItemSubTier SubTier { get; init; } =;
-        public override ItemTierModifier[] DefaultModifiers { get; init; } =;
-        public override ItemTierModifier[] PossibleModifiers { get; init; } =;
+        public override ItemTier Tier { get; init; } =Tier0.instance;
+        public override ItemSubTier SubTier { get; init; } =ItemSubTier.Essences;
+        public override ItemModifier[] DefaultModifiers { get; init; } =;
+        public override ItemModifier[] PossibleModifiers { get; init; } =;
         public override string Name { get; init; } = "Essence of Health";
         public override string CodeName { get; init; } = "EO_Health";
         public override string Description { get; init; } ="Slightly Increase Max Health";

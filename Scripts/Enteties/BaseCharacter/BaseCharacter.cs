@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using BrannPack;
 using System.ComponentModel;
 using System.Linq;
+using BrannPack.ItemHandling;
+using System.Threading;
+using BrannPack.Tiers;
+using BrannPack.ItemHandling;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BrannPack
 {
@@ -126,13 +131,137 @@ namespace BrannPack
 
 	public class Inventory
 	{
-		private Dictionary<Item, float> PermanentItems;
+        public List<InventoryPartition> AllEffectivePartitions;
+        public List<InventoryPartition> HighlanderPartitions= new List<InventoryPartition>() { };
+        public InventoryPartition StandardPartition = new InventoryPartition();
+        public InventoryPartition ActiveItemPartition = new InventoryPartition();
+        public InventoryPartition ConfirmationPartition = new InventoryPartition();
 
-		public Dictionary<Item, float> TotalEffectiveItems()
-		{
-			return null;
-		}
-	}
+        private Dictionary<Item, List<InventoryItemStack>> _inventoryItems;
+
+        public IReadOnlyDictionary<Item, List<InventoryItemStack>> InventoryItems => _inventoryItems;
+
+
+        //MAKE THIS SUBSCRIBABLE
+        //Add's item to its ItemBehavior holder and to the TotalEffectiveItems dictionary (To avoid using the slow Refresh method)
+        public bool AddItemToInventory(Item item, HashSet<ItemModifier> modifiers = null, float count = 1f, HashSet<InventoryBehavior> inventoryBehaviors = null) { return AddItemToInventory(new InventoryItemStack(item, modifiers, count, inventoryBehaviors)); }
+        public bool AddItemToInventory(InventoryItemStack inventoryItemStack)
+        {
+
+            if (!_inventoryItems.ContainsKey(inventoryItemStack.Item))
+            {
+                _inventoryItems.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });
+                return true;
+            }
+
+            bool added = false;
+            foreach (InventoryItemStack itemStack in _inventoryItems[inventoryItemStack.Item])
+                if (itemStack.TryAddToStack(inventoryItemStack))
+                {
+                    added = true;
+                    break;
+                }
+
+            return added;
+        }
+
+        //Use this to avoid needing to refresh the TotalEffectiveItems list
+        private bool AddItemToTotalEffectiveItems(Item item, ItemModifier modifier, float count = 1)
+        {
+
+        }
+    }
+
+    public abstract class InventoryBehavior<T> : InventoryBehavior where T : InventoryBehavior<T>
+    {
+        public static T instance { get; private set; }
+
+        public InventoryBehavior()
+        {
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
+            instance = this as T;
+        }
+    }
+
+    //This will be for Permanent/Temporary/Fragile Items!
+    public abstract class InventoryBehavior
+    {
+
+    }
+
+    public class PermanentItemBehavior: InventoryBehavior<PermanentItemBehavior>
+    {
+
+    }
+
+    public class InventoryPartition
+    {
+        private const float InfiniteStackValue=-99f;
+
+        public Dictionary<Item, List<InventoryItemStack>> ItemsInPartition;
+        public ItemFilter AllowedInPartition;
+        public float MaxCount;
+        public float CurrentCount;
+
+        public InventoryPartition(ItemFilter allowedInPartition=null,float maxCount=InfiniteStackValue)
+        {
+            ItemsInPartition = new Dictionary<Item, List<InventoryItemStack>>();
+            AllowedInPartition = allowedInPartition;
+            MaxCount = maxCount;
+            CurrentCount = 0;
+        }
+
+        public bool IsItemAllowed(InventoryItemStack itemStack)
+        {
+            if (!IsFull())
+                return false;
+
+            if (AllowedInPartition != null && !AllowedInPartition.IsItemApplicable(itemStack.Item))
+                return false;
+
+            return true;
+        }
+
+        public bool IsFull() { return (MaxCount != InfiniteStackValue && CurrentCount >= MaxCount); }
+
+    public class InventoryItemStack
+    {
+        public Item Item;
+        public HashSet<ItemModifier> ItemModifiers;
+        public HashSet<InventoryBehavior> InventoryBehaviors;
+        public float Count;
+
+        public InventoryItemStack(Item item, HashSet<ItemModifier> itemModifiers=null, float count = 0, HashSet<InventoryBehavior> inventoryBehaviors=null)
+        {
+            if (itemModifiers== null)
+                itemModifiers = new HashSet<ItemModifier>() {};
+
+            if (inventoryBehaviors == null)
+                inventoryBehaviors = new HashSet<InventoryBehavior>() { PermanentItemBehavior.instance };
+
+            Item = item;
+            ItemModifiers = itemModifiers;
+            InventoryBehaviors = inventoryBehaviors;
+            Count = count;
+        }
+
+        public bool TryAddToStack(Item otherItem, HashSet<ItemModifier> otherItemModifiers, float otherCount=1f, HashSet<InventoryBehavior> otherInventoryBehavior= null) 
+        {
+            if (otherInventoryBehavior == null)
+                otherInventoryBehavior = new HashSet<InventoryBehavior>() { PermanentItemBehavior.instance };
+
+            if (!CanItemStack(otherItem, otherItemModifiers,otherInventoryBehavior))
+                return false;
+
+            Count += otherCount;
+            return true;
+        }
+
+        public bool TryAddToStack(InventoryItemStack otherItemStack) { return TryAddToStack(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.Count, otherItemStack.InventoryBehaviors); }
+        public bool CanItemStack(Item otherItem, HashSet<ItemModifier> otherItemModifiers, HashSet<InventoryBehavior> otherInventoryBehavior) { return otherItem == Item && otherItemModifiers.SetEquals(ItemModifiers) && otherInventoryBehavior.SetEquals(InventoryBehaviors); }
+
+        public bool CanItemStack(InventoryItemStack otherItemStack) { return CanItemStack(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.InventoryBehaviors); }
+    }
 
 	public enum FromCondition
 	{

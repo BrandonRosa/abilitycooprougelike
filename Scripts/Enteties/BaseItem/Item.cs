@@ -24,8 +24,8 @@ namespace BrannPack.ItemHandling
 
         public abstract ItemTier Tier { get; init; }
         public abstract ItemSubTier SubTier { get; init; }
-        public abstract ItemTierModifier[] DefaultModifiers { get; init; }
-        public abstract ItemTierModifier[] PossibleModifiers { get; init; }
+        public abstract ItemModifier[] DefaultModifiers { get; init; }
+        public abstract ItemModifier[] PossibleModifiers { get; init; }
         private int _itemIndex;
         public int ItemIndex
         {
@@ -52,9 +52,6 @@ namespace BrannPack.ItemHandling
         // 3 = Strong Positive Effect
         // NOTE: Weight is compared to items in similar rarity, so a Tier0 item CAN have weights of 3
         public abstract Dictionary<EffectTag, int> EffectWeight { get; init; }
-
-        public readonly float Count;
-        public readonly List<(float count, float duration)> TemporaryStacks;
 
         
 
@@ -91,58 +88,23 @@ namespace BrannPack.ItemHandling
 
     }
 
-    public class ItemDef
+    public struct ItemEffectModifier
     {
-        public ItemIndex _itemIndex;
-        public ItemIndex itemIndex
-        {
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            get
-            {
-                throw null;
-            }
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            set
-            {
-                throw null;
-            }
-        }
-        //Whats this do??
-        public struct Pair : IEquatable<Pair>
-        {
-            public ItemDef itemDef1;
+        public float Positive;
+        public float Negative;
+        public float Multiplier;
 
-            public ItemDef itemDef2;
-
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            public override int GetHashCode()
-            {
-                throw null;
-            }
-
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            public override bool Equals(object obj)
-            {
-                throw null;
-            }
-
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            public bool Equals(Pair other)
-            {
-                throw null;
-            }
-        }
-
-
+        public (float positive, float negative) EffectiveValues() { return (Positive * Multiplier, Negative * Multiplier); }
     }
-
-    
-    public class ItemTierModifier
+    public class ItemModifier
     {
         private static string Name;
         private static string CodeName;
         private static List<Item> AllItemsInTier;
         private static List<Item> AllUnlockedItems;
+
+        ItemEffectModifier itemEffectModifier;
+
     }
 
     //Boost = Quality of Effects are Improved
@@ -165,7 +127,7 @@ namespace BrannPack.ItemHandling
         IsEssenceBoost, IsEssenceEnabler, IsPromiseBoost, IsPromiseEnabler, 
 
         //Item Modifier Catagory
-        IsHighlanderBoost, IsHighlanderEnabler, IsHermeticBoost, IsHermeticEnabler, IsCurseBoost, IsCurseEnabler, IsBrokenBoost, IsBrokenEnabler, IsPrismaticBoost, IsPrismaticEnabler, IsTemporaryItemBoost, IsTemporaryItemEnabler,
+        IsHighlanderBoost, IsHighlanderEnabler, IsChthonicBoost, IsChthonicEnabler, IsCurseBoost, IsCurseEnabler, IsBrokenBoost, IsBrokenEnabler, IsPrismaticBoost, IsPrismaticEnabler, IsTemporaryItemBoost, IsTemporaryItemEnabler,
 
         //Debuff Catagory
         IsBleedBoost,IsBleedEnabler,IsCritBoost,IsCritEnabler, IsPoisonBoost, IsPoisonEnabler, IsFireBoost, IsFireEnabler, IsEnemySlowStuckBoost, IsEnemySlowStuckEnabler,
