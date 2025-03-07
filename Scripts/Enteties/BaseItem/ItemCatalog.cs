@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrannPack;
 using BrannPack.ItemHandling;
+using BrannPack.Tiers;
 
 namespace BrannPack.ItemHandling
 {
@@ -145,8 +146,8 @@ namespace BrannPack.ItemHandling
                     return false;
 
                 // Handle SubTiers
-                bool InWLSubTier = (filter.InAnyTiers == null || filter.InAnyTiers.Contains(item.SubTier));
-                bool InBLSubTier = (filter.NotInAnyTiers != null && filter.NotInAnyTiers.Contains(item.SubTier));
+                bool InWLSubTier = (filter.InAnySubTiers == null || filter.InAnySubTiers.Contains(item.SubTier));
+                bool InBLSubTier = (filter.NotInAnySubTiers != null && filter.NotInAnySubTiers.Contains(item.SubTier));
                 if (InWLSubTier && InBLSubTier)
                 {
                     if (overlapPriority == FilterOverlapPriority.WhitelistPriority)
@@ -189,10 +190,33 @@ namespace BrannPack.ItemHandling
                 bool HasAllDefaultModifiers = (filter.HasAllDefaultModifiers != null && filter.HasAllDefaultModifiers.All(mod => item.DefaultModifiers.Contains(mod)));
                 bool NotHaveAllDefaultModifiers = (filter.NotHaveAllDefaultModifiers != null && filter.NotHaveAllDefaultModifiers.All(mod => item.DefaultModifiers.Contains(mod)));
 
-                // Handle Possible Modifiers
+                if (!HasAllDefaultModifiers || NotHaveAllDefaultModifiers)
+                    return false;
+
+                // Handle Any Possible Modifiers (Not yet fixed up)
+
+                HashSet<ItemTierModifier> tempHasAnyDMod = filter.HasAnyDefaultModifiers;
+                HashSet<ItemTierModifier> tempNotHaveAnyDMod = filter.NotHaveAnyDefaultModifiers;
+
+                if (tempHasAnyDMod.Overlaps(tempNotHaveAnyDMod))
+                {
+                    if (overlapPriority == FilterOverlapPriority.WhitelistPriority)
+                    {
+                        tempNotHaveAnyDMod.ExceptWith(tempHasAnyDMod);// If whitelist takes priority, blacklist is ignored
+                    }
+                    else
+                    {
+                        tempHasAnyDMod.ExceptWith(tempNotHaveAnyDMod); // If blacklist takes priority, whitelist is ignored
+                    }
+                }
+
+
                 bool HasAnyPossibleModifiers = (filter.HasAnyPossibleModifiers == null || filter.HasAnyPossibleModifiers.Intersect(item.PossibleModifiers).Any());
-                bool HasAllPossibleModifiers = (filter.HasAllPossibleModifiers != null && filter.HasAllPossibleModifiers.All(mod => item.PossibleModifiers.Contains(mod)));
                 bool NotHaveAnyPossibleModifiers = (filter.NotHaveAnyPossibleModifiers != null && filter.NotHaveAnyPossibleModifiers.Intersect(item.PossibleModifiers).Any());
+
+                // Handle All Possible Modifiers
+
+                bool HasAllPossibleModifiers = (filter.HasAllPossibleModifiers != null && filter.HasAllPossibleModifiers.All(mod => item.PossibleModifiers.Contains(mod)));
                 bool NotHaveAllPossibleModifiers = (filter.NotHaveAllPossibleModifiers != null && filter.NotHaveAllPossibleModifiers.All(mod => item.PossibleModifiers.Contains(mod)));
 
                 

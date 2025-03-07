@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AbilityCoopRougelike")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b09676ac274293a4433379efed1b5ffed68eb33")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e04062465ee03db4848ba751c7e36e8193065dd6")]
 [assembly: System.Reflection.AssemblyProductAttribute("AbilityCoopRougelike")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AbilityCoopRougelike")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

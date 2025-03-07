@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using static BrannPack.ItemHandling.ItemCatalog;
 using BrannPack.Tiers;
 
+
 namespace BrannPack.ItemHandling
 {
     public abstract class Item<T> : Item where T : Item<T>
