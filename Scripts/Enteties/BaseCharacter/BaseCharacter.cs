@@ -131,16 +131,24 @@ namespace BrannPack
 
 	public class Inventory
 	{
-        public List<InventoryPartition> AllEffectivePartitions;
+        protected InventoryPartition _allEffectivePartitions;
+        public InventoryPartition AllEffectivePartitions
+        {
+            get => _allEffectivePartitions;
+            protected set => _allEffectivePartitions = value;
+        }
+
         public List<InventoryPartition> HighlanderPartitions= new List<InventoryPartition>() { };
-        public InventoryPartition StandardPartition = new InventoryPartition();
-        public InventoryPartition ActiveItemPartition = new InventoryPartition();
-        public InventoryPartition ConfirmationPartition = new InventoryPartition();
+        public InventoryPartition StandardPartition;
+        public InventoryPartition ActiveItemPartition;
+        public InventoryPartition ConfirmationPartition;
 
-        private Dictionary<Item, List<InventoryItemStack>> _inventoryItems;
+        public void RefreshAllEffectivePartitions()
+        {
+            _allEffectivePartitions = InventoryPartition.ForceMergePartitions( new List<InventoryPartition> { StandardPartition, ActiveItemPartition, ConfirmationPartition }.Concat(HighlanderPartitions).ToList(), this);
+        }
 
-        public IReadOnlyDictionary<Item, List<InventoryItemStack>> InventoryItems => _inventoryItems;
-
+        
 
         //MAKE THIS SUBSCRIBABLE
         //Add's item to its ItemBehavior holder and to the TotalEffectiveItems dictionary (To avoid using the slow Refresh method)
@@ -198,31 +206,65 @@ namespace BrannPack
     {
         private const float InfiniteStackValue=-99f;
 
+        public Inventory PartitionOf;
         public Dictionary<Item, List<InventoryItemStack>> ItemsInPartition;
         public ItemFilter AllowedInPartition;
         public float MaxCount;
         public float CurrentCount;
 
-        public InventoryPartition(ItemFilter allowedInPartition=null,float maxCount=InfiniteStackValue)
+        public InventoryPartition(Inventory inventory,ItemFilter allowedInPartition=null,float maxCount=InfiniteStackValue)
         {
+            PartitionOf = inventory;
             ItemsInPartition = new Dictionary<Item, List<InventoryItemStack>>();
             AllowedInPartition = allowedInPartition;
             MaxCount = maxCount;
             CurrentCount = 0;
         }
 
+        public bool TryAddToPartition(Item item, HashSet<ItemModifier> itemModifiers=null,float count=1,HashSet<InventoryBehavior> inventoryBehaviors=null) { return TryAddToPartition(new InventoryItemStack(item, itemModifiers, count, inventoryBehaviors)); }
+
+        public bool TryAddToPartition(InventoryItemStack inventoryItemStack) 
+        {
+            if(IsItemAllowed(inventoryItemStack))
+            {
+                if (!ItemsInPartition.ContainsKey(inventoryItemStack.Item))
+                {
+                    ItemsInPartition.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });
+                    return true;
+                }
+                foreach (InventoryItemStack iis in ItemsInPartition[inventoryItemStack.Item])
+                {
+                    if (iis.TryAddToStack(inventoryItemStack))
+                        return true;
+                }
+
+                //If you made it this far, there is no home for this item. So we have to make one for it
+                ItemsInPartition[inventoryItemStack.Item].Add(inventoryItemStack);
+            }
+            return false;
+        }
+
         public bool IsItemAllowed(InventoryItemStack itemStack)
         {
-            if (!IsFull())
-                return false;
-
-            if (AllowedInPartition != null && !AllowedInPartition.IsItemApplicable(itemStack.Item))
-                return false;
-
-            return true;
+            return !IsFull() && IsItemApplicable(itemStack.Item);
         }
 
         public bool IsFull() { return (MaxCount != InfiniteStackValue && CurrentCount >= MaxCount); }
+        public bool IsItemApplicable(Item item) { return AllowedInPartition != null && !AllowedInPartition.IsItemApplicable(item); }
+
+        public static InventoryPartition ForceMergePartitions(List<InventoryPartition> inventoryPartitions,Inventory inventory)
+        {
+            Dictionary<Item, List<InventoryItemStack>> items = new Dictionary<Item, List<InventoryItemStack>>();
+            foreach(InventoryPartition ip in inventoryPartitions)
+                foreach(var kvp in ip.ItemsInPartition)
+                {
+                    if (!items.TryAdd(kvp.Key, kvp.Value))
+                        items[kvp.Key].AddRange(kvp.Value);
+                }
+            InventoryPartition ans = new InventoryPartition(inventory);
+            ans.ItemsInPartition = items;
+            return ans;
+        }
 
     public class InventoryItemStack
     {
