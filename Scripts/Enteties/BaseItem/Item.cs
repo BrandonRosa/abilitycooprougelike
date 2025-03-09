@@ -71,7 +71,7 @@ namespace BrannPack.ItemHandling
             //Basically we'll Get the pool for Items in the selected basic catagory, filter for the top 5 weighted items then use THAT as the FindPerfectItemsPool
 
             //Tag Notes:
-            //For Boost-Enabler Pairs, try to get them to have even scores
+            //For Dep-Enabler Pairs, try to get them to have even scores
 
 
             //If nothing can be found, return the error item.
@@ -80,8 +80,8 @@ namespace BrannPack.ItemHandling
 
         public static EffectTag[] FindPerfectTags(Dictionary<EffectTag, float> totalWeights, int count)
         {
-            //If The Top one is a Boost and it's associated Enable score is low, give the associated enabler
-            //If The Top one is a Enabler and its associated boost is low, give it a boost
+            //If The Top one is a Dep and it's associated Enable score is low, give the associated enabler
+            //If The Top one is a Enabler and its associated Dep is low, give it a Dep
 
             return null;
         }
@@ -107,39 +107,57 @@ namespace BrannPack.ItemHandling
 
     }
 
-    //Boost = Quality of Effects are Improved
-    //Enabler = Frequency/Quantity of Effect Is Increased
+    //Dep = Quality of Effects are Improved (Crit based effects)
+    //Enabler = Frequency/Quantity of Effect Is Increased (Crit Lense)
     public enum EffectTag
     {
         //Basic Catagory
         IsAttack,IsDefensive,IsUtility,
 
         //AttackProperties
-        IsDamageBoost,IsRangeBoost,IsDurationBoost,IsCooldownBoost,IsFireRateBoost,IsChargeBoost,
+        IsDamageDep, IsDamageEnabler, IsRangeDep,IsRangeEnabler, IsDurationDep,IsDurationEnabler, IsCooldownDep, IsCooldownEnabler,
+        IsFireRateDep,IsFireRateEnabler, IsChargeDep, IsChargeEnabler,
 
         //Ability Catagory
-        IsPrimaryBoost,IsSecondaryBoost,IsUtilityBoost,IsSpecialBoost,IsUltBoost,IsItemBoost,IsActiveBoost, 
+        IsPrimaryDep, IsPrimaryEnabler,IsSecondaryDep, IsSeconaryEnabler, IsUtilityDep, IsUtilityEnabler, IsSpecialDep, IsSpecialEnabler,IsUltDep, IsUltEnabler,IsItemDep, IsItemEnabler,IsActiveDep, IsActiveEnabler,
 
         //Item Tier Catagory
-        IsTealBoost, IsTealEnabler, IsWhiteBoost, IsWhiteEnabler, IsGreenBoost, IsGreenEnabler, IsOrangeBoost, IsOrangeEnabler, IsYellowBoost, IsYellowEnabler, IsRedBoost, IsRedEnabler,
+        IsTealDep, IsTealEnabler, IsWhiteDep, IsWhiteEnabler, IsGreenDep, IsGreenEnabler, IsOrangeDep, IsOrangeEnabler, 
+            IsYellowDep, IsYellowEnabler, IsRedDep, IsRedEnabler,
 
         //Item Sub-Tier Catagory
-        IsEssenceBoost, IsEssenceEnabler, IsPromiseBoost, IsPromiseEnabler, 
+        IsEssenceDep, IsEssenceEnabler, IsPromiseDep, IsPromiseEnabler, 
 
         //Item Modifier Catagory
-        IsHighlanderBoost, IsHighlanderEnabler, IsChthonicBoost, IsChthonicEnabler, IsCurseBoost, IsCurseEnabler, IsBrokenBoost, IsBrokenEnabler, IsPrismaticBoost, IsPrismaticEnabler, IsTemporaryItemBoost, IsTemporaryItemEnabler,
+        IsHighlanderDep, IsHighlanderEnabler, IsChthonicDep, IsChthonicEnabler, IsCurseDep, IsCurseEnabler, IsBrokenDep, IsBrokenEnabler, 
+            IsPrismaticDep, IsPrismaticEnabler, IsTemporaryItemDep, IsTemporaryItemEnabler,
 
         //Debuff Catagory
-        IsBleedBoost,IsBleedEnabler,IsCritBoost,IsCritEnabler, IsPoisonBoost, IsPoisonEnabler, IsFireBoost, IsFireEnabler, IsEnemySlowStuckBoost, IsEnemySlowStuckEnabler,
+        IsBleedDep,IsBleedEnabler,IsCritDep,IsCritEnabler, IsPoisonDep, IsPoisonEnabler, IsFireDep, IsFireEnabler, 
+            IsEnemySlowStuckDep, IsEnemySlowStuckEnabler, IsSEDebuffDeper, IsSEDebuffEnabler, IsSEBuffDeper, IsSEBuffEnabler, IsResistReducerDeper, IsResistReducerEnabler
 
-        //Other Item Synergy
-        IsFamiliarBoost, IsFamiliarEnabler, IsMinionBoost, IsMinionEnabler, IsAllyBoost, IsAllyEnabler,IsHealingBoost, IsHealingEnabler,IsOnKillBoost, IsOnKillEnabler,  
-            IsDiscoverBoost, IsDiscoverEnabler, IsHighDamageHitBoost, IsHighDamageHitEnabler, IsFastHitsBoost, IsFastHitsEnabler, IsSEDebuffBooster, IsSEDebuffEnabler, IsSEBuffBooster, IsSEBuffEnabler,IsAdditionalItemBooster, IsAdditionalItemEnabler, 
-            IsHealthBoost, IsHealthEnabler, IsRegenBoost, IsRegenEnabler, IsHealBoost, IsHealEnabler,IsArmorBoost, IsArmorEnabler, IsShieldBoost, IsShieldEnabler, IsBarrierBoost, IsBarrierEnabler, IsStandStillBoost, IsStandStillEnabler, IsInDangerBoost, 
-            IsInDangerEnabler,IsOutOfDangerBoost, IsOutOfDangerEnabler, IsCloseRangeBoost, IsCloseRangeEnabler, IsMediumRangeBoost, IsMediumRangeEnabler, IsLowHPBoost, IsLowHPEnabler, IsHighHPBoost, IsHighHPEnabler,
-            IsPercentBossHealthBoost, IsPercentBossHealthEnabler, IsPercentEnemyHealthBoost, IsPercentEnemyHealthEnabler, IsPercentYourHealthBoost, IsPercentYourHealthEnabler, IsSingleTargetEnemyBoost, IsSingleTargetEnemyEnabler, IsAOEEnemyBoost, IsAOEEnemyEnabler,
-            IsSingleTargetAllyBoost, IsSingleTargetAllyEnabler, IsAOEAllyBoost, IsAOEAllyEnabler, IsBossTargetBoost, IsBossTargetEnabler, IsEliteTargetBoost, IsEliteTargetEnabler, IsNegativeEffectsReducerBoost, IsNegativeEffectsReducerEnabler, 
-            IsPerfectItemBoost, IsPerfectItemEnabler
+        //Ally Catgory
+        IsFamiliarDep, IsFamiliarEnabler, IsMinionDep, IsMinionEnabler, IsAllyDep, IsAllyEnabler,
+        
+        //Defensive Items
+        IsHealthDep, IsHealthEnabler, IsRegenDep, IsRegenEnabler, IsHealDep, IsHealEnabler, IsArmorDep, IsArmorEnabler, IsResistanceDep, IsResistanceEnabler,
+            IsShieldDep, IsShieldEnabler, IsBarrierDep, IsBarrierEnabler, IsNegativeEffectsReducerDep, IsNegativeEffectsReducerEnabler, 
+
+        //Utility Items
+        IsMoveSpeedDep, IsMoveSpeedEnabler, IsMovementRestrictionDep, IsMovementRestrictionBoost,
+
+        //Item Triggers
+        IsOnKillDep, IsOnKillEnabler, IsHighDamageHitDep, IsHighDamageHitEnabler, IsFastHitsDep, IsFastHitsEnabler, IsStandStillDep, IsStandStillEnabler, 
+            IsInDangerDep, IsInDangerEnabler,IsOutOfDangerDep, IsOutOfDangerEnabler, IsCloseRangeDep, IsCloseRangeEnabler, 
+            IsMediumRangeDep, IsMediumRangeEnabler, IsLowHPDep, IsLowHPEnabler, IsHighHPDep, IsHighHPEnabler,
+            IsPercentBossHealthDep, IsPercentBossHealthEnabler, IsPercentEnemyHealthDep, IsPercentEnemyHealthEnabler, IsPercentYourHealthDep, IsPercentYourHealthEnabler,  
+
+        //Item Targets
+        IsSingleTargetEnemyDep, IsSingleTargetEnemyEnabler, IsAOEEnemyDep, IsAOEEnemyEnabler, IsSingleTargetAllyDep, IsSingleTargetAllyEnabler, 
+            IsAOEAllyDep, IsAOEAllyEnabler, IsBossTargetDep, IsBossTargetEnabler, IsEliteTargetDep, IsEliteTargetEnabler,
+
+        //Item Finding
+        IsDiscoverDep, IsDiscoverEnabler, IsPerfectItemDep, IsPerfectItemEnabler, IsAdditionalItemDeper, IsAdditionalItemEnabler,
 
     }
     

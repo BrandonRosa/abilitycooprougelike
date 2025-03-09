@@ -43,4 +43,9 @@ namespace BrannPack
         private int APCost;
         private int LockCost;
     }
+
+    public enum AbilitySlot
+    {
+        Primary,Secondary,Utility,Special,Ult
+    }
 }

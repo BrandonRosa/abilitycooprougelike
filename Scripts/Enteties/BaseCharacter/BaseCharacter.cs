@@ -10,7 +10,7 @@ using BrannPack.Tiers;
 using BrannPack.ItemHandling;
 using System.Security.Cryptography.X509Certificates;
 
-namespace BrannPack
+namespace BrannPack.Character
 {
 	public partial class BaseCharacter : CharacterBody2D
 	{
@@ -25,6 +25,15 @@ namespace BrannPack
 		private static float DefaultCritChance;
 		private static float DefaultCritDamage;
 
+        private float BaseHealth;
+        private float BaseRegen;
+        private float BaseMaxShield;
+        private float BaseShieldRegenDelay;
+        private float BaseShieldRegenRate;
+        private float BaseBarrierLossRate;
+        private float BaseTopSpeed;
+        private float MinimumSpeed;
+
         private float CurrentMaxHealth;
 		private float CurrentHealth;
 		private float CurrentRegen;
@@ -38,7 +47,15 @@ namespace BrannPack
 		private float CurrentBarrier;
 		private float CurrentBarrierLossRate;
         private float CurrentSpeed;
-        private Dictionary<string,float> CurrentResistance;
+        private float CurrentTopSpeed;
+        private float CurrentSpeedReduction => Mathf.Min(0f, SpeedReductionResistance - SpeedReductionPercent);
+        private float SpeedReductionResistance;
+        private float SpeedReductionPercent;
+
+        private float CurrentDamageResistance => PositiveDamageResistance - NegativeDamageResistance;
+        private float PositiveDamageResistance;
+        private float NegativeDamageResistance;
+
 		private Dictionary<string,float> CurrentDamage;
 		private Dictionary<string, float> CurrentRange;
 		private Dictionary<string, float> CurrentDuration;
@@ -55,33 +72,48 @@ namespace BrannPack
             //Health
             public float MaxHealthMultAdd = 0f;
             public float MaxHealthFlatAdd = 0f;
+            public float BaseMaxHealthAdd = 0f;
 
             //Regen
             public float RegenMultAdd = 0f;
             public float RegenFlatAdd = 0f;
+            public float BaseRegenAdd = 0f;
 
             //Shield
             public float MaxShieldMultAdd = 0f;
             public float MaxShieldFlatAdd = 0f;
+            public float BaseMaxShieldAdd = 0f;
+
             public float ShieldRegenDelayMultAdd = 0f;
             public float ShieldRegenDelayFlatAdd = 0f;
+            public float BaseShieldRegenDelayAdd = 0f;
+
             public float ShieldRegenRateMultAdd = 0f;
             public float ShieldRegenRateFlatAdd = 0f;
+            public float BaseShieldRegenRateAdd = 0f;
 
             //Armor
             public float ArmorGainMultAdd = 0f;
+            public float ArmorGain = 0f;
 
             //Barrier
             public float BarrierGainMultAdd = 0f;
-            public float BarrierDecayMultAdd = 0f;
+
+            public float BarrierLossRateMultAdd = 0f;
+            public float BarrierLossRateFlatAdd = 0f;
+            public float BaseBarrierLossRateAdd = 0f;
 
             //Speed
-            public float SpeedGainMultAdd = 0f;
-            public float SpeedGainFlatAdd = 0f;
+            public float TopSpeedMultAdd = 0f;
+            public float TopSpeedGainFlatAdd = 0f;
+            public float BaseTopSpeedAdd = 0f;
+
+            public List<float> SpeedReductionResistance = new List<float>();
+            public List<float> SpeedReductionPercent = new List<float>();
 
             //Resistance (-100%,100%)
             //[1-(1-PositiveResist1)(1-PositiveResist2)...]-[1-(1-NegativeResist1)(1-NegativeResist2)...]
-            public Dictionary<string, List<float>> ResistanceMultAdd = new Dictionary<string, List<float>>();
+            public List<float> ResistanceMultAdd = new List<float>();
 
             public Dictionary<string, float> DamageReductionFlatAdd = new Dictionary<string, float>();
 
@@ -121,193 +153,36 @@ namespace BrannPack
             ApplyStatChanges(statArgs);
         }
 
-		private void ApplyStatChanges(StatHookEventArgs statArgs)
+		protected void ApplyStatChanges(StatHookEventArgs statArgs)
 		{
-		}
+            //Add Logic for health scaling for adding max health 
+            CurrentMaxHealth = (BaseHealth+statArgs.BaseMaxHealthAdd)*(1f + statArgs.MaxHealthMultAdd) + statArgs.MaxHealthFlatAdd;
 
-        
+            CurrentRegen = (BaseRegen + statArgs.BaseRegenAdd) * (1f + statArgs.RegenMultAdd) + statArgs.RegenFlatAdd;
+
+            CurrentMaxShield = (BaseMaxShield + statArgs.BaseMaxShieldAdd) * (1f + statArgs.MaxShieldMultAdd) + statArgs.MaxShieldFlatAdd;
+
+            CurrentShieldRegenDelay = (BaseShieldRegenDelay + statArgs.BaseShieldRegenDelayAdd) * (1f + statArgs.ShieldRegenDelayMultAdd) + statArgs.ShieldRegenRateFlatAdd;
+
+            CurrentShieldRegenRate = (BaseShieldRegenRate + statArgs.BaseShieldRegenRateAdd) * (1f + statArgs.ShieldRegenRateMultAdd) + statArgs.ShieldRegenRateFlatAdd;
+
+            CurrentArmorGainMult = (1f + statArgs.ArmorGainMultAdd);
+
+            CurrentBarrierGainMult = (1f + statArgs.BarrierGainMultAdd);
+
+            CurrentBarrierLossRate = (BaseBarrierLossRate + statArgs.BaseBarrierLossRateAdd) * (1f + statArgs.BarrierLossRateMultAdd) + statArgs.BarrierLossRateFlatAdd;
+
+            CurrentTopSpeed = (BaseTopSpeed + statArgs.BaseTopSpeedAdd) * (1f + statArgs.TopSpeedGainFlatAdd) + statArgs.TopSpeedGainFlatAdd;
+
+            SpeedReductionResistance = 1f - statArgs.SpeedReductionResistance.Aggregate(1f, (acc, val) => acc * (1f - val));
+
+            SpeedReductionPercent = 1f - statArgs.SpeedReductionPercent.Aggregate(1f, (acc, val) => acc * (1f - val));
+
+        }
+
+
 
     }
 
-	public class Inventory
-	{
-        protected InventoryPartition _allEffectivePartitions;
-        public InventoryPartition AllEffectivePartitions
-        {
-            get => _allEffectivePartitions;
-            protected set => _allEffectivePartitions = value;
-        }
-
-        public List<InventoryPartition> HighlanderPartitions= new List<InventoryPartition>() { };
-        public InventoryPartition StandardPartition;
-        public InventoryPartition ActiveItemPartition;
-        public InventoryPartition ConfirmationPartition;
-
-        public void RefreshAllEffectivePartitions()
-        {
-            _allEffectivePartitions = InventoryPartition.ForceMergePartitions( new List<InventoryPartition> { StandardPartition, ActiveItemPartition, ConfirmationPartition }.Concat(HighlanderPartitions).ToList(), this);
-        }
-
-        
-
-        //MAKE THIS SUBSCRIBABLE
-        //Add's item to its ItemBehavior holder and to the TotalEffectiveItems dictionary (To avoid using the slow Refresh method)
-        public bool AddItemToInventory(Item item, HashSet<ItemModifier> modifiers = null, float count = 1f, HashSet<InventoryBehavior> inventoryBehaviors = null) { return AddItemToInventory(new InventoryItemStack(item, modifiers, count, inventoryBehaviors)); }
-        public bool AddItemToInventory(InventoryItemStack inventoryItemStack)
-        {
-
-            if (!_inventoryItems.ContainsKey(inventoryItemStack.Item))
-            {
-                _inventoryItems.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });
-                return true;
-            }
-
-            bool added = false;
-            foreach (InventoryItemStack itemStack in _inventoryItems[inventoryItemStack.Item])
-                if (itemStack.TryAddToStack(inventoryItemStack))
-                {
-                    added = true;
-                    break;
-                }
-
-            return added;
-        }
-
-        //Use this to avoid needing to refresh the TotalEffectiveItems list
-        private bool AddItemToTotalEffectiveItems(Item item, ItemModifier modifier, float count = 1)
-        {
-
-        }
-    }
-
-    public abstract class InventoryBehavior<T> : InventoryBehavior where T : InventoryBehavior<T>
-    {
-        public static T instance { get; private set; }
-
-        public InventoryBehavior()
-        {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
-            instance = this as T;
-        }
-    }
-
-    //This will be for Permanent/Temporary/Fragile Items!
-    public abstract class InventoryBehavior
-    {
-
-    }
-
-    public class PermanentItemBehavior: InventoryBehavior<PermanentItemBehavior>
-    {
-
-    }
-
-    public class InventoryPartition
-    {
-        private const float InfiniteStackValue=-99f;
-
-        public Inventory PartitionOf;
-        public Dictionary<Item, List<InventoryItemStack>> ItemsInPartition;
-        public ItemFilter AllowedInPartition;
-        public float MaxCount;
-        public float CurrentCount;
-
-        public InventoryPartition(Inventory inventory,ItemFilter allowedInPartition=null,float maxCount=InfiniteStackValue)
-        {
-            PartitionOf = inventory;
-            ItemsInPartition = new Dictionary<Item, List<InventoryItemStack>>();
-            AllowedInPartition = allowedInPartition;
-            MaxCount = maxCount;
-            CurrentCount = 0;
-        }
-
-        public bool TryAddToPartition(Item item, HashSet<ItemModifier> itemModifiers=null,float count=1,HashSet<InventoryBehavior> inventoryBehaviors=null) { return TryAddToPartition(new InventoryItemStack(item, itemModifiers, count, inventoryBehaviors)); }
-
-        public bool TryAddToPartition(InventoryItemStack inventoryItemStack) 
-        {
-            if(IsItemAllowed(inventoryItemStack))
-            {
-                if (!ItemsInPartition.ContainsKey(inventoryItemStack.Item))
-                {
-                    ItemsInPartition.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });
-                    return true;
-                }
-                foreach (InventoryItemStack iis in ItemsInPartition[inventoryItemStack.Item])
-                {
-                    if (iis.TryAddToStack(inventoryItemStack))
-                        return true;
-                }
-
-                //If you made it this far, there is no home for this item. So we have to make one for it
-                ItemsInPartition[inventoryItemStack.Item].Add(inventoryItemStack);
-            }
-            return false;
-        }
-
-        public bool IsItemAllowed(InventoryItemStack itemStack)
-        {
-            return !IsFull() && IsItemApplicable(itemStack.Item);
-        }
-
-        public bool IsFull() { return (MaxCount != InfiniteStackValue && CurrentCount >= MaxCount); }
-        public bool IsItemApplicable(Item item) { return AllowedInPartition != null && !AllowedInPartition.IsItemApplicable(item); }
-
-        public static InventoryPartition ForceMergePartitions(List<InventoryPartition> inventoryPartitions,Inventory inventory)
-        {
-            Dictionary<Item, List<InventoryItemStack>> items = new Dictionary<Item, List<InventoryItemStack>>();
-            foreach(InventoryPartition ip in inventoryPartitions)
-                foreach(var kvp in ip.ItemsInPartition)
-                {
-                    if (!items.TryAdd(kvp.Key, kvp.Value))
-                        items[kvp.Key].AddRange(kvp.Value);
-                }
-            InventoryPartition ans = new InventoryPartition(inventory);
-            ans.ItemsInPartition = items;
-            return ans;
-        }
-
-    public class InventoryItemStack
-    {
-        public Item Item;
-        public HashSet<ItemModifier> ItemModifiers;
-        public HashSet<InventoryBehavior> InventoryBehaviors;
-        public float Count;
-
-        public InventoryItemStack(Item item, HashSet<ItemModifier> itemModifiers=null, float count = 0, HashSet<InventoryBehavior> inventoryBehaviors=null)
-        {
-            if (itemModifiers== null)
-                itemModifiers = new HashSet<ItemModifier>() {};
-
-            if (inventoryBehaviors == null)
-                inventoryBehaviors = new HashSet<InventoryBehavior>() { PermanentItemBehavior.instance };
-
-            Item = item;
-            ItemModifiers = itemModifiers;
-            InventoryBehaviors = inventoryBehaviors;
-            Count = count;
-        }
-
-        public bool TryAddToStack(Item otherItem, HashSet<ItemModifier> otherItemModifiers, float otherCount=1f, HashSet<InventoryBehavior> otherInventoryBehavior= null) 
-        {
-            if (otherInventoryBehavior == null)
-                otherInventoryBehavior = new HashSet<InventoryBehavior>() { PermanentItemBehavior.instance };
-
-            if (!CanItemStack(otherItem, otherItemModifiers,otherInventoryBehavior))
-                return false;
-
-            Count += otherCount;
-            return true;
-        }
-
-        public bool TryAddToStack(InventoryItemStack otherItemStack) { return TryAddToStack(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.Count, otherItemStack.InventoryBehaviors); }
-        public bool CanItemStack(Item otherItem, HashSet<ItemModifier> otherItemModifiers, HashSet<InventoryBehavior> otherInventoryBehavior) { return otherItem == Item && otherItemModifiers.SetEquals(ItemModifiers) && otherInventoryBehavior.SetEquals(InventoryBehaviors); }
-
-        public bool CanItemStack(InventoryItemStack otherItemStack) { return CanItemStack(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.InventoryBehaviors); }
-    }
-
-	public enum FromCondition
-	{
-		Primary, Secondary, Utility, Special, Ult,
-		Boss, NonBoss, Elite, Player
-	}
+	
 }

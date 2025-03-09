@@ -56,12 +56,6 @@ namespace BrannPack.ItemHandling
         {
             return _allStaticItems.Concat(_allDynamicItems).ToList().AsReadOnly();
         }
-
-        
-
-        
-
-        
     }
 
     public class ItemPool
@@ -106,6 +100,9 @@ namespace BrannPack.ItemHandling
         public HashSet<Item> Items;
         public HashSet<Item> NotItems;
 
+        public bool? RequiresConfirmation;
+        public bool? IsSharable;
+
         public (EffectTag tag, ValueCompare compareEnum, int value)[] HasAnyEffectTags;
         public (EffectTag tag, ValueCompare compareEnum, int value)[] HasAllEffectTags;
         public (EffectTag tag, ValueCompare compareEnum, int value)[] NotHaveAnyEffectTags;
@@ -129,11 +126,11 @@ namespace BrannPack.ItemHandling
 
 
 
-        public static Item[] GetApplicableItems(ItemFilter filter)//Add some sort of variable to denote what to do if there is overlap. (Prioritize blacklist, prioritize whitelist)
+        public static Item[] GetAllApplicableStaticItems(ItemFilter filter, Item[] items)//Add some sort of variable to denote what to do if there is overlap. (Prioritize blacklist, prioritize whitelist)
         {
-            //Handle overlap in white and blacklists
-            // use filter.items as the pool of items to filter
-            return null;
+            List<Item> applicableItems = new List<Item>(items);
+            applicableItems.RemoveAll(item => !filter.IsItemApplicable(item)); // Remove items that are not applicable
+            return applicableItems.ToArray();
         }
 
         public bool IsItemApplicable(Item item, FilterOverlapPriority overlapPriority = FilterOverlapPriority.WhitelistPriority) { return IsItemApplicable(item, this, overlapPriority); }
@@ -141,6 +138,13 @@ namespace BrannPack.ItemHandling
         // Helper method to check if an item passes the whitelist conditions
         public static bool IsItemApplicable(Item item, ItemFilter filter, FilterOverlapPriority overlapPriority = FilterOverlapPriority.WhitelistPriority)
         {
+            if (filter.RequiresConfirmation != null && filter.RequiresConfirmation != item.RequiresConfirmation)
+                return false;
+
+            if (filter.IsSharable != null && filter.IsSharable != item.IsSharable)
+                return false;
+
+
             // Handle Items
             bool InWLItem = (filter.Items == null || filter.Items.Contains(item));
             bool InBLItem = (filter.NotItems != null && filter.NotItems.Contains(item));
@@ -225,43 +229,51 @@ namespace BrannPack.ItemHandling
 
             // Handle Any Possible Modifiers (Not yet fixed up)
 
-            HashSet<ItemModifier> tempHasAnyDMod = filter.HasAnyDefaultModifiers;
-            HashSet<ItemModifier> tempNotHaveAnyDMod = filter.NotHaveAnyDefaultModifiers;
+            HashSet<ItemModifier> tempHasAnyPMod = filter.HasAnyPossibleModifiers;
+            HashSet<ItemModifier> tempNotHaveAnyPMod = filter.NotHaveAnyPossibleModifiers;
 
-            if (tempHasAnyDMod.Overlaps(tempNotHaveAnyDMod))
+            if (tempHasAnyPMod.Overlaps(tempNotHaveAnyPMod))
             {
                 if (overlapPriority == FilterOverlapPriority.WhitelistPriority)
                 {
-                    tempNotHaveAnyDMod.ExceptWith(tempHasAnyDMod);// If whitelist takes priority, blacklist is ignored
+                    tempNotHaveAnyPMod.ExceptWith(tempHasAnyPMod);// If whitelist takes priority, blacklist is ignored
                 }
                 else
                 {
-                    tempHasAnyDMod.ExceptWith(tempNotHaveAnyDMod); // If blacklist takes priority, whitelist is ignored
+                    tempHasAnyPMod.ExceptWith(tempNotHaveAnyPMod); // If blacklist takes priority, whitelist is ignored
                 }
             }
 
 
-            bool HasAnyPossibleModifiers = (filter.HasAnyPossibleModifiers == null || filter.HasAnyPossibleModifiers.Intersect(item.PossibleModifiers).Any());
-            bool NotHaveAnyPossibleModifiers = (filter.NotHaveAnyPossibleModifiers != null && filter.NotHaveAnyPossibleModifiers.Intersect(item.PossibleModifiers).Any());
+            bool HasAnyPossibleModifiers = (tempHasAnyPMod == null || tempHasAnyPMod.Intersect(item.PossibleModifiers).Any());
+            bool NotHaveAnyPossibleModifiers = (tempNotHaveAnyPMod != null && tempNotHaveAnyPMod.Intersect(item.PossibleModifiers).Any());
+
+            if (!HasAnyPossibleModifiers || NotHaveAnyPossibleModifiers)
+                return false;
 
             // Handle All Possible Modifiers
 
             bool HasAllPossibleModifiers = (filter.HasAllPossibleModifiers != null && filter.HasAllPossibleModifiers.All(mod => item.PossibleModifiers.Contains(mod)));
             bool NotHaveAllPossibleModifiers = (filter.NotHaveAllPossibleModifiers != null && filter.NotHaveAllPossibleModifiers.All(mod => item.PossibleModifiers.Contains(mod)));
 
-
+            if (!HasAllPossibleModifiers || NotHaveAllPossibleModifiers)
+                return false;
 
             // Handle Effect Tags (Whitelisted and Blacklisted tags)
-            bool HasAnyEffectTags = (filter.HasAnyEffectTags == null || filter.HasAnyEffectTags.Any(tag => item.EffectWeights.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeights[tag.tag], tag.compareEnum, tag.value)));
-            bool HasAllEffectTags = (filter.HasAllEffectTags != null && filter.HasAllEffectTags.All(tag => item.EffectWeights.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeights[tag.tag], tag.compareEnum, tag.value)));
-            bool NotHaveAnyEffectTags = (filter.NotHaveAnyEffectTags != null && filter.NotHaveAnyEffectTags.Any(tag => item.EffectWeights.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeights[tag.tag], tag.compareEnum, tag.value)));
-            bool NotHaveAllEffectTags = (filter.NotHaveAllEffectTags != null && filter.NotHaveAllEffectTags.All(tag => item.EffectWeights.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeights[tag.tag], tag.compareEnum, tag.value)));
+            bool HasAnyEffectTags = (filter.HasAnyEffectTags == null || filter.HasAnyEffectTags.Any(tag => item.EffectWeight.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeight[tag.tag], tag.compareEnum, tag.value)));
+            bool NotHaveAnyEffectTags = (filter.NotHaveAnyEffectTags != null && filter.NotHaveAnyEffectTags.Any(tag => item.EffectWeight.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeight[tag.tag], tag.compareEnum, tag.value)));
+
+            if (!HasAnyEffectTags || NotHaveAnyEffectTags)
+                return false;
+
+            bool HasAllEffectTags = (filter.HasAllEffectTags != null && filter.HasAllEffectTags.All(tag => item.EffectWeight.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeight[tag.tag], tag.compareEnum, tag.value)));
+            bool NotHaveAllEffectTags = (filter.NotHaveAllEffectTags != null && filter.NotHaveAllEffectTags.All(tag => item.EffectWeight.ContainsKey(tag.tag) && CompareEffectWeight(tag.tag, item.EffectWeight[tag.tag], tag.compareEnum, tag.value)));
+
+            if (!HasAllEffectTags || NotHaveAllEffectTags)
+                return false;
 
             // Evaluate whether the item is applicable based on all the filter criteria
-            return (InWLTier && !InBLTier && InWLSubTier && !InBLSubTier &&
-                    HasAnyDefaultModifiers && HasAllDefaultModifiers && NotHaveAnyDefaultModifiers && NotHaveAllDefaultModifiers &&
-                    HasAnyPossibleModifiers && HasAllPossibleModifiers && NotHaveAnyPossibleModifiers && NotHaveAllPossibleModifiers &&
-                    InWLItem && !InBLItem && HasAnyEffectTags && HasAllEffectTags && NotHaveAnyEffectTags && NotHaveAllEffectTags);
+            return true;
         }
 
         // Method to compare effect tag weights based on the specified comparison type
