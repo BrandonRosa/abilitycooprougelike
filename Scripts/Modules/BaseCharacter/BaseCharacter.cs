@@ -9,7 +9,11 @@ using System.Threading;
 using BrannPack.Tiers;
 using BrannPack.ItemHandling;
 using System.Security.Cryptography.X509Certificates;
-using static BrannPack.Ability.AbilityStats;
+using BrannPack.AbilityHandling;
+using static BrannPack.ModifialbeStats.CharacterStats;
+using static BrannPack.ModifialbeStats.AbilityStats;
+using BrannPack.ModifialbeStats;
+
 
 namespace BrannPack.Character
 {
@@ -38,6 +42,10 @@ namespace BrannPack.Character
         public ChanceStat ProcChance;
         public DamageStat CritDamage;
         public ChargeStat Charges;
+        public CooldownStat Cooldown;
+        public CooldownStat SpamCooldown;
+        public RangeStat Range;
+        public DurationStat Duration;
 
 
         private float BaseHealth;
@@ -71,10 +79,10 @@ namespace BrannPack.Character
         private float PositiveDamageResistance;
         private float NegativeDamageResistance;
 
-        private AbilityStats BaseCharacterAttackStats;
-        private Dictionary<AttackStatModSource, List<AbilityStat>> AbilityStatModifiers;
-        private Dictionary<(ItemFilter, Type), AbilityStat> ItemStatModifiers;
-         
+
+        private Dictionary<StatModTarget, ModifiableStat> AbilityStatModifiers;
+        private Dictionary<(ItemFilter, Type), ModifiableStat> ItemStatModifiers;
+        
 
 		private Dictionary<string, Ability> Abilities;
 		private Inventory Inventory;
@@ -198,7 +206,9 @@ namespace BrannPack.Character
 
     }
 
-    public enum AttackStatModSource
+
+
+    public enum StatModTarget
     {
         All,Primary,Secondary,Utility,Special,Ult, Equipment
     }
