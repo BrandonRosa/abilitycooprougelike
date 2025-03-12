@@ -9,6 +9,7 @@ using System.Threading;
 using BrannPack.Tiers;
 using BrannPack.ItemHandling;
 using System.Security.Cryptography.X509Certificates;
+using static BrannPack.Ability.AbilityStats;
 
 namespace BrannPack.Character
 {
@@ -25,8 +26,19 @@ namespace BrannPack.Character
 		private static float DefaultCritChance;
 		private static float DefaultCritDamage;
 
-        private float AbilityDamageScale;
-        private float 
+        //Players are 1
+        //Bosses are around a 5 or 10
+        //Swarmers are like a .5
+        private float AbilityScale;
+
+        public ChanceStat Chance;
+        public DamageStat Damage;
+        public FireRateStat FireRate;
+        public ProjectileSpeedStat ProjectileSpeed;
+        public ChanceStat ProcChance;
+        public DamageStat CritDamage;
+        public ChargeStat Charges;
+
 
         private float BaseHealth;
         private float BaseRegen;
@@ -59,9 +71,9 @@ namespace BrannPack.Character
         private float PositiveDamageResistance;
         private float NegativeDamageResistance;
 
-        private AttackStats BaseCharacterAttackStats;
-        private Dictionary<AttackStatModSource, AttackStats> AbilityStatModifiers;
-        private Dictionary<ItemFilter, AttackStats> ItemStatModifiers;
+        private AbilityStats BaseCharacterAttackStats;
+        private Dictionary<AttackStatModSource, List<AbilityStat>> AbilityStatModifiers;
+        private Dictionary<(ItemFilter, Type), AbilityStat> ItemStatModifiers;
          
 
 		private Dictionary<string, Ability> Abilities;
@@ -191,90 +203,7 @@ namespace BrannPack.Character
         All,Primary,Secondary,Utility,Special,Ult, Equipment
     }
 
-    public struct AttackStats
-    {
-        //Damage is Calculated like this: Total Damage= (BaseDamage+AdditionalDamage*DamageScaling)*(1f+DamagePercentIncrease-DamagePercentDecrease);
-        public float TotalDamage;
-        public float BaseDamage;
-        public float DamageScaling;
-        public float AdditionalDamage;
-        public float DamagePercentIncrease;
-        public float DamagePercentDecrease;
-
-        public float CalculateTotalDamage() { return TotalDamage=(BaseDamage + AdditionalDamage * DamageScaling) * (1f + DamagePercentIncrease - DamagePercentDecrease); }
-        public void ChangeAdditionalDamage(float addDamage) { DamageScaling += addDamage; }
-        public void ChangeDamageByPercent(float percentChange) 
-        { 
-            if(percentChange >= 0)DamagePercentIncrease += percentChange; 
-            else DamagePercentDecrease*=-1f*percentChange; 
-        }
-
-
-        // FireRate*(1f+FireRateUpPercentage)
-        public float TotalFireRate;
-        public float BaseFireRate;
-        public float FireRateUpPercentage;
-        public float FireRateDownPercentage;
-        public float FireRateMinimum;
-
-        public float CalculateTotalFireRate() { return TotalFireRate = Mathf.Max(FireRateMinimum,(BaseFireRate * (1f + FireRateUpPercentage - FireRateDownPercentage))); }
-        public void ChangeFireRatePercentage(float percentChange)
-        {
-            if (percentChange >= 0) FireRateUpPercentage += percentChange;
-            else DamagePercentDecrease *= -1f * percentChange;
-        }
-
-        //Velocity*(1f+VelocityUpPercentage);
-        public float TotalVelocity;
-        public float BaseVelocity;
-        public float VelocityUpPercentage;
-
-        //ProcScale*(1f+ProcScaleUpPercentage);
-        public float ProcScale;
-        public float ProcScaleUpPercentage;
-
-        //Chance*(1f+ChanceUpPercentage)
-        public float Chance;
-        public float ChanceUpPercentage;
-
-        //Charges+AdditionalCharges
-        public float Charges;
-        public float AdditionalCharges;
-
-        //Cooldown*(1f+CooldownIncreasedPercentage-CooldownReductionPercentage);
-        public float Cooldown;
-        //CooldownReductionPercentage HAS to be handled CAREFULLY. I want it to range from (0 to inf) but I want the scaling to be slow.
-        //So Having to 50% reductions wont make it 100% itl be 50%*50%=25%.. So any modifications to CooldownReductionPercentage MUST be multiplied
-        public float CooldownReductionPercentage;
-        //CooldownIncreased Is different though. Instead well do it like this: 50%+50%=100%
-        public float CooldownIncreasedPercentage;
-
-        //SpamCooldown*(1f-SpamCooldwonIncreasedPercentageSpamCooldownReductionPercentage);
-        public float SpamCooldown;
-        public float SpamCooldownReductionPercentage;//Multiply to this one
-        public float SpmCooldownIncreasedPercentage; //Add to this one
-
-        //Range*(1f+RangeUpPercentage-RangeDownPercentage);
-        public float Range;
-        public float RangeUpPercentage; //Add to this one
-        public float RangeDownPercentage; //Multiply to this one
-
-        //Duration*(1f+DurationUpPercentage);
-        public float Duration; 
-        public float DurationUpPercentage; //Add to this one
-        public float DurationDownPercentage; //Multiply to this one
-
-        //CritChance+CritChanceIncrease;
-        public float CritChance; //Add to this one
-        public float CritChanceIncrease;
-        
-        //CritDamageMultiplier+CritDamageMultiplierIncrease
-        public float CritDamageMultiplier; //Add to this one
-        public float CritDamageMultiplierIncrease;
-
-
-
-    }
+    
 
 	
 }
