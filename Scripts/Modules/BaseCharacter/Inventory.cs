@@ -4,11 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrannPack.Tiers;
 
 namespace BrannPack.ItemHandling
 {
     public class Inventory
     {
+        public static readonly ItemFilter HighlanderT0 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier0.instance).HasAnyPossibleModifiers().Build();
+        public static readonly ItemFilter HighlanderT1 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier1.instance).HasAnyPossibleModifiers().Build();
+        public static readonly ItemFilter HighlanderT2 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier2.instance).HasAnyPossibleModifiers().Build();
+        public static readonly ItemFilter HighlanderT3 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier3.instance).HasAnyPossibleModifiers().Build();
+        public static readonly ItemFilter HighlanderT4 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier4.instance).HasAnyPossibleModifiers().Build();
+        public static readonly ItemFilter ActiveItemFilter = new ItemFilter.ItemFilterBuilder().WithAnyTiers(TierA.instance).Build();
+
         protected InventoryPartition _allEffectivePartitions;
         public InventoryPartition AllEffectivePartitions
         {
@@ -16,10 +24,26 @@ namespace BrannPack.ItemHandling
             protected set => _allEffectivePartitions = value;
         }
 
-        public List<InventoryPartition> HighlanderPartitions = new List<InventoryPartition>() { };
-        public InventoryPartition StandardPartition;
-        public InventoryPartition ActiveItemPartition;
-        public InventoryPartition ConfirmationPartition;
+        public List<InventoryPartition> HighlanderPartitions = new List<InventoryPartition>() 
+            { 
+                new InventoryPartition(null,HighlanderT0,1f),
+                new InventoryPartition(null,HighlanderT1,1f),
+                new InventoryPartition(null,HighlanderT2,1f),
+                new InventoryPartition(null,HighlanderT3,1f),
+                new InventoryPartition(null,HighlanderT4,1f)
+
+            };
+        public InventoryPartition StandardPartition= new InventoryPartition(null);
+        public InventoryPartition ActiveItemPartition= new InventoryPartition(null,ActiveItemFilter , 1f);
+        public InventoryPartition ConfirmationPartition= new InventoryPartition(null,null,float.MaxValue,true);
+
+        public Inventory()
+        {
+            HighlanderPartitions.ForEach(part => part.PartitionOf = this);
+            StandardPartition.PartitionOf = this;
+            ActiveItemPartition.PartitionOf = this;
+            ConfirmationPartition.PartitionOf = this;
+        }
 
         public void RefreshAllEffectivePartitions()
         {
@@ -30,32 +54,29 @@ namespace BrannPack.ItemHandling
 
         //MAKE THIS SUBSCRIBABLE
         //Add's item to its ItemBehavior holder and to the TotalEffectiveItems dictionary (To avoid using the slow Refresh method)
-        public bool AddItemToInventory(Item item, HashSet<ItemModifier> modifiers = null, float count = 1f, HashSet<InventoryBehavior> inventoryBehaviors = null) { return AddItemToInventory(new InventoryItemStack(item, modifiers, count, inventoryBehaviors)); }
-        public bool AddItemToInventory(InventoryItemStack inventoryItemStack)
+        public bool TryAddItemToInventory(Item item, HashSet<ItemModifier> modifiers = null, float count = 1f, HashSet<InventoryBehavior> inventoryBehaviors = null) { return TryAddItemToInventory(new InventoryItemStack(item, modifiers, count, inventoryBehaviors)); }
+        public bool TryAddItemToInventory(InventoryItemStack inventoryItemStack)
         {
-
-            if (!_inventoryItems.ContainsKey(inventoryItemStack.Item))
+            bool ans = false;
+            if (inventoryItemStack.NeedsConfirmation && ConfirmationPartition.TryAddToPartition(inventoryItemStack))
+                ans = true;
+            else if (inventoryItemStack.ItemModifiers.Contains() && HighlanderPartitions.Any(partition => partition.TryAddToPartition(inventoryItemStack)))
+                ans= true;
+            else if (inventoryItemStack.Item.Tier == TierA.instance && ActiveItemPartition.TryAddToPartition(inventoryItemStack))
+                ans = true;
+            else if (StandardPartition.TryAddToPartition(inventoryItemStack))
+                ans = true;
+            if(ans)
             {
-                _inventoryItems.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });
+                RefreshAllEffectivePartitions();
                 return true;
             }
 
-            bool added = false;
-            foreach (InventoryItemStack itemStack in _inventoryItems[inventoryItemStack.Item])
-                if (itemStack.TryAddToStack(inventoryItemStack))
-                {
-                    added = true;
-                    break;
-                }
-
-            return added;
-        }
-
-        //Use this to avoid needing to refresh the TotalEffectiveItems list
-        private bool AddItemToTotalEffectiveItems(Item item, ItemModifier modifier, float count = 1)
-        {
+            return false;
 
         }
+
+        
     }
 
     public abstract class InventoryBehavior<T> : InventoryBehavior where T : InventoryBehavior<T>
@@ -161,6 +182,7 @@ namespace BrannPack.ItemHandling
         public Item Item;
         public HashSet<ItemModifier> ItemModifiers;
         public HashSet<InventoryBehavior> InventoryBehaviors;
+        public ItemEffectModifier GetTotalEffectModifierSum() => (ItemModifiers.Aggregate(ItemEffectModifier.StandardEffect, (sum, curr) => sum + curr.itemEffectModifier)+new ItemEffectModifier { Multiplier=Count});
         public float Count;
         public bool NeedsConfirmation;
 

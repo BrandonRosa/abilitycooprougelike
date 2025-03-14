@@ -164,7 +164,8 @@ namespace AbilityCoopRougelike.Items
 
         private void ApplyStats(object sender, StatHookEventArgs e)
         {
-            e.RangeMultAdd += 0.03f; // 3% base regen boost
+            (float positive, float negative) = (sender as BaseCharacter).Inventory.GetEffectiveCount(instance);
+            e.RangeMultAdd += 0.03f*positive; // 3% base regen boost
         }
     }
 }

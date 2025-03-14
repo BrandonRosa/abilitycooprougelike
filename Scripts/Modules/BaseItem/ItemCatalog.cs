@@ -124,7 +124,167 @@ namespace BrannPack.ItemHandling
             AnyValue
         }
 
+        public ItemFilter() { }
+        public ItemFilter(HashSet<ItemTier> inAnyTiers, HashSet<ItemTier> notInAnyTiers, HashSet<ItemSubTier> inAnySubTiers, HashSet<ItemSubTier> notInAnySubTiers, HashSet<ItemModifier> hasAnyDefaultModifiers, HashSet<ItemModifier> hasAllDefaultModifiers, HashSet<ItemModifier> notHaveAnyDefaultModifiers, HashSet<ItemModifier> notHaveAllDefaultModifiers, HashSet<ItemModifier> hasAnyPossibleModifiers, HashSet<ItemModifier> hasAllPossibleModifiers, HashSet<ItemModifier> notHaveAnyPossibleModifiers, HashSet<ItemModifier> notHaveAllPossibleModifiers, HashSet<Item> items, HashSet<Item> notItems, bool? requiresConfirmation, bool? isSharable, (EffectTag tag, ValueCompare compareEnum, int value)[] hasAnyEffectTags, (EffectTag tag, ValueCompare compareEnum, int value)[] hasAllEffectTags, (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAnyEffectTags, (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAllEffectTags)
+        {
+            InAnyTiers = inAnyTiers;
+            NotInAnyTiers = notInAnyTiers;
+            InAnySubTiers = inAnySubTiers;
+            NotInAnySubTiers = notInAnySubTiers;
+            HasAnyDefaultModifiers = hasAnyDefaultModifiers;
+            HasAllDefaultModifiers = hasAllDefaultModifiers;
+            NotHaveAnyDefaultModifiers = notHaveAnyDefaultModifiers;
+            NotHaveAllDefaultModifiers = notHaveAllDefaultModifiers;
+            HasAnyPossibleModifiers = hasAnyPossibleModifiers;
+            HasAllPossibleModifiers = hasAllPossibleModifiers;
+            NotHaveAnyPossibleModifiers = notHaveAnyPossibleModifiers;
+            NotHaveAllPossibleModifiers = notHaveAllPossibleModifiers;
+            Items = items;
+            NotItems = notItems;
+            RequiresConfirmation = requiresConfirmation;
+            IsSharable = isSharable;
+            HasAnyEffectTags = hasAnyEffectTags;
+            HasAllEffectTags = hasAllEffectTags;
+            NotHaveAnyEffectTags = notHaveAnyEffectTags;
+            NotHaveAllEffectTags = notHaveAllEffectTags;
+        }
+        public class ItemFilterBuilder
+        {
+            private HashSet<ItemTier> inAnyTiers = new();
+            private HashSet<ItemTier> notInAnyTiers = new();
+            private HashSet<ItemSubTier> inAnySubTiers = new();
+            private HashSet<ItemSubTier> notInAnySubTiers = new();
+            private HashSet<ItemModifier> hasAnyDefaultModifiers = new();
+            private HashSet<ItemModifier> hasAllDefaultModifiers = new();
+            private HashSet<ItemModifier> notHaveAnyDefaultModifiers = new();
+            private HashSet<ItemModifier> notHaveAllDefaultModifiers = new();
+            private HashSet<ItemModifier> hasAnyPossibleModifiers = new();
+            private HashSet<ItemModifier> hasAllPossibleModifiers = new();
+            private HashSet<ItemModifier> notHaveAnyPossibleModifiers = new();
+            private HashSet<ItemModifier> notHaveAllPossibleModifiers = new();
+            private HashSet<Item> items = new();
+            private HashSet<Item> notItems = new();
+            private bool? requiresConfirmation;
+            private bool? isSharable;
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] hasAnyEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] hasAllEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAnyEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAllEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
 
+            public ItemFilterBuilder WithAnyTiers(params ItemTier[] tiers)
+            {
+                inAnyTiers.UnionWith(tiers);
+                return this;
+            }
+
+            public ItemFilterBuilder WithNotAnyTiers(params ItemTier[] tiers)
+            {
+                notInAnyTiers.UnionWith(tiers);
+                return this;
+            }
+
+            public ItemFilterBuilder WithItems(params Item[] newItems)
+            {
+                items.UnionWith(newItems);
+                return this;
+            }
+
+            public ItemFilterBuilder WithNotItems(params Item[] newItems)
+            {
+                notItems.UnionWith(newItems);
+                return this;
+            }
+
+            public ItemFilterBuilder RequiresConfirmation(bool required)
+            {
+                requiresConfirmation = required;
+                return this;
+            }
+
+            public ItemFilterBuilder IsSharable(bool sharable)
+            {
+                isSharable = sharable;
+                return this;
+            }
+
+
+            public ItemFilterBuilder HasAnyEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                hasAnyEffectTags=tags;
+                return this;
+            }
+
+            public ItemFilterBuilder HasAllEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                hasAllEffectTags = tags;
+                return this;
+            }
+
+            public ItemFilterBuilder NotHaveAnyEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                notHaveAnyEffectTags = tags;
+                return this;
+            }
+
+            public ItemFilterBuilder NotHaveAllEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                notHaveAllEffectTags = tags;
+                return this;
+            }
+
+            public ItemFilterBuilder HasAnyDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                hasAnyDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder HasAllDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                hasAllDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder NotHaveAnyDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAnyDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder NotHaveAllDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAllDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder HasAnyPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                hasAnyPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder HasAllPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                hasAllPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder NotHaveAnyPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAnyPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilterBuilder NotHaveAllPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAllPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemFilter Build()
+            {
+                return new ItemFilter(inAnyTiers, notInAnyTiers, inAnySubTiers, notInAnySubTiers, hasAnyDefaultModifiers, hasAllDefaultModifiers, notHaveAnyDefaultModifiers, notHaveAllDefaultModifiers, hasAnyPossibleModifiers, hasAllPossibleModifiers, notHaveAnyPossibleModifiers, notHaveAllPossibleModifiers, items, notItems, requiresConfirmation, isSharable, hasAnyEffectTags, hasAllEffectTags, notHaveAnyEffectTags, notHaveAllEffectTags);
+            }
+        }
 
         public static Item[] GetAllApplicableStaticItems(ItemFilter filter, Item[] items)//Add some sort of variable to denote what to do if there is overlap. (Prioritize blacklist, prioritize whitelist)
         {

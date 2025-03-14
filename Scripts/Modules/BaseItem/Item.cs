@@ -90,21 +90,53 @@ namespace BrannPack.ItemHandling
 
     public struct ItemEffectModifier
     {
+        public static ItemEffectModifier StandardEffect = new ItemEffectModifier { Positive = 1f, Multiplier = 1f, Negative = 0f };
         public float Positive;
         public float Negative;
         public float Multiplier;
 
         public (float positive, float negative) EffectiveValues() { return (Positive * Multiplier, Negative * Multiplier); }
+
+        public static ItemEffectModifier operator +(ItemEffectModifier a, ItemEffectModifier b)
+        {
+            return new ItemEffectModifier
+            {
+
+                Positive = a.Positive + b.Positive,
+                Negative = a.Negative + b.Negative,
+                Multiplier = a.Multiplier * b.Multiplier // Assuming multipliers should also add
+            };
+        }
+
+
+
     }
-    public class ItemModifier
+    public abstract class ItemModifier<T> : ItemModifier where T : ItemModifier<T>
     {
-        private static string Name;
-        private static string CodeName;
-        private static List<Item> AllItemsInTier;
-        private static List<Item> AllUnlockedItems;
+        public static T instance { get; private set; }
 
-        ItemEffectModifier itemEffectModifier;
+        public ItemModifier()
+        {
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
+            instance = this as T;
+        }
+    }
+    public abstract class ItemModifier
+    {
+        public abstract string Name { get; init; }
+        public abstract string CodeName { get; init; }
+        public List<Item> AllItemsInTier;
+        public List<Item> AllUnlockedItems;
 
+        public abstract ItemEffectModifier itemEffectModifier { get; init; }
+
+    }
+
+    public class Highlander:ItemModifier<Highlander>
+    {
+        public override string Name { get; init; } = "Highlander";
+        public override string CodeName { get; init; } = "NoStack";
+        public override ItemEffectModifier itemEffectModifier { get; init; } = new ItemEffectModifier { Multiplier = 3 };
     }
 
     //Dep = Quality of Effects are Improved (Crit based effects)

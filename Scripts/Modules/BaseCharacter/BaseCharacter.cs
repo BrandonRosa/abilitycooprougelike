@@ -13,26 +13,27 @@ using BrannPack.AbilityHandling;
 using static BrannPack.ModifialbeStats.CharacterStats;
 using static BrannPack.ModifialbeStats.AbilityStats;
 using BrannPack.ModifialbeStats;
+using System.Reflection.Metadata.Ecma335;
 
 
 namespace BrannPack.Character
 {
-	public partial class BaseCharacter : CharacterBody2D
-	{
-		private static float DefaultMaxHealth;
-		private static float DefaultMaxShield;
-		private static float DefaultRegen;
-		private static float DefaultBarrierLossRate;
-		private static float DefaultDamage;
-		private static float DefaultRange;
-		private static float DefaultDuration;
+    public partial class BaseCharacter : CharacterBody2D
+    {
+        private static float DefaultMaxHealth;
+        private static float DefaultMaxShield;
+        private static float DefaultRegen;
+        private static float DefaultBarrierLossRate;
+        private static float DefaultDamage;
+        private static float DefaultRange;
+        private static float DefaultDuration;
         private static float DefaultSpeed;
-		private static float DefaultCritChance;
-		private static float DefaultCritDamage;
+        private static float DefaultCritChance;
+        private static float DefaultCritDamage;
 
         //Players are 1
         //Bosses are around a 5 or 10
-        //Swarmers are like a .5
+        //Swarmers are like a .25
         private float AbilityScale;
 
         public ChanceStat Chance;
@@ -47,6 +48,11 @@ namespace BrannPack.Character
         public RangeStat Range;
         public DurationStat Duration;
 
+        public ChanceStat Luck;
+
+
+
+
 
         private float BaseHealth;
         private float BaseRegen;
@@ -58,18 +64,18 @@ namespace BrannPack.Character
         private float MinimumSpeed;
 
         private float CurrentMaxHealth;
-		private float CurrentHealth;
-		private float CurrentRegen;
-		private float CurrentMaxShield;
-		private float CurrentShieldRegenDelay;
-		private float CurrentShieldRegenRate;
-		private float CurrentShield;
-		private float CurrentArmorGainMult;
-		private float CurrentArmor;
-		private float CurrentBarrierGainMult;
-		private float CurrentBarrier;
-		private float CurrentBarrierLossRate;
-        private float CurrentSpeed => CurrentTopSpeed+CurrentTopSpeed*CurrentSpeedReduction;
+        private float CurrentHealth;
+        private float CurrentRegen;
+        private float CurrentMaxShield;
+        private float CurrentShieldRegenDelay;
+        private float CurrentShieldRegenRate;
+        private float CurrentShield;
+        private float CurrentArmorGainMult;
+        //private float CurrentArmor;
+        private float CurrentBarrierGainMult;
+        private float CurrentBarrier;
+        private float CurrentBarrierLossRate;
+        private float CurrentSpeed => CurrentTopSpeed + CurrentTopSpeed * CurrentSpeedReduction;
         private float CurrentTopSpeed;
         private float CurrentSpeedReduction => Mathf.Min(0f, SpeedReductionResistance - SpeedReductionPercent);
         private float SpeedReductionResistance;
@@ -82,12 +88,12 @@ namespace BrannPack.Character
 
         private Dictionary<StatModTarget, ModifiableStat> AbilityStatModifiers;
         private Dictionary<(ItemFilter, Type), ModifiableStat> ItemStatModifiers;
-        
 
-		private Dictionary<string, Ability> Abilities;
-		private Inventory Inventory;
-		private List<BaseCharacter> Minions;
-		private List<BaseCharacter> Familiars;
+
+        private Dictionary<string, Ability> Abilities;
+        public Inventory Inventory;
+        private List<BaseCharacter> Minions;
+        private List<BaseCharacter> Familiars;
 
         public partial class StatHookEventArgs : EventArgs
         {
@@ -175,10 +181,10 @@ namespace BrannPack.Character
             ApplyStatChanges(statArgs);
         }
 
-		protected void ApplyStatChanges(StatHookEventArgs statArgs)
-		{
+        protected void ApplyStatChanges(StatHookEventArgs statArgs)
+        {
             //Add Logic for health scaling for adding max health 
-            CurrentMaxHealth = (BaseHealth+statArgs.BaseMaxHealthAdd)*(1f + statArgs.MaxHealthMultAdd) + statArgs.MaxHealthFlatAdd;
+            CurrentMaxHealth = (BaseHealth + statArgs.BaseMaxHealthAdd) * (1f + statArgs.MaxHealthMultAdd) + statArgs.MaxHealthFlatAdd;
 
             CurrentRegen = (BaseRegen + statArgs.BaseRegenAdd) * (1f + statArgs.RegenMultAdd) + statArgs.RegenFlatAdd;
 
@@ -206,7 +212,61 @@ namespace BrannPack.Character
 
     }
 
+    public class HealthBar
+    {
+        public List<HealthType> HealthTypes = new List<HealthType>() {};
+        protected List<(HealthCatagory,float)> CurrentHealth;
 
+        public static float GetTotalCurrentHealth(List<(HealthCatagory, float)> currentHealth)
+        {
+            return currentHealth.Sum(curCat => curCat.Item2);
+        }
+        public HealthBar(List<HealthType> healthTypes, EffectivenessStat damageResistance, EffectivenessStat movementSlow, EffectivenessStat healingEffectiveness)
+        {
+            HealthTypes = healthTypes;
+            DamageResistance = damageResistance;
+            MovementSlow = movementSlow;
+            HealingEffectiveness = healingEffectiveness;
+        }
+
+        public List<(HealthCatagory, float)> CalculateCurrentHealth()
+        {
+            List<(HealthCatagory, float)> temp = new List<(HealthCatagory, float)>();
+            HealthTypes.ForEach(health=>temp.Add((health.Catagory,health.CurrentValue)));
+            return temp;
+            
+        }
+        public float UpdateCurrentHealth()
+        {
+            List<(HealthCatagory, float)> oldHealth = CurrentHealth;
+            CurrentHealth = CalculateCurrentHealth();
+            return GetTotalCurrentHealth(CurrentHealth) - GetTotalCurrentHealth(oldHealth);
+        }
+
+        //Returns the amount of ActualDamage taken.
+        public float TakeDamage(float damageTaken)
+        {
+            HealthTypes.AsEnumerable().Reverse().Aggregate(damageTaken, (leftoverDamge, currentType) => currentType.TakeDamage(damageTaken));
+            return UpdateCurrentHealth();
+        }
+
+        public float Heal()
+        {
+
+        }
+
+        public float GetMaxHealth()
+        {
+
+        }
+
+        public float GetMaxShield()
+        {
+
+        }
+    }
+
+    
 
     public enum StatModTarget
     {
