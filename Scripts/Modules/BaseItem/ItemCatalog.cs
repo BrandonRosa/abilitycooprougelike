@@ -100,7 +100,7 @@ namespace BrannPack.ItemHandling
         public HashSet<Item> Items;
         public HashSet<Item> NotItems;
 
-        public bool? RequiresConfirmation;
+        public bool? DefaultRequiresConfirmation;
         public bool? IsSharable;
 
         public (EffectTag tag, ValueCompare compareEnum, int value)[] HasAnyEffectTags;
@@ -141,7 +141,7 @@ namespace BrannPack.ItemHandling
             NotHaveAllPossibleModifiers = notHaveAllPossibleModifiers;
             Items = items;
             NotItems = notItems;
-            RequiresConfirmation = requiresConfirmation;
+            DefaultRequiresConfirmation = requiresConfirmation;
             IsSharable = isSharable;
             HasAnyEffectTags = hasAnyEffectTags;
             HasAllEffectTags = hasAllEffectTags;
@@ -298,7 +298,7 @@ namespace BrannPack.ItemHandling
         // Helper method to check if an item passes the whitelist conditions
         public static bool IsItemApplicable(Item item, ItemFilter filter, FilterOverlapPriority overlapPriority = FilterOverlapPriority.WhitelistPriority)
         {
-            if (filter.RequiresConfirmation != null && filter.RequiresConfirmation != item.RequiresConfirmation)
+            if (filter.DefaultRequiresConfirmation != null && filter.DefaultRequiresConfirmation != item.RequiresConfirmation)
                 return false;
 
             if (filter.IsSharable != null && filter.IsSharable != item.IsSharable)
@@ -456,5 +456,136 @@ namespace BrannPack.ItemHandling
             }
         }
 
+    }
+
+    public class ItemStackFilter:ItemFilter
+    {
+        public HashSet<ItemModifier> IsAnyModifiers;
+        public HashSet<ItemModifier> IsAllModifiers;
+        public HashSet<ItemModifier> IsNotAnyModifiers;
+        public HashSet<ItemModifier> IsNotAllModifiers;
+
+        public HashSet<InventoryBehavior> IsAnyBehaviors;
+        public HashSet<InventoryBehavior> IsAllBehaviors;
+        public HashSet<InventoryBehavior> IsNotAnyBehaviors;
+        public HashSet<InventoryBehavior> IsNotAllBehaviors;
+
+        public bool? RequiresConfirmation;
+
+        public (ValueCompare,float)[] countCompare;
+
+        public ItemStackFilter(HashSet<ItemModifier> isAnyModifiers, HashSet<ItemModifier> isAllModifiers, HashSet<ItemModifier> isNotAnyModifiers, HashSet<ItemModifier> isNotAllModifiers, HashSet<InventoryBehavior> isAnyBehaviors, HashSet<InventoryBehavior> isAllBehaviors, HashSet<InventoryBehavior> isNotAnyBehaviors, HashSet<InventoryBehavior> isNotAllBehaviors, bool? requiresConfirmation, (ValueCompare, float)[] count, HashSet<ItemTier> inAnyTiers, HashSet<ItemTier> notInAnyTiers, HashSet<ItemSubTier> inAnySubTiers, HashSet<ItemSubTier> notInAnySubTiers, HashSet<ItemModifier> hasAnyDefaultModifiers, HashSet<ItemModifier> hasAllDefaultModifiers, HashSet<ItemModifier> notHaveAnyDefaultModifiers, HashSet<ItemModifier> notHaveAllDefaultModifiers, HashSet<ItemModifier> hasAnyPossibleModifiers, HashSet<ItemModifier> hasAllPossibleModifiers, HashSet<ItemModifier> notHaveAnyPossibleModifiers, HashSet<ItemModifier> notHaveAllPossibleModifiers, HashSet<Item> items, HashSet<Item> notItems, bool? requiresDefaultConfirmation, bool? isSharable, (EffectTag tag, ValueCompare compareEnum, int value)[] hasAnyEffectTags, (EffectTag tag, ValueCompare compareEnum, int value)[] hasAllEffectTags, (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAnyEffectTags, (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAllEffectTags):base(inAnyTiers,  notInAnyTiers,  inAnySubTiers, notInAnySubTiers, hasAnyDefaultModifiers,hasAllDefaultModifiers,  notHaveAnyDefaultModifiers, notHaveAllDefaultModifiers, hasAnyPossibleModifiers, hasAllPossibleModifiers, notHaveAnyPossibleModifiers, notHaveAllPossibleModifiers, items, notItems, requiresDefaultConfirmation, isSharable, hasAnyEffectTags, hasAllEffectTags, notHaveAnyEffectTags, notHaveAllEffectTags)
+        {
+            IsAnyModifiers = isAnyModifiers;
+            IsAllModifiers = isAllModifiers;
+            IsNotAnyModifiers = isNotAnyModifiers;
+            IsNotAllModifiers = isNotAllModifiers;
+            IsAnyBehaviors = isAnyBehaviors;
+            IsAllBehaviors = isAllBehaviors;
+            IsNotAnyBehaviors = isNotAnyBehaviors;
+            IsNotAllBehaviors = isNotAllBehaviors;
+            RequiresConfirmation = requiresConfirmation;
+            this.count = count;
+        }
+
+        public bool IsItemStackApplicable(InventoryItemStack itemStack, FilterOverlapPriority overlapPriority = FilterOverlapPriority.WhitelistPriority) { return IsItemStackApplicable(itemStack, this, overlapPriority); }
+
+        public static bool IsItemStackApplicable(InventoryItemStack itemStack, ItemStackFilter filter, FilterOverlapPriority overlapPriority = FilterOverlapPriority.WhitelistPriority)
+        {
+            if (filter.RequiresConfirmation != null && filter.RequiresConfirmation != itemStack.NeedsConfirmation)
+                return false;
+
+            // Handle Modifiers (Not yet fixed up)
+
+            HashSet<ItemModifier> tempIsAnyMod = filter.IsAnyModifiers;
+            HashSet<ItemModifier> tempIsNotAnyMod = filter.IsNotAnyModifiers;
+
+            if (tempIsAnyMod.Overlaps(tempIsNotAnyMod))
+            {
+                if (overlapPriority == FilterOverlapPriority.WhitelistPriority)
+                {
+                    tempIsNotAnyMod.ExceptWith(tempIsAnyMod);// If whitelist takes priority, blacklist is ignored
+                }
+                else
+                {
+                    tempIsAnyMod.ExceptWith(tempIsNotAnyMod); // If blacklist takes priority, whitelist is ignored
+                }
+            }
+
+
+            bool IsAnyModifiers = (tempIsAnyMod == null || tempIsAnyMod.Intersect(itemStack.ItemModifiers).Any());
+            bool IsNotAnyModifiers = (tempIsNotAnyMod != null && tempIsAnyMod.Intersect(itemStack.ItemModifiers).Any());
+
+            if (!IsAnyModifiers || IsNotAnyModifiers)
+                return false;
+
+            // Handle All Modifiers
+
+            bool IsAllModifiers = (filter.IsAllModifiers != null && filter.IsAllModifiers.All(mod => itemStack.ItemModifiers.Contains(mod)));
+            bool IsNotAllModifiers = (filter.IsNotAllModifiers != null && filter.IsNotAllModifiers.All(mod => itemStack.ItemModifiers.Contains(mod)));
+
+            if (!IsAllModifiers || IsNotAllModifiers)
+                return false;
+
+            // Handle Behaviors (Not yet fixed up)
+
+            HashSet<InventoryBehavior> tempIsAnyBeh = filter.IsAnyBehaviors;
+            HashSet<InventoryBehavior> tempIsNotAnyBeh = filter.IsNotAnyBehaviors;
+
+            if (tempIsAnyBeh.Overlaps(tempIsNotAnyBeh))
+            {
+                if (overlapPriority == FilterOverlapPriority.WhitelistPriority)
+                {
+                    tempIsNotAnyBeh.ExceptWith(tempIsAnyBeh);// If whitelist takes priority, blacklist is ignored
+                }
+                else
+                {
+                    tempIsAnyBeh.ExceptWith(tempIsNotAnyBeh); // If blacklist takes priority, whitelist is ignored
+                }
+            }
+
+
+            bool IsAnyBehaviors = (tempIsAnyBeh == null || tempIsAnyBeh.Intersect(itemStack.InventoryBehaviors).Any());
+            bool IsNotAnyBehaviors = (tempIsNotAnyBeh != null && tempIsAnyBeh.Intersect(itemStack.InventoryBehaviors).Any());
+
+            if (!IsAnyBehaviors || IsNotAnyBehaviors)
+                return false;
+
+            // Handle All Behaviors
+
+            bool IsAllBehaviors = (filter.IsAllBehaviors != null && filter.IsAllBehaviors.All(Beh => itemStack.InventoryBehaviors.Contains(Beh)));
+            bool IsNotAllBehaviors = (filter.IsNotAllBehaviors != null && filter.IsNotAllBehaviors.All(Beh => itemStack.InventoryBehaviors.Contains(Beh)));
+
+            if (!IsAllBehaviors || IsNotAllBehaviors)
+                return false;
+
+            // Handle Count
+
+            bool AllCountCompare = (filter.countCompare != null && filter.countCompare.All(tag => CompareCount(itemStack.Count, tag.Item1, tag.Item2)));
+            if (!AllCountCompare)
+                return false;
+
+
+            return ItemFilter.IsItemApplicable(itemStack.Item, filter as ItemFilter, overlapPriority);
+        }
+
+        private static bool CompareCount(float count, ValueCompare comparison, float compareCount)
+        {
+            switch (comparison)
+            {
+                case ValueCompare.GreaterThan:
+                    return count > compareCount;
+                case ValueCompare.LesserThan:
+                    return count < compareCount;
+                case ValueCompare.EqualTo:
+                    return count == compareCount;
+                case ValueCompare.AnyValue:
+                    return true;
+                case ValueCompare.NotEqualTo:
+                    return count != compareCount;
+                default:
+                    return false;
+            }
+        }
     }
 }

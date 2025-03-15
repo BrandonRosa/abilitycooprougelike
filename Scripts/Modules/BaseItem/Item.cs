@@ -97,6 +97,8 @@ namespace BrannPack.ItemHandling
 
         public (float positive, float negative) EffectiveValues() { return (Positive * Multiplier, Negative * Multiplier); }
 
+        public ItemEffectModifier EquivalentModifier() { return new ItemEffectModifier { Positive = this.Positive * this.Multiplier, Negative = this.Negative * this.Multiplier }; }
+
         public static ItemEffectModifier operator +(ItemEffectModifier a, ItemEffectModifier b)
         {
             return new ItemEffectModifier

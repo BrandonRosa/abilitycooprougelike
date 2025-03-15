@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrannPack.Tiers;
+using System.Collections.ObjectModel;
 
 namespace BrannPack.ItemHandling
 {
@@ -23,6 +24,8 @@ namespace BrannPack.ItemHandling
             get => _allEffectivePartitions;
             protected set => _allEffectivePartitions = value;
         }
+        protected Dictionary<Item, ItemEffectModifier> _allEffectiveItemCount;
+        public Dictionary<Item, ItemEffectModifier> AllEffectiveItemCount => _allEffectiveItemCount;
 
         public List<InventoryPartition> HighlanderPartitions = new List<InventoryPartition>() 
             { 
@@ -48,6 +51,7 @@ namespace BrannPack.ItemHandling
         public void RefreshAllEffectivePartitions()
         {
             _allEffectivePartitions = InventoryPartition.ForceMergePartitions(new List<InventoryPartition> { StandardPartition, ActiveItemPartition, ConfirmationPartition }.Concat(HighlanderPartitions).ToList(), this);
+            _allEffectiveItemCount = _allEffectivePartitions.GetEffectiveCount();
         }
 
 
@@ -105,7 +109,6 @@ namespace BrannPack.ItemHandling
 
     public class InventoryPartition
     {
-        private const float InfiniteStackValue = -99f;
 
         public Inventory PartitionOf;
         public Dictionary<Item, List<InventoryItemStack>> ItemsInPartition;
@@ -114,7 +117,7 @@ namespace BrannPack.ItemHandling
         public float CurrentCount;
         public bool NeedsConfirmation;
 
-        public InventoryPartition(Inventory inventory, ItemFilter allowedInPartition = null, float maxCount = InfiniteStackValue, bool needsConfirmation = false)
+        public InventoryPartition(Inventory inventory, ItemFilter allowedInPartition = null, float maxCount = float.MaxValue, bool needsConfirmation = false)
         {
             PartitionOf = inventory;
             ItemsInPartition = new Dictionary<Item, List<InventoryItemStack>>();
@@ -122,6 +125,17 @@ namespace BrannPack.ItemHandling
             MaxCount = maxCount;
             CurrentCount = 0;
             NeedsConfirmation = false;
+        }
+
+        public Dictionary<Item,ItemEffectModifier> GetEffectiveCount()
+        {
+            Dictionary<Item, ItemEffectModifier> result=new Dictionary<Item,ItemEffectModifier>();
+            foreach (var kvp in ItemsInPartition)
+            {
+                ItemEffectModifier temp = new();
+                result.Add(kvp.Key, kvp.Value.Aggregate(new ItemEffectModifier { }, (total, current) => total + current.GetTotalEffectModifierSum().EquivalentModifier()));
+            }
+            return result;
         }
 
         public bool TryAddToPartition(Item item, HashSet<ItemModifier> itemModifiers = null, float count = 1, HashSet<InventoryBehavior> inventoryBehaviors = null) { return TryAddToPartition(new InventoryItemStack(item, itemModifiers, count, inventoryBehaviors)); }
@@ -152,7 +166,7 @@ namespace BrannPack.ItemHandling
             return !IsFull() && IsItemApplicable(itemStack.Item);
         }
 
-        public bool IsFull() { return (MaxCount != InfiniteStackValue && CurrentCount >= MaxCount); }
+        public bool IsFull() { return (MaxCount != float.MaxValue && CurrentCount >= MaxCount); }
         public bool IsItemApplicable(Item item) { return AllowedInPartition != null && !AllowedInPartition.IsItemApplicable(item); }
 
         public static InventoryPartition ForceMergePartitions(List<InventoryPartition> inventoryPartitions, Inventory inventory)
