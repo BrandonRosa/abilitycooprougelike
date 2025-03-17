@@ -6,17 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 using BrannPack.Tiers;
 using System.Collections.ObjectModel;
+using BrannPack.ModifiableStats;
+using BrannPack.Character;
+using System.Runtime.CompilerServices;
 
 namespace BrannPack.ItemHandling
 {
     public class Inventory
     {
-        public static readonly ItemFilter HighlanderT0 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier0.instance).HasAnyPossibleModifiers().Build();
-        public static readonly ItemFilter HighlanderT1 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier1.instance).HasAnyPossibleModifiers().Build();
-        public static readonly ItemFilter HighlanderT2 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier2.instance).HasAnyPossibleModifiers().Build();
-        public static readonly ItemFilter HighlanderT3 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier3.instance).HasAnyPossibleModifiers().Build();
-        public static readonly ItemFilter HighlanderT4 = new ItemFilter.ItemFilterBuilder().WithAnyTiers(Tier4.instance).HasAnyPossibleModifiers().Build();
-        public static readonly ItemFilter ActiveItemFilter = new ItemFilter.ItemFilterBuilder().WithAnyTiers(TierA.instance).Build();
+        public static event Action<Inventory, InventoryItemStack> ItemsAdded;
+
+        public static readonly ItemStackFilter HighlanderT0 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier0.instance).IsAllModifiers(Highlander.instance).Build();
+        public static readonly ItemStackFilter HighlanderT1 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier1.instance).IsAllModifiers(Highlander.instance).Build();
+        public static readonly ItemStackFilter HighlanderT2 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier2.instance).IsAllModifiers(Highlander.instance).Build();
+        public static readonly ItemStackFilter HighlanderT3 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier3.instance).IsAllModifiers(Highlander.instance).Build();
+        public static readonly ItemStackFilter HighlanderT4 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier4.instance).IsAllModifiers(Highlander.instance).Build();
+        public static readonly ItemStackFilter ActiveItemFilter = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(TierA.instance).Build();
 
         protected InventoryPartition _allEffectivePartitions;
         public InventoryPartition AllEffectivePartitions
@@ -40,17 +45,20 @@ namespace BrannPack.ItemHandling
         public InventoryPartition ActiveItemPartition= new InventoryPartition(null,ActiveItemFilter , 1f);
         public InventoryPartition ConfirmationPartition= new InventoryPartition(null,null,float.MaxValue,true);
 
-        public Inventory()
+        public BaseCharacter InventoryOf;
+
+        public Inventory(BaseCharacter baseCharacter)
         {
             HighlanderPartitions.ForEach(part => part.PartitionOf = this);
             StandardPartition.PartitionOf = this;
             ActiveItemPartition.PartitionOf = this;
             ConfirmationPartition.PartitionOf = this;
+            InventoryOf = baseCharacter;
         }
 
         public void RefreshAllEffectivePartitions()
         {
-            _allEffectivePartitions = InventoryPartition.ForceMergePartitions(new List<InventoryPartition> { StandardPartition, ActiveItemPartition, ConfirmationPartition }.Concat(HighlanderPartitions).ToList(), this);
+            _allEffectivePartitions = InventoryPartition.ForceMergePartitions(new List<InventoryPartition> { StandardPartition, ActiveItemPartition }.Concat(HighlanderPartitions).ToList(), this);
             _allEffectiveItemCount = _allEffectivePartitions.GetEffectiveCount();
         }
 
@@ -64,7 +72,7 @@ namespace BrannPack.ItemHandling
             bool ans = false;
             if (inventoryItemStack.NeedsConfirmation && ConfirmationPartition.TryAddToPartition(inventoryItemStack))
                 ans = true;
-            else if (inventoryItemStack.ItemModifiers.Contains() && HighlanderPartitions.Any(partition => partition.TryAddToPartition(inventoryItemStack)))
+            else if (inventoryItemStack.ItemModifiers.Contains(Highlander.instance) && HighlanderPartitions.Any(partition => partition.TryAddToPartition(inventoryItemStack)))
                 ans= true;
             else if (inventoryItemStack.Item.Tier == TierA.instance && ActiveItemPartition.TryAddToPartition(inventoryItemStack))
                 ans = true;
@@ -73,6 +81,8 @@ namespace BrannPack.ItemHandling
             if(ans)
             {
                 RefreshAllEffectivePartitions();
+                ItemsAdded?.Invoke(this, inventoryItemStack);
+
                 return true;
             }
 
@@ -112,12 +122,12 @@ namespace BrannPack.ItemHandling
 
         public Inventory PartitionOf;
         public Dictionary<Item, List<InventoryItemStack>> ItemsInPartition;
-        public ItemFilter AllowedInPartition;
+        public ItemStackFilter AllowedInPartition;
         public float MaxCount;
         public float CurrentCount;
         public bool NeedsConfirmation;
 
-        public InventoryPartition(Inventory inventory, ItemFilter allowedInPartition = null, float maxCount = float.MaxValue, bool needsConfirmation = false)
+        public InventoryPartition(Inventory inventory, ItemStackFilter allowedInPartition = null, float maxCount = float.MaxValue, bool needsConfirmation = false)
         {
             PartitionOf = inventory;
             ItemsInPartition = new Dictionary<Item, List<InventoryItemStack>>();

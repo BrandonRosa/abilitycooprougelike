@@ -587,5 +587,207 @@ namespace BrannPack.ItemHandling
                     return false;
             }
         }
+
+        public class ItemStackFilterBuilder
+        {
+            private HashSet<ItemTier> inAnyTiers = new();
+            private HashSet<ItemTier> notInAnyTiers = new();
+            private HashSet<ItemSubTier> inAnySubTiers = new();
+            private HashSet<ItemSubTier> notInAnySubTiers = new();
+            private HashSet<ItemModifier> hasAnyDefaultModifiers = new();
+            private HashSet<ItemModifier> hasAllDefaultModifiers = new();
+            private HashSet<ItemModifier> notHaveAnyDefaultModifiers = new();
+            private HashSet<ItemModifier> notHaveAllDefaultModifiers = new();
+            private HashSet<ItemModifier> hasAnyPossibleModifiers = new();
+            private HashSet<ItemModifier> hasAllPossibleModifiers = new();
+            private HashSet<ItemModifier> notHaveAnyPossibleModifiers = new();
+            private HashSet<ItemModifier> notHaveAllPossibleModifiers = new();
+            private HashSet<Item> items = new();
+            private HashSet<Item> notItems = new();
+            private bool? requiresDefaultConfirmation;
+            private bool? isSharable;
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] hasAnyEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] hasAllEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAnyEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private (EffectTag tag, ValueCompare compareEnum, int value)[] notHaveAllEffectTags = Array.Empty<(EffectTag, ValueCompare, int)>();
+            private HashSet<ItemModifier> isAnyModifiers = new();
+            private HashSet<ItemModifier> isAllModifiers = new();
+            private HashSet<ItemModifier> isNotAnyModifiers = new();
+            private HashSet<ItemModifier> isNotAllModifiers = new();
+            private HashSet<InventoryBehavior> isAnyBehaviors = new();
+            private HashSet<InventoryBehavior> isAllBehaviors = new();
+            private HashSet<InventoryBehavior> isNotAnyBehaviors = new();
+            private HashSet<InventoryBehavior> isNotAllBehaviors = new();
+            private bool? requiresConfirmation;
+            private (ValueCompare, float)[] countCompare = Array.Empty<(ValueCompare, float)>();
+
+            public ItemStackFilterBuilder WithAnyTiers(params ItemTier[] tiers)
+            {
+                inAnyTiers.UnionWith(tiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithNotAnyTiers(params ItemTier[] tiers)
+            {
+                notInAnyTiers.UnionWith(tiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithItems(params Item[] newItems)
+            {
+                items.UnionWith(newItems);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithNotItems(params Item[] newItems)
+            {
+                notItems.UnionWith(newItems);
+                return this;
+            }
+
+            public ItemStackFilterBuilder RequiresDefaultConfirmation(bool required)
+            {
+                requiresDefaultConfirmation = required;
+                return this;
+            }
+
+            public ItemStackFilterBuilder IsSharable(bool sharable)
+            {
+                isSharable = sharable;
+                return this;
+            }
+
+
+            public ItemStackFilterBuilder HasAnyEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                hasAnyEffectTags = tags;
+                return this;
+            }
+
+            public ItemStackFilterBuilder HasAllEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                hasAllEffectTags = tags;
+                return this;
+            }
+
+            public ItemStackFilterBuilder NotHaveAnyEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                notHaveAnyEffectTags = tags;
+                return this;
+            }
+
+            public ItemStackFilterBuilder NotHaveAllEffectTags(params (EffectTag tag, ValueCompare compareEnum, int value)[] tags)
+            {
+                notHaveAllEffectTags = tags;
+                return this;
+            }
+
+            public ItemStackFilterBuilder HasAnyDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                hasAnyDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder HasAllDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                hasAllDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder NotHaveAnyDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAnyDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder NotHaveAllDefaultModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAllDefaultModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder HasAnyPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                hasAnyPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder HasAllPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                hasAllPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder NotHaveAnyPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAnyPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder NotHaveAllPossibleModifiers(params ItemModifier[] modifiers)
+            {
+                notHaveAllPossibleModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder IsAnyModifiers(params ItemModifier[] modifiers)
+            {
+                isAnyModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder IsAllModifiers(params ItemModifier[] modifiers)
+            {
+                isAllModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder IsNotAnyModifiers(params ItemModifier[] modifiers)
+            {
+                isNotAnyModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder IsNotAllModifiers(params ItemModifier[] modifiers)
+            {
+                isNotAllModifiers.UnionWith(modifiers);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithAnyBehaviors(params InventoryBehavior[] behaviors)
+            {
+                isAnyBehaviors.UnionWith(behaviors);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithAllBehaviors(params InventoryBehavior[] behaviors)
+            {
+                isAllBehaviors.UnionWith(behaviors);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithoutAnyBehaviors(params InventoryBehavior[] behaviors)
+            {
+                isNotAnyBehaviors.UnionWith(behaviors);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithoutAllBehaviors(params InventoryBehavior[] behaviors)
+            {
+                isNotAllBehaviors.UnionWith(behaviors);
+                return this;
+            }
+
+            public ItemStackFilterBuilder WithCountCompare(params (ValueCompare, float)[] compares)
+            {
+                countCompare = compares;
+                return this;
+            }
+
+            public ItemStackFilter Build()
+            {
+                return new ItemStackFilter(isAnyModifiers,isAllModifiers,isNotAnyModifiers,isNotAllModifiers,isAnyBehaviors,isAllBehaviors,isNotAnyBehaviors,isNotAllBehaviors,requiresConfirmation,countCompare,inAnyTiers, notInAnyTiers, inAnySubTiers, notInAnySubTiers, hasAnyDefaultModifiers, hasAllDefaultModifiers, notHaveAnyDefaultModifiers, notHaveAllDefaultModifiers, hasAnyPossibleModifiers, hasAllPossibleModifiers, notHaveAnyPossibleModifiers, notHaveAllPossibleModifiers, items, notItems, requiresConfirmation, isSharable, hasAnyEffectTags, hasAllEffectTags, notHaveAnyEffectTags, notHaveAllEffectTags);
+            }
+        }
     }
 }

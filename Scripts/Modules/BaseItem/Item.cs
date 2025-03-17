@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static BrannPack.ItemHandling.ItemCatalog;
 using BrannPack.Tiers;
+using BrannPack.Character;
 
 
 namespace BrannPack.ItemHandling
@@ -85,6 +86,12 @@ namespace BrannPack.ItemHandling
 
             return null;
         }
+
+        public void OnItemAdded(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems) { SetItemEffects(baseCharacter,itemsAdded, totalItems, true); }
+
+        public void OnItemRemoved(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems) { SetItemEffects(baseCharacter, itemsAdded, totalItems, false); }
+
+        public abstract void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true);
 
     }
 

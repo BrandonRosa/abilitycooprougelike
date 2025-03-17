@@ -10,9 +10,9 @@ using BrannPack.Tiers;
 using BrannPack.ItemHandling;
 using System.Security.Cryptography.X509Certificates;
 using BrannPack.AbilityHandling;
-using static BrannPack.ModifialbeStats.CharacterStats;
-using static BrannPack.ModifialbeStats.AbilityStats;
-using BrannPack.ModifialbeStats;
+using static BrannPack.ModifiableStats.CharacterStats;
+using static BrannPack.ModifiableStats.AbilityStats;
+using BrannPack.ModifiableStats;
 using System.Reflection.Metadata.Ecma335;
 
 
@@ -47,7 +47,6 @@ namespace BrannPack.Character
         public CooldownStat SpamCooldown;
         public RangeStat Range;
         public DurationStat Duration;
-
         public ChanceStat Luck;
 
 
@@ -86,8 +85,8 @@ namespace BrannPack.Character
         private float NegativeDamageResistance;
 
 
-        private Dictionary<StatModTarget, ModifiableStat> AbilityStatModifiers;
-        private Dictionary<(ItemFilter, Type), ModifiableStat> ItemStatModifiers;
+        private Dictionary<(StatModTarget,CharacterAbilityStatVariable), ModifiableStat> AbilityStatModifiers;
+        private Dictionary<(ItemStackFilter, CharacterAbilityStatVariable), ModifiableStat> ItemStatModifiers;
 
 
         private Dictionary<string, Ability> Abilities;
@@ -169,7 +168,25 @@ namespace BrannPack.Character
 
         public event EventHandler<StatHookEventArgs> OnStatCalculation;
 
-        public void RecalculateStats()
+        public static event Action<BaseCharacter, CharacterAbilityStatVariable,ModifiableStat> RefreshAbilityStatVariable;
+
+        public enum CharacterAbilityStatVariable
+        {
+            Chance,
+            Damage,
+            FireRate,
+            ProjectileSpeed,
+            ProcChance,
+            CritDamage,
+            Charges,
+            Cooldown,
+            SpamCooldown,
+            Range,
+            Duration,
+            Luck
+        }
+
+        public void RecalculateStatsOld()
         {
             // Step 1: Create a new event argument object to hold stat modifications
             StatHookEventArgs statArgs = new StatHookEventArgs();
@@ -180,6 +197,49 @@ namespace BrannPack.Character
             // Step 3: Apply stat modifications
             ApplyStatChanges(statArgs);
         }
+
+        public void RecalculateAllStats()
+        {
+            /*
+             Chance,
+            Damage,
+            FireRate,
+            ProjectileSpeed,
+            ProcChance,
+            CritDamage,
+            Charges,
+            Cooldown,
+            SpamCooldown,
+            Range,
+            Duration,
+            Luck
+             */
+            RecalculateChance();
+            RecalculateDamage();
+            RecalculateFireRate();
+            RecalculateProjectileSpeed();
+            RecalculateProcChance();
+            RecalculateCritDamage();
+            RecalculateCharges();
+            RecalculateCooldown();
+            RecalculateSpamCooldown();
+            RecalculateRange();
+            RecalculateDuration();
+            RecalculateLuck();
+
+        }
+        public void RecalculateChance() { Chance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Chance, Chance); }
+        public void RecalculateDamage() { Damage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Damage, Damage); }
+        public void RecalculateFireRate() { FireRate.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.FireRate, FireRate); }
+        public void RecalculateProjectileSpeed() { ProjectileSpeed.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed); }
+        public void RecalculateProcChance() { ProcChance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.ProcChance, ProcChance); }
+        public void RecalculateCritDamage() { CritDamage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.CritDamage, CritDamage); }
+        public void RecalculateCharges() { Charges.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Charges, Charges); }
+        public void RecalculateCooldown() { Cooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Cooldown, Cooldown); }
+        public void RecalculateSpamCooldown() { SpamCooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown); }
+        public void RecalculateRange() { Range.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Range, Range); }
+        public void RecalculateDuration() { Duration.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Duration, Duration); }
+        public void RecalculateLuck() { Luck.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(this, CharacterAbilityStatVariable.Luck, Luck); }
 
         protected void ApplyStatChanges(StatHookEventArgs statArgs)
         {
@@ -208,7 +268,10 @@ namespace BrannPack.Character
 
         }
 
+        public ItemEffectModifier GetItemCount(Item item, bool withEffectiveness)
+        {
 
+        }
 
     }
 

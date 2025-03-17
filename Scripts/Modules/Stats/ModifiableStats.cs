@@ -5,24 +5,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.Character.BaseCharacter;
-using static BrannPack.ModifialbeStats.AbilityStats;
+using static BrannPack.ModifiableStats.AbilityStats;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace BrannPack.ModifialbeStats
+namespace BrannPack.ModifiableStats
 {
-    public abstract class ModifiableStat<T> where T:ModifiableStat<T>
+    public abstract class ModifiableStat
     {
-        public float Total { get; protected set; } = 0f;
-        public float BaseValue { get; protected set; } = 0f;
+        public abstract float Total { get; protected set; }
+        public abstract float BaseValue { get; protected set; }
+
+        public abstract float CalculateTotal();
+        public abstract void ResetModifiedValues();
+    }
+    public abstract class ModifiableStat<T>: ModifiableStat where T:ModifiableStat<T>
+    {
+        public override float Total { get; protected set; } = 0f;
+        public override float BaseValue { get; protected set; } = 0f;
 
         public event Action<float,float> ChangedTotal;
 
         public ModifiableStat(float baseValue) => BaseValue = baseValue;
         protected abstract float TotalValueMath();
 
-        public abstract void ResetModifiedValues();
+        public override abstract void ResetModifiedValues();
 
-        public float CalculateTotal() 
+        public override float CalculateTotal() 
         {
             float prevTotal = Total;
             Total = TotalValueMath();

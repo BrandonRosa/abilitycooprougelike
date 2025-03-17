@@ -1,6 +1,7 @@
 ﻿using BrannPack;
 using BrannPack.Character;
 using BrannPack.ItemHandling;
+using BrannPack.ModifiableStats;
 using BrannPack.Tiers;
 using System;
 using System.Collections.Generic;
@@ -157,15 +158,63 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public void Subscribe(BaseCharacter character)
+        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
-            character.OnStatCalculation += ApplyStats;
+            // Ensure the event is only subscribed once
+            BaseCharacter.RefreshAbilityStatVariable -= ModifyRangeStat;
+            BaseCharacter.RefreshAbilityStatVariable += ModifyRangeStat;
+            baseCharacter.RecalculateRange();
         }
 
-        private void ApplyStats(object sender, StatHookEventArgs e)
+        private void ModifyRangeStat(BaseCharacter baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
         {
-            (float positive, float negative) = (sender as BaseCharacter).Inventory.GetEffectiveCount(instance);
-            e.RangeMultAdd += 0.03f*positive; // 3% base regen boost
+            if (casv == CharacterAbilityStatVariable.Range && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            {
+                if (modStat is AbilityStats.RangeStat rangeStat)
+                {
+                    rangeStat.RangeFlatPercentage += 0.03f * effects.Positive;
+                }
+            }
+        }
+    }
+
+    public class EOAgility : Item<EOAgility>
+    {
+        public override ItemTier Tier { get; init; } = Tier0.instance;
+        public override ItemSubTier SubTier { get; init; } = ItemSubTier.Essences;
+        public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
+        public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
+        public override string Name { get; init; } = "Essence of Agility";
+        public override string CodeName { get; init; } = "EO_Agility";
+        public override string Description { get; init; } = "Slightly Reduce Cooldown";
+        public override string AdvancedDescription { get; init; } = "";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = true;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
+        {
+            {EffectTag.IsUtility,2 }, //Gaining Regen Should Be a 2
+            {EffectTag.IsDefensive,1 },
+            {EffectTag.IsMoveSpeedEnabler,3}
+
+        };
+
+        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        {
+            // Ensure the event is only subscribed once
+            BaseCharacter.RefreshAbilityStatVariable -= ModifyCooldownStat;
+            BaseCharacter.RefreshAbilityStatVariable += ModifyCooldownStat;
+            baseCharacter.RecalculateCooldown();
+        }
+
+        private void ModifyCooldownStat(BaseCharacter baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        {
+            if (casv == CharacterAbilityStatVariable.Cooldown && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            {
+                if (modStat is AbilityStats.CooldownStat cooldownStat)
+                {
+                    cooldownStat.ChangeCooldownByPercent(-0.05f * effects.Positive);
+                }
+            }
         }
     }
 }
