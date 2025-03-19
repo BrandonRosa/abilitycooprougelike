@@ -36,20 +36,29 @@ namespace BrannPack.Character
         //Swarmers are like a .25
         private float AbilityScale;
 
-        public ChanceStat Chance;
-        public DamageStat Damage;
-        public FireRateStat FireRate;
-        public ProjectileSpeedStat ProjectileSpeed;
-        public ChanceStat ProcChance;
-        public DamageStat CritDamage;
-        public ChargeStat Charges;
-        public CooldownStat Cooldown;
-        public CooldownStat SpamCooldown;
-        public RangeStat Range;
-        public DurationStat Duration;
-        public ChanceStat Luck;
+        //public ChanceStat Chance;
+        //public DamageStat Damage;
+        //public FireRateStat FireRate;
+        //public ProjectileSpeedStat ProjectileSpeed;
+        //public ChanceStat ProcChance;
+        //public DamageStat CritDamage;
+        //public ChargeStat Charges;
+        //public CooldownStat Cooldown;
+        //public CooldownStat SpamCooldown;
+        //public RangeStat Range;
+        //public DurationStat Duration;
+        //public ChanceStat Luck;
 
+        public AbilityStatsHolder<BaseCharacter> AbilityStats;
 
+        AbilitySlot Primary;
+        AbilitySlot Secondary;
+        AbilitySlot Utility;
+        AbilitySlot Special;
+        AbilitySlot Ult;
+
+        public Vector2 AttackDirection;
+        public Vector2 MoveDirection;
 
 
 
@@ -87,7 +96,7 @@ namespace BrannPack.Character
 
         private Dictionary<(StatModTarget,CharacterAbilityStatVariable), ModifiableStat> AbilityStatModifiers;
         private Dictionary<(ItemStackFilter, CharacterAbilityStatVariable), ModifiableStat> ItemStatModifiers;
-
+        
 
         private Dictionary<string, Ability> Abilities;
         public Inventory Inventory;
@@ -169,6 +178,7 @@ namespace BrannPack.Character
         public event EventHandler<StatHookEventArgs> OnStatCalculation;
 
         public static event Action<BaseCharacter, CharacterAbilityStatVariable,ModifiableStat> RefreshAbilityStatVariable;
+        public static event Action<BaseCharacter,AbilitySlot,>
 
         public enum CharacterAbilityStatVariable
         {

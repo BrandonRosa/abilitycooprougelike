@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿using BrannPack.Character;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,9 +40,16 @@ namespace BrannPack.ModifiableStats
             return Total;
         }
 
-        public abstract T GetCombinedStat(T[] addStat);
+        public abstract void AddCombinedStats(params T[] addStat);
 
-        public float GetCombinedTotal(T[] addStat){return GetCombinedStat(addStat).CalculateTotal();}
+        public T GetCombinedStat(params T[] addStat)
+        {
+            T temp = Copy();
+            temp.AddCombinedStats(addStat);
+            return temp;
+        }
+
+        public float GetCombinedTotal(params T[] addStat){return GetCombinedStat(addStat).CalculateTotal();}
 
         public abstract T Copy();
 
@@ -98,24 +106,20 @@ namespace BrannPack.ModifiableStats
         public void ChangeFlatNonScaled(float changeValue, bool undo = false) { if (!undo) AdditiveFlatNonScaledChange += changeValue; else AdditiveFlatNonScaledChange -= changeValue; }
 
 
-        public override FullExpandedStat GetCombinedStat(FullExpandedStat[] addStat)
+        public override FullExpandedStat AddCombinedStats(params FullExpandedStat[] addStat)
         {
-
-            FullExpandedStat tempCombined = this.Copy();
 
             foreach (FullExpandedStat stat in addStat)
             {
-                tempCombined.AdditionalBaseValue += stat.AdditionalBaseValue;
+                AdditionalBaseValue += stat.AdditionalBaseValue;
 
-                tempCombined.MultipliedPercentageIncreases.AddRange(stat.MultipliedPercentageIncreases);
-                tempCombined.MultipliedPercentageDecreases.AddRange(stat.MultipliedPercentageDecreases);
-                tempCombined.AdditivePercentageChange += stat.AdditivePercentageChange;
+                MultipliedPercentageIncreases.AddRange(stat.MultipliedPercentageIncreases);
+                MultipliedPercentageDecreases.AddRange(stat.MultipliedPercentageDecreases);
+                AdditivePercentageChange += stat.AdditivePercentageChange;
 
-                tempCombined.AdditiveFlatNonScaledChange += stat.AdditiveFlatNonScaledChange;
+                AdditiveFlatNonScaledChange += stat.AdditiveFlatNonScaledChange;
 
             }
-
-            return tempCombined;
 
         }
 
@@ -171,7 +175,7 @@ namespace BrannPack.ModifiableStats
 
         public void ChangeAdditivePercentage(float changeValue, bool undo = false) { if (!undo) AdditivePercentageChange += changeValue; else AdditivePercentageChange -= changeValue; }
 
-        public override EffectivenessStat GetCombinedStat(EffectivenessStat[] addStat)
+        public override EffectivenessStat AddCombinedStats(params EffectivenessStat[] addStat)
         {
 
             EffectivenessStat tempCombined = this.Copy();
@@ -179,9 +183,9 @@ namespace BrannPack.ModifiableStats
             foreach (EffectivenessStat stat in addStat)
             {
 
-                tempCombined.MultipliedPercentageIncreases.AddRange(stat.MultipliedPercentageIncreases);
-                tempCombined.MultipliedPercentageDecreases.AddRange(stat.MultipliedPercentageDecreases);
-                tempCombined.AdditivePercentageChange += stat.AdditivePercentageChange;
+                MultipliedPercentageIncreases.AddRange(stat.MultipliedPercentageIncreases);
+                MultipliedPercentageDecreases.AddRange(stat.MultipliedPercentageDecreases);
+                AdditivePercentageChange += stat.AdditivePercentageChange;
 
             }
 
@@ -200,10 +204,173 @@ namespace BrannPack.ModifiableStats
 
     }
 
+
     public static class AbilityStats
     {
-        
-        
+        public class AbilityStatsHolder<T>
+        {
+            public T Owner;
+            public ChanceStat Chance;
+            public DamageStat Damage;
+            public FireRateStat FireRate;
+            public ProjectileSpeedStat ProjectileSpeed;
+            public ChanceStat ProcChance;
+            public DamageStat CritDamage;
+            public ChargeStat Charges;
+            public CooldownStat Cooldown;
+            public CooldownStat SpamCooldown;
+            public RangeStat Range;
+            public DurationStat Duration;
+            public ChanceStat Luck;
+            
+
+            public static event Action<T, CharacterAbilityStatVariable, ModifiableStat> RefreshAbilityStatVariable;
+
+            public static event Action<T, CharacterAbilityStatVariable, ModifiableStat,float,float> StatUpdatedWithNewTotal;
+
+            public void Init()
+            {
+                Chance.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Chance, Chance, newTotal, prevTotal);
+                Damage.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Damage, Damage, newTotal, prevTotal);
+                FireRate.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.FireRate, FireRate, newTotal, prevTotal);
+                ProjectileSpeed.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed, newTotal, prevTotal);
+                ProcChance.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.ProcChance, ProcChance, newTotal, prevTotal);
+                CritDamage.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.CritDamage, CritDamage, newTotal, prevTotal);
+                Charges.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Charges, Charges, newTotal, prevTotal);
+                Cooldown.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Cooldown, Cooldown, newTotal, prevTotal);
+                SpamCooldown.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown, newTotal, prevTotal);
+                Range.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Range, Range, newTotal, prevTotal);
+                Duration.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Duration, Duration, newTotal, prevTotal);
+                Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Luck, Luck, newTotal, prevTotal);
+
+            }
+
+            public ModifiableStat GetStatByVariable(CharacterAbilityStatVariable casv)
+            {
+                switch(casv)
+                {
+                    case CharacterAbilityStatVariable.Chance: return Chance;
+                    case CharacterAbilityStatVariable.Damage: return Damage;
+                    case CharacterAbilityStatVariable.FireRate: return FireRate;
+                    case CharacterAbilityStatVariable.ProcChance: return ProcChance;
+                    case CharacterAbilityStatVariable.CritDamage: return CritDamage;
+                    case CharacterAbilityStatVariable.ProjectileSpeed: return ProjectileSpeed;
+                    case CharacterAbilityStatVariable.Charges: return Charges;
+                    case CharacterAbilityStatVariable.Cooldown: return Cooldown;
+                    case CharacterAbilityStatVariable.SpamCooldown: return SpamCooldown;
+                    case CharacterAbilityStatVariable.Range: return Range;
+                    case CharacterAbilityStatVariable.Duration: return Duration;
+                    case CharacterAbilityStatVariable.Luck: return Luck;
+                }
+                return null;
+            }
+
+            public void RecalculateByStatVariable(CharacterAbilityStatVariable casv)
+            {
+                ModifiableStat tempstat = GetStatByVariable(casv);
+                tempstat.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, casv, tempstat); tempstat.CalculateTotal();
+            }
+
+            public void RecalculateAndAddStats(CharacterAbilityStatVariable casv,ModifiableStat otherStat)
+            {
+                ModifiableStat tempstat = GetStatByVariable(casv);
+                tempstat.ResetModifiedValues();
+
+                switch (casv)
+                {
+                    case CharacterAbilityStatVariable.Chance: Chance.AddCombinedStats(otherStat as ChanceStat); break;
+                    case CharacterAbilityStatVariable.Damage: Damage.AddCombinedStats(otherStat as DamageStat); break;
+                    case CharacterAbilityStatVariable.FireRate: FireRate.AddCombinedStats(otherStat as FireRateStat); break;
+                    case CharacterAbilityStatVariable.ProcChance: ProcChance.AddCombinedStats(otherStat as ChanceStat); break;
+                    case CharacterAbilityStatVariable.CritDamage: CritDamage.AddCombinedStats(otherStat as DamageStat); break;
+                    case CharacterAbilityStatVariable.ProjectileSpeed: ProjectileSpeed.AddCombinedStats(otherStat as ProjectileSpeedStat); break;
+                    case CharacterAbilityStatVariable.Charges: Charges.AddCombinedStats(otherStat as ChargeStat); break;
+                    case CharacterAbilityStatVariable.Cooldown: Cooldown.AddCombinedStats(otherStat as CooldownStat); break;
+                    case CharacterAbilityStatVariable.SpamCooldown: SpamCooldown.AddCombinedStats(otherStat as CooldownStat); break;
+                    case CharacterAbilityStatVariable.Range: Range.AddCombinedStats(otherStat as RangeStat); break;
+                    case CharacterAbilityStatVariable.Duration: Duration.AddCombinedStats(otherStat as DurationStat); break;
+                    case CharacterAbilityStatVariable.Luck: Luck.AddCombinedStats(otherStat as ChanceStat); break;
+                }
+
+                RefreshAbilityStatVariable?.Invoke(Owner, casv, tempstat); 
+                tempstat.CalculateTotal();
+            }
+
+            public void RecalculateAllStats()
+            {
+                /*
+                 Chance,
+                Damage,
+                FireRate,
+                ProjectileSpeed,
+                ProcChance,
+                CritDamage,
+                Charges,
+                Cooldown,
+                SpamCooldown,
+                Range,
+                Duration,
+                Luck
+                 */
+                RecalculateChance();
+                RecalculateDamage();
+                RecalculateFireRate();
+                RecalculateProjectileSpeed();
+                RecalculateProcChance();
+                RecalculateCritDamage();
+                RecalculateCharges();
+                RecalculateCooldown();
+                RecalculateSpamCooldown();
+                RecalculateRange();
+                RecalculateDuration();
+                RecalculateLuck();
+
+            }
+            public void RecalculateChance() { Chance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Chance, Chance); Chance.CalculateTotal(); }
+            public void RecalculateDamage() { Damage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Damage, Damage); Damage.CalculateTotal(); }
+            public void RecalculateFireRate() { FireRate.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.FireRate, FireRate); FireRate.CalculateTotal(); }
+            public void RecalculateProjectileSpeed() { ProjectileSpeed.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed); ProjectileSpeed.CalculateTotal(); }
+            public void RecalculateProcChance() { ProcChance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.ProcChance, ProcChance); ProcChance.CalculateTotal(); }
+            public void RecalculateCritDamage() { CritDamage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.CritDamage, CritDamage); CritDamage.CalculateTotal(); }
+            public void RecalculateCharges() { Charges.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Charges, Charges); Charges.CalculateTotal(); }
+            public void RecalculateCooldown() { Cooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Cooldown, Cooldown); Cooldown.CalculateTotal(); }
+            public void RecalculateSpamCooldown() { SpamCooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown); SpamCooldown.CalculateTotal(); }
+            public void RecalculateRange() { Range.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Range, Range); Range.CalculateTotal(); }
+            public void RecalculateDuration() { Duration.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Duration, Duration); Duration.CalculateTotal(); }
+            public void RecalculateLuck() { Luck.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Luck, Luck); Luck.CalculateTotal(); }
+
+            //public AbilityStatsHolder<T> CombineModifiedStats(AbilityStatsHolder<T> otherStatHolder)
+            //{
+            //    AbilityStatsHolder<T> temp = new AbilityStatsHolder<T>();
+            //    temp.Chance =Chance.AddCombinedStats(otherStatHolder.Chance);
+
+            //    temp.Damage = Damage.AddCombinedStats(otherStatHolder.Damage);
+
+            //    temp.FireRate = FireRate.AddCombinedStats(otherStatHolder.FireRate);
+
+            //    temp.ProjectileSpeed = ProjectileSpeed.AddCombinedStats(otherStatHolder.ProjectileSpeed);
+
+            //    temp.ProcChance = ProcChance.AddCombinedStats(otherStatHolder.ProcChance);
+
+            //    temp.CritDamage = CritDamage.AddCombinedStats(otherStatHolder.CritDamage);
+
+            //    temp.Charges = Charges.AddCombinedStats(otherStatHolder.Charges);
+
+            //    temp.Cooldown = Cooldown.AddCombinedStats(otherStatHolder.Cooldown);
+
+            //    temp.SpamCooldown = SpamCooldown.AddCombinedStats(otherStatHolder.SpamCooldown);
+
+            //    temp.Range = Range.AddCombinedStats(otherStatHolder.Range);
+
+            //    temp.Duration = Duration.AddCombinedStats(otherStatHolder.Duration);
+
+            //    temp.Luck = Luck.AddCombinedStats(otherStatHolder.Luck);
+
+
+            //    return 
+            //}
+        }
+
 
         //Damage is Calculated like this: Total Damage= (BaseDamage+AdditionalDamage*DamageScaling)*(1f+DamagePercentIncrease-DamagePercentDecreases);
         //AdditionalBase
@@ -239,21 +406,16 @@ namespace BrannPack.ModifiableStats
                 }
             }
 
-            public override DamageStat GetCombinedStat(DamageStat[] addStat)
+            public override void AddCombinedStats(params DamageStat[] addStat)
             {
-
-                DamageStat tempCombined = this.Copy();
-
                 foreach (DamageStat stat in addStat)
                 {
-                    tempCombined.AdditionalDamage += stat.AdditionalDamage;
+                    AdditionalDamage += stat.AdditionalDamage;
 
-                    tempCombined.DamagePercentDecreases.AddRange(stat.DamagePercentDecreases);
-                    tempCombined.DamagePercentIncrease += stat.DamagePercentIncrease;
+                    DamagePercentDecreases.AddRange(stat.DamagePercentDecreases);
+                    DamagePercentIncrease += stat.DamagePercentIncrease;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -297,26 +459,22 @@ namespace BrannPack.ModifiableStats
                 }
             }
 
-            public override FireRateStat GetCombinedStat(FireRateStat[] addStat)
+            public override void AddCombinedStats(params FireRateStat[] addStat)
             {
-
-                FireRateStat tempCombined = this.Copy();
 
                 foreach (FireRateStat stat in addStat)
                 {
 
-                    tempCombined.FireRateDownPercentages.AddRange(stat.FireRateDownPercentages);
-                    tempCombined.FireRateUpPercentage += stat.FireRateUpPercentage;
+                    FireRateDownPercentages.AddRange(stat.FireRateDownPercentages);
+                    FireRateUpPercentage += stat.FireRateUpPercentage;
 
                 }
-
-                return tempCombined;
 
             }
 
             public override FireRateStat Copy()
             {
-                FireRateStat newCombinedStat = new FireRateStat(BaseValue, FireRateScaling, MinimumFireRate);
+                FireRateStat newCombinedStat = new FireRateStat(BaseValue, FireRateMinimum);
                 newCombinedStat.AdditionalFireRate = AdditionalFireRate;
 
                 newCombinedStat.FireRatePercentDecreases = new List<float>(FireRatePercentDecreases);
@@ -362,20 +520,16 @@ namespace BrannPack.ModifiableStats
                 }
             }
 
-            public override ProjectileSpeedStat GetCombinedStat(ProjectileSpeedStat[] addStat)
+            public override void AddCombinedStats(ProjectileSpeedStat[] addStat)
             {
-
-                ProjectileSpeedStat tempCombined = this.Copy();
 
                 foreach (ProjectileSpeedStat stat in addStat)
                 {
 
-                    tempCombined.ProjectileSpeedDownPercentage.AddRange(stat.ProjectileSpeedDownPercentage);
-                    tempCombined.ProjectileSpeedUpPercentage += stat.ProjectileSpeedUpPercentage;
+                    ProjectileSpeedDownPercentage.AddRange(stat.ProjectileSpeedDownPercentage);
+                    ProjectileSpeedUpPercentage += stat.ProjectileSpeedUpPercentage;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -404,17 +558,13 @@ namespace BrannPack.ModifiableStats
             public override void ResetModifiedValues() { ChanceUpPercentage = 0f; }
             public void ChangeProcChanceUpPercentage(float changeValue, bool undo = false) { if (!undo) ChanceUpPercentage += changeValue; else ChanceUpPercentage -= changeValue; }
 
-            public override ChanceStat GetCombinedStat(ChanceStat[] addStat)
+            public override void AddCombinedStats(params ChanceStat[] addStat)
             {
-
-                ChanceStat tempCombined = this.Copy();
 
                 foreach (ChanceStat stat in addStat)
                 {
-                    tempCombined.ChanceUpPercentage += stat.ChanceUpPercentage;
+                    ChanceUpPercentage += stat.ChanceUpPercentage;
                 }
-
-                return tempCombined;
 
             }
 
@@ -447,20 +597,16 @@ namespace BrannPack.ModifiableStats
             public void ChangeAdditionalCharges(float changeValue, bool undo = false) { if (!undo) AdditionalCharges += changeValue; else AdditionalCharges -= changeValue; }
             public void ChangeChargesByFlatPercent(float changeValue, bool undo = false) { if (!undo) AdditionalCharges += changeValue; else AdditionalCharges -= changeValue; }
 
-            public override ChargeStat GetCombinedStat(ChargeStat[] addStat)
+            public override void AddCombinedStats(ChargeStat[] addStat)
             {
-
-                ChargeStat tempCombined = this.Copy();
 
                 foreach (ChargeStat stat in addStat)
                 {
-                    tempCombined.AdditionalCharges += stat.AdditionalCharges;
+                    AdditionalCharges += stat.AdditionalCharges;
 
-                    tempCombined.ChargePercentFlat += stat.ChargePercentFlat;
+                    ChargePercentFlat += stat.ChargePercentFlat;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -508,21 +654,17 @@ namespace BrannPack.ModifiableStats
                     else CooldownPercentDecreases.Remove(1f - percentChange);
                 }
             }
-            public override CooldownStat GetCombinedStat(CooldownStat[] addStat)
+            public override void AddCombinedStats(CooldownStat[] addStat)
             {
-
-                CooldownStat tempCombined = this.Copy();
 
                 foreach (CooldownStat stat in addStat)
                 {
-                    tempCombined.AdditionalCooldown += stat.AdditionalCooldown;
+                    AdditionalCooldown += stat.AdditionalCooldown;
 
-                    tempCombined.CooldownPercentDecreases.AddRange(stat.CooldownPercentDecreases);
-                    tempCombined.CooldownPercentIncrease += stat.CooldownPercentIncrease;
+                    CooldownPercentDecreases.AddRange(stat.CooldownPercentDecreases);
+                    CooldownPercentIncrease += stat.CooldownPercentIncrease;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -609,20 +751,16 @@ namespace BrannPack.ModifiableStats
                     else RangeDownPercentages.Remove(1f - percentChange);
                 }
             }
-            public override RangeStat GetCombinedStat(RangeStat[] addStat)
+            public override void AddCombinedStats(RangeStat[] addStat)
             {
-
-                RangeStat tempCombined = this.Copy();
 
                 foreach (RangeStat stat in addStat)
                 {
 
-                    tempCombined.RangeDownPercentages.AddRange(stat.RangeDownPercentages);
-                    tempCombined.RangeFlatPercentage += stat.RangeFlatPercentage;
+                    RangeDownPercentages.AddRange(stat.RangeDownPercentages);
+                    RangeFlatPercentage += stat.RangeFlatPercentage;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -669,20 +807,15 @@ namespace BrannPack.ModifiableStats
                     else DurationDownPercentages.Remove(1f - percentChange);
                 }
             }
-            public override DurationStat GetCombinedStat(DurationStat[] addStat)
+            public override void AddCombinedStats(DurationStat[] addStat)
             {
-
-                DurationStat tempCombined = this.Copy();
-
                 foreach (DurationStat stat in addStat)
                 {
 
-                    tempCombined.DurationDownPercentages.AddRange(stat.DurationDownPercentages);
-                    tempCombined.DurationFlatPercentage += stat.DurationFlatPercentage;
+                    DurationDownPercentages.AddRange(stat.DurationDownPercentages);
+                    DurationFlatPercentage += stat.DurationFlatPercentage;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -730,21 +863,17 @@ namespace BrannPack.ModifiableStats
                     else RegenPercentDecreases.Remove(1f - percentChange);
                 }
             }
-            public override RegenStat GetCombinedStat(RegenStat[] addStat)
+            public override void AddCombinedStats(RegenStat[] addStat)
             {
-
-                RegenStat tempCombined = this.Copy();
 
                 foreach (RegenStat stat in addStat)
                 {
-                    tempCombined.AdditionalRegen += stat.AdditionalRegen;
+                    AdditionalRegen += stat.AdditionalRegen;
 
-                    tempCombined.RegenPercentDecreases.AddRange(stat.RegenPercentDecreases);
-                    tempCombined.RegenPercentIncrease += stat.RegenPercentIncrease;
+                    RegenPercentDecreases.AddRange(stat.RegenPercentDecreases);
+                    RegenPercentIncrease += stat.RegenPercentIncrease;
 
                 }
-
-                return tempCombined;
 
             }
 
@@ -788,21 +917,17 @@ namespace BrannPack.ModifiableStats
                     else MaxHealthPercentDecreases.Remove(1f - percentChange);
                 }
             }
-            public override MaxHealthStat GetCombinedStat(MaxHealthStat[] addStat)
+            public override void AddCombinedStats(MaxHealthStat[] addStat)
             {
-
-                MaxHealthStat tempCombined = this.Copy();
 
                 foreach (MaxHealthStat stat in addStat)
                 {
-                    tempCombined.AdditionalMaxHealth += stat.AdditionalMaxHealth;
+                    AdditionalMaxHealth += stat.AdditionalMaxHealth;
 
-                    tempCombined.MaxHealthPercentDecreases.AddRange(stat.MaxHealthPercentDecreases);
-                    tempCombined.MaxHealthPercentIncrease += stat.MaxHealthPercentIncrease;
+                    MaxHealthPercentDecreases.AddRange(stat.MaxHealthPercentDecreases);
+                    MaxHealthPercentIncrease += stat.MaxHealthPercentIncrease;
 
                 }
-
-                return tempCombined;
 
             }
 
