@@ -222,6 +222,7 @@ namespace BrannPack.ModifiableStats
             public RangeStat Range;
             public DurationStat Duration;
             public ChanceStat Luck;
+            public EffectivenessStat Lifesteal;
             
 
             public static event Action<T, CharacterAbilityStatVariable, ModifiableStat> RefreshAbilityStatVariable;
@@ -242,7 +243,7 @@ namespace BrannPack.ModifiableStats
                 Range.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Range, Range, newTotal, prevTotal);
                 Duration.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Duration, Duration, newTotal, prevTotal);
                 Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Luck, Luck, newTotal, prevTotal);
-
+                Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Lifesteal, Lifesteal, newTotal, prevTotal);
             }
 
             public ModifiableStat GetStatByVariable(CharacterAbilityStatVariable casv)
@@ -261,9 +262,32 @@ namespace BrannPack.ModifiableStats
                     case CharacterAbilityStatVariable.Range: return Range;
                     case CharacterAbilityStatVariable.Duration: return Duration;
                     case CharacterAbilityStatVariable.Luck: return Luck;
+                    case CharacterAbilityStatVariable.Lifesteal: return Lifesteal;
                 }
                 return null;
             }
+
+            public U GetStatByVariable<U>(CharacterAbilityStatVariable casv) where U : ModifiableStat
+            {
+                return casv switch
+                {
+                    CharacterAbilityStatVariable.Chance => Chance as U,
+                    CharacterAbilityStatVariable.Damage => Damage as U,
+                    CharacterAbilityStatVariable.FireRate => FireRate as U,
+                    CharacterAbilityStatVariable.ProcChance => ProcChance as U,
+                    CharacterAbilityStatVariable.CritDamage => CritDamage as U,
+                    CharacterAbilityStatVariable.ProjectileSpeed => ProjectileSpeed as U,
+                    CharacterAbilityStatVariable.Charges => Charges as U,
+                    CharacterAbilityStatVariable.Cooldown => Cooldown as U,
+                    CharacterAbilityStatVariable.SpamCooldown => SpamCooldown as U,
+                    CharacterAbilityStatVariable.Range => Range as U,
+                    CharacterAbilityStatVariable.Duration => Duration as U,
+                    CharacterAbilityStatVariable.Luck => Luck as U,
+                    CharacterAbilityStatVariable.Lifesteal => Lifesteal as U,
+                    _ => null
+                };
+            }
+
 
             public void RecalculateByStatVariable(CharacterAbilityStatVariable casv)
             {
@@ -290,6 +314,7 @@ namespace BrannPack.ModifiableStats
                     case CharacterAbilityStatVariable.Range: Range.AddCombinedStats(otherStat as RangeStat); break;
                     case CharacterAbilityStatVariable.Duration: Duration.AddCombinedStats(otherStat as DurationStat); break;
                     case CharacterAbilityStatVariable.Luck: Luck.AddCombinedStats(otherStat as ChanceStat); break;
+                    case CharacterAbilityStatVariable.Lifesteal: Lifesteal.AddCombinedStats(otherStat as Lifesteal); break;
                 }
 
                 RefreshAbilityStatVariable?.Invoke(Owner, casv, tempstat); 
@@ -324,6 +349,7 @@ namespace BrannPack.ModifiableStats
                 RecalculateRange();
                 RecalculateDuration();
                 RecalculateLuck();
+                RecalculateLifesteal();
 
             }
             public void RecalculateChance() { Chance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Chance, Chance); Chance.CalculateTotal(); }
@@ -338,11 +364,12 @@ namespace BrannPack.ModifiableStats
             public void RecalculateRange() { Range.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Range, Range); Range.CalculateTotal(); }
             public void RecalculateDuration() { Duration.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Duration, Duration); Duration.CalculateTotal(); }
             public void RecalculateLuck() { Luck.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Luck, Luck); Luck.CalculateTotal(); }
+            public void RecalculateLifesteal() { Lifesteal.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Lifesteal, Lifesteal); Lifesteal.CalculateTotal(); }
 
-            //public AbilityStatsHolder<T> CombineModifiedStats(AbilityStatsHolder<T> otherStatHolder)
+            //public AbilityStatsHolder<T> CombineModifiedStats<U>(AbilityStatsHolder<T> otherStatHolder)
             //{
             //    AbilityStatsHolder<T> temp = new AbilityStatsHolder<T>();
-            //    temp.Chance =Chance.AddCombinedStats(otherStatHolder.Chance);
+            //    temp.Chance = Chance.AddCombinedStats(otherStatHolder.Chance);
 
             //    temp.Damage = Damage.AddCombinedStats(otherStatHolder.Damage);
 
@@ -367,7 +394,7 @@ namespace BrannPack.ModifiableStats
             //    temp.Luck = Luck.AddCombinedStats(otherStatHolder.Luck);
 
 
-            //    return 
+            //    return
             //}
         }
 
@@ -895,12 +922,26 @@ namespace BrannPack.ModifiableStats
             public float MinimumMaxHealth = 0f;
 
             public float AdditionalMaxHealth = 0f;
+            public List<MaxHealthStat> FollowingMaxHealth=new List<MaxHealthStat>();
             public float MaxHealthPercentIncrease = 0f;
             public List<float> MaxHealthPercentDecreases = new List<float>();
 
             public MaxHealthStat(float baseValue, float maxHealthScaling = 1f, float minimumMaxHealth = 0f) : base(baseValue) => (MaxHealthScaling, MinimumMaxHealth) = (maxHealthScaling, minimumMaxHealth);
 
-            protected override float TotalValueMath() { return Mathf.Max(MinimumMaxHealth, BaseValue + AdditionalMaxHealth * MaxHealthScaling) * (1f + MaxHealthPercentIncrease - (1f - MaxHealthPercentDecreases.Aggregate(1f, (total, next) => total * next))); }
+            public void AddFollowingMaxHealth(MaxHealthStat maxHealthStat)
+            {
+                FollowingMaxHealth.Add(maxHealthStat);
+                maxHealthStat.ChangedTotal += (float newTotal, float oldTotal) => CalculateTotal();
+            }
+
+            public bool RemoveFollowingMaxHealth(MaxHealthStat maxHealthStat)
+            {
+                bool removed=FollowingMaxHealth.Remove(maxHealthStat);
+                maxHealthStat.ChangedTotal += (float newTotal, float oldTotal) => CalculateTotal();
+                return removed;
+            }
+
+            protected override float TotalValueMath() { return Mathf.Max(MinimumMaxHealth, BaseValue +FollowingMaxHealth.Sum(maxhealth=>maxhealth.Total) + AdditionalMaxHealth * MaxHealthScaling) * (1f + MaxHealthPercentIncrease - (1f - MaxHealthPercentDecreases.Aggregate(1f, (total, next) => total * next))); }
 
             public override void ResetModifiedValues() { AdditionalMaxHealth = 0f; MaxHealthPercentIncrease = 0f; MaxHealthPercentDecreases.Clear(); }
             public void ChangeAdditionalMaxHealth(float changeValue, bool undo = false) { if (!undo) AdditionalMaxHealth += changeValue; else AdditionalMaxHealth -= changeValue; }
@@ -965,11 +1006,13 @@ namespace BrannPack.ModifiableStats
                 return overDamage;
             }
 
+            public event Action<float,float,float> AfterCurrentValueChange;
             public float AddCurrentValue(float addValue)
             {
                 addValue = addValue * ObtainGain.Total;
                 float overAdd = Mathf.Max(0f, CurrentValue + addValue- MaxValue.Total);
                 CurrentValue = Mathf.Min(MaxValue.Total, CurrentValue + addValue);
+                AfterCurrentValueChange?.Invoke(CurrentValue,addValue, overAdd);
                 return CurrentValue;
             }
 
@@ -1041,14 +1084,14 @@ namespace BrannPack.ModifiableStats
             }
         }
 
-        public class Barrier : HealthType
+        public class BarrierHealth : HealthType
         {
             public RegenStat NaturalRegen; //In HP/s
             public float NaturalRegenRate = 0f; //In seconds
             public float SecondsUntilNextRegenTick = 0f;
 
             public override HealthCatagory Catagory { get; protected set; } = HealthCatagory.Barrier;
-            public Barrier(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
+            public BarrierHealth(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
 
@@ -1065,7 +1108,10 @@ namespace BrannPack.ModifiableStats
 
         public enum HealthCatagory
         {
-            Health, CelledHealth, Armor, Shield, CelledShield, Gaurd, Barrier //Max Health has no limit. Max Armor usually can only be equal to MaxHealth. Shield has no limit.  Barrier is at most Health+Shied
+            Health, CelledHealth, CursedHealth ,
+                Armor, 
+            Shield, CelledShield, Gaurd, 
+                Barrier //Max Health has no limit. Max Armor usually can only be equal to MaxHealth. Shield has no limit.  BarrierHealth is at most Health+Shied
         }
 
     }
