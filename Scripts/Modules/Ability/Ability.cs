@@ -81,18 +81,17 @@ namespace BrannPack.AbilityHandling
 
     public class AbilityUpgradeTree
     {
-        private Dictionary<AbilityUpgrade, bool> IsUpgraded;
+        public Dictionary<AbilityUpgrade, bool> IsUpgraded;
     }
 
     public class AbilityUpgrade
     {
-        private List<AbilityUpgrade> Upgrades;
-        private AbilityUpgrade Previous;
-        private string Name;
-        private string Description;
-        private string AdvancedDescription;
-        private int APCost;
-        private int LockCost;
+        public List<AbilityUpgrade> Requirements;
+        public string Name;
+        public string Description;
+        public string AdvancedDescription;
+        public int APCost;
+        public int LockCost;
     }
 
     

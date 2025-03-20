@@ -3,24 +3,8 @@
   "WorkspaceRootPath": "D:\\Documents\\GodoGames\\abilitycooprougelike\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\enteties\\baseitem\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\enteties\\baseitem\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\enteties\\baseitem\\itemcatalog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\enteties\\baseitem\\itemcatalog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\enteties\\baseitem\\tiers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\enteties\\baseitem\\tiers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\enteties\\basecharacter\\ability.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\enteties\\basecharacter\\ability.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\enteties\\basecharacter\\basecharacter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\enteties\\basecharacter\\basecharacter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\ability\\ability.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{10E6B522-749F-449D-A6D2-A7FBA7095406}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\ability\\ability.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,70 +14,20 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Tiers.cs",
-              "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseItem\\Tiers.cs",
-              "RelativeDocumentMoniker": "Scripts\\Enteties\\BaseItem\\Tiers.cs",
-              "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseItem\\Tiers.cs",
-              "RelativeToolTip": "Scripts\\Enteties\\BaseItem\\Tiers.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-07T03:11:04.629Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ItemCatalog.cs",
-              "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseItem\\ItemCatalog.cs",
-              "RelativeDocumentMoniker": "Scripts\\Enteties\\BaseItem\\ItemCatalog.cs",
-              "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseItem\\ItemCatalog.cs",
-              "RelativeToolTip": "Scripts\\Enteties\\BaseItem\\ItemCatalog.cs",
-              "ViewState": "AQIAAJcAAAAAAAAAAAAYwMMAAABDAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-07T03:10:51.185Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Item.cs",
-              "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseItem\\Item.cs",
-              "RelativeDocumentMoniker": "Scripts\\Enteties\\BaseItem\\Item.cs",
-              "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseItem\\Item.cs",
-              "RelativeToolTip": "Scripts\\Enteties\\BaseItem\\Item.cs",
-              "ViewState": "AQIAAA8AAAAAAAAAAAAowAYAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T21:03:37.7Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "Ability.cs",
-              "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseCharacter\\Ability.cs",
-              "RelativeDocumentMoniker": "Scripts\\Enteties\\BaseCharacter\\Ability.cs",
-              "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseCharacter\\Ability.cs",
-              "RelativeToolTip": "Scripts\\Enteties\\BaseCharacter\\Ability.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAKAAAA",
+              "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\Ability\\Ability.cs",
+              "RelativeDocumentMoniker": "Scripts\\Modules\\Ability\\Ability.cs",
+              "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\Ability\\Ability.cs",
+              "RelativeToolTip": "Scripts\\Modules\\Ability\\Ability.cs",
+              "ViewState": "AQIAACAAAAAAAAAAAAAIwC0AAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T19:54:17.128Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "BaseCharacter.cs",
-              "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseCharacter\\BaseCharacter.cs",
-              "RelativeDocumentMoniker": "Scripts\\Enteties\\BaseCharacter\\BaseCharacter.cs",
-              "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Enteties\\BaseCharacter\\BaseCharacter.cs",
-              "RelativeToolTip": "Scripts\\Enteties\\BaseCharacter\\BaseCharacter.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAPAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T19:37:57.648Z"
+              "WhenOpened": "2025-03-20T02:30:12.495Z",
+              "EditorCaption": ""
             }
           ]
         }
