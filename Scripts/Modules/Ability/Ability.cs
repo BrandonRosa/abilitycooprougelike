@@ -1,4 +1,5 @@
 using BrannPack.Character;
+using BrannPack.Helpers.Initializers;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using Godot;
@@ -8,14 +9,15 @@ using System.Linq;
 
 namespace BrannPack.AbilityHandling
 {
-    public abstract class AbilitySlot<T> : AbilitySlot where T : AbilitySlot<T>
+    public abstract class Ability<T> : Ability where T : Ability<T>
     {
         public static T instance { get; private set; }
 
-        public AbilitySlot()
+        public Ability()
         {
             if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
             instance = this as T;
+            instance.SetIndex();
         }
     }
     public class AbilitySlot
@@ -28,6 +30,9 @@ namespace BrannPack.AbilityHandling
         public AbilityStats.AbilityStatsHolder<AbilitySlot> ThisAbilityStats;
         public Timer Cooldown;
         public bool IsUsable;
+
+        public static event Action<AbilitySlot> BeforeAbilitySlotUse;
+        public static event Action<AbilitySlot> AfterAbilitySlotUse;
 
         public void Initialize()
         {
@@ -47,14 +52,21 @@ namespace BrannPack.AbilityHandling
         {
             if(IsUsable)
             {
+                BeforeAbilityUse?.Invoke(this);
                 Ability.UseAbility(Owner, CurrentUpgrades, CurrentTarget);
+                AfterAbilityUse?.Invoke(this);
                 return true;
             }
             return false;
         }
     }
-    public abstract class Ability
+    public abstract class Ability : IIndexable
     {
+        protected static int NextIndex = 0;
+        public int Index { get; protected set; } = -1;
+
+        public void SetIndex() { if (Index != -1) Index = NextIndex++; }
+
         public Dictionary<AbilityStat, Ability> ModifiableStats;
         private float BaseCooldown;
         private float CurrentCooldown;

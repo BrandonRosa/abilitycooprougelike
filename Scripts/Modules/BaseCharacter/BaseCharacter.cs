@@ -14,52 +14,49 @@ using static BrannPack.ModifiableStats.CharacterStats;
 using static BrannPack.ModifiableStats.AbilityStats;
 using BrannPack.ModifiableStats;
 using System.Reflection.Metadata.Ecma335;
+using BrannPack.CooldownHandling;
+using AbilityCoopRougelike.Items;
 
 
 namespace BrannPack.Character
 {
     public partial class BaseCharacter : CharacterBody2D
     {
-        private static float DefaultMaxHealth;
-        private static float DefaultMaxShield;
-        private static float DefaultRegen;
-        private static float DefaultBarrierLossRate;
-        private static float DefaultDamage;
-        private static float DefaultRange;
-        private static float DefaultDuration;
-        private static float DefaultSpeed;
-        private static float DefaultCritChance;
-        private static float DefaultCritDamage;
+
+        [Export] public float Acceleration = 1000f;  // How fast the character accelerates
+        [Export] public float Deceleration = 800f;  // How fast the character decelerates when no input is given
+        [Export] public MoveSpeedStat MoveSpeed;
+       
 
         //Players are 1
         //Bosses are around a 5 or 10
         //Swarmers are like a .25
-        private float AbilityScale;
 
-        //public ChanceStat Chance;
-        //public DamageStat Damage;
-        //public FireRateStat FireRate;
-        //public ProjectileSpeedStat ProjectileSpeed;
-        //public ChanceStat ProcChance;
-        //public DamageStat CritDamage;
-        //public ChargeStat Charges;
-        //public CooldownStat Cooldown;
-        //public CooldownStat SpamCooldown;
-        //public RangeStat Range;
-        //public DurationStat Duration;
-        //public ChanceStat Luck;
+        [Export] private float AbilityScale;
+        [Export] private float HealthScale;
+        [Export] private float MoveSpeedScale;
+        [Export] private float SizeScale;
+        [Export] private bool IsPlayerControlled;
+        [Export] public CharacterTeam Team;
+
+        [Export] public EntityController Controller;
+
+
+        public HealthBar HealthBar;
+
+        [Export] public AnimatedSprite2D AnimSprite;
 
         public AbilityStatsHolder<BaseCharacter> AbilityStats;
 
-        AbilitySlot Primary;
-        AbilitySlot Secondary;
-        AbilitySlot Utility;
-        AbilitySlot Special;
-        AbilitySlot Ult;
+        public AbilitySlot Primary;
+        public AbilitySlot Secondary;
+        public AbilitySlot Utility;
+        public AbilitySlot Special;
+        public AbilitySlot Ult;
+        public AbilitySlot Equipment;
 
         public Vector2 AttackDirection;
         public Vector2 MoveDirection;
-
 
 
         //private float BaseHealth;
@@ -97,8 +94,9 @@ namespace BrannPack.Character
         private Dictionary<(StatModTarget, CharacterAbilityStatVariable), ModifiableStat> AbilityStatModifiers;
         private Dictionary<(ItemStackFilter, CharacterAbilityStatVariable), ModifiableStat> ItemStatModifiers;
 
+        public CooldownHandler<Item> ItemCooldowns;
+        
 
-        private Dictionary<string, Ability> Abilities;
         public Inventory Inventory;
         private List<BaseCharacter> Minions;
         private List<BaseCharacter> Familiars;
@@ -106,12 +104,52 @@ namespace BrannPack.Character
 
 
         public static event Action<BaseCharacter, CharacterAbilityStatVariable, ModifiableStat> RefreshAbilityStatVariable;
-        public static event Action<BaseCharacter, float> IsMovementRestricted;
+        public static event Action<BaseCharacter, float> BeforeMovementRestricted;
+        public static event Action<BaseCharacter, float> AfterMovementRestricted;
 
         public bool IsMovementRestricted()
         {
             return false;
         }
+
+        public void Move(Vector2 direction)
+        {
+
+        }
+        public override void _PhysicsProcess(double delta)
+        {
+            base._PhysicsProcess(delta);
+
+            float CalculatedSpeed=MoveSpeed.Total;
+            // Get input vector
+            Vector2 inputDirection = MoveDirection;
+            
+
+            // Normalize the direction to ensure consistent speed in all directions
+            if (inputDirection.Length() > 0)
+                inputDirection = inputDirection.Normalized();
+
+            // Calculate target velocity based on input
+            Vector2 targetVelocity = inputDirection * CalculatedSpeed;
+
+            // Gradual acceleration: Lerp towards target velocity
+            Velocity = Velocity.Lerp( targetVelocity, Acceleration * (float)delta);
+
+            // Gradual deceleration when no input is given
+            if (inputDirection == Vector2.Zero)
+            {
+                Velocity = Velocity.Lerp(Vector2.Zero, Deceleration * (float)delta);
+            }
+
+            // Apply movement
+            MoveAndSlide();
+        }
+
+        public override void _Process(double delta)
+        {
+            base._Process(delta);
+        }
+
 
         public enum CharacterAbilityStatVariable
         {
@@ -130,16 +168,20 @@ namespace BrannPack.Character
             Lifesteal
         }
 
+         
+
 
     }
+    public enum CharacterTeam { Player, Enemy }
 
-    public class HealthBar
+    public partial class HealthBar: GodotObject
     {
+
         public BaseCharacter Owner;
-        public List<HealthType> HealthTypes = new List<HealthType>() { };
+        [Export] public List<HealthType> HealthTypes = new List<HealthType>() { };
         protected List<(HealthCatagory, float)> CurrentHealth;
-        public EffectivenessStat DamageResistance;
-        public EffectivenessStat HealingEffectiveness;
+        [Export] public EffectivenessStat DamageResistance;
+        [Export] public EffectivenessStat HealingEffectiveness;
 
         public void Init()
         {
@@ -253,11 +295,13 @@ namespace BrannPack.Character
     {
         public BaseCharacter Source;
         public BaseCharacter Destination;
+        public int SourceType;
+        public int SourceIndex;
         public int SourceEffect;
 
         public virtual bool IsSimilarEvent(EventInfo other)
         {
-            return (Source == other.Source && Destination == other.Destination && SourceEffect == other.SourceEffect) ;
+            return (Source == other.Source && Destination == other.Destination && SourceEffect == other.SourceEffect && SourceIndex==other.SourceIndex) ;
         }
     }
     public class DamageInfo: EventInfo

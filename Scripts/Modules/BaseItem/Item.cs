@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using static BrannPack.ItemHandling.ItemCatalog;
 using BrannPack.Tiers;
 using BrannPack.Character;
+using BrannPack.Helpers.Initializers;
 
 
 namespace BrannPack.ItemHandling
@@ -17,12 +18,16 @@ namespace BrannPack.ItemHandling
         {
             if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
             instance = this as T;
+            instance.SetIndex();
         }
     }
 
-    public abstract class Item
+    public abstract class Item:IIndexable
     {
+        protected static int NextIndex = 0;
+        public int Index { get; protected set; } = -1;
 
+        public void SetIndex() { if(Index!=-1)Index = NextIndex++; }
         public abstract ItemTier Tier { get; init; }
         public abstract ItemSubTier SubTier { get; init; }
         public abstract ItemModifier[] DefaultModifiers { get; init; }
@@ -53,7 +58,6 @@ namespace BrannPack.ItemHandling
         // 3 = Strong Positive Effect
         // NOTE: Weight is compared to items in similar rarity, so a Tier0 item CAN have weights of 3
         public abstract Dictionary<EffectTag, int> EffectWeight { get; init; }
-
         
 
         public static Item[] FindPerfectItems(Item[] currentItems, ItemFilter itemFilter, int count)

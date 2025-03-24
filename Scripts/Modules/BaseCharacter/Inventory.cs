@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using BrannPack.ModifiableStats;
 using BrannPack.Character;
 using System.Runtime.CompilerServices;
+using static BrannPack.ModifiableStats.AbilityStats;
+using static BrannPack.Character.BaseCharacter;
 
 namespace BrannPack.ItemHandling
 {
@@ -46,6 +48,8 @@ namespace BrannPack.ItemHandling
         public InventoryPartition ConfirmationPartition= new InventoryPartition(null,null,float.MaxValue,true);
 
         public BaseCharacter InventoryOf;
+
+        public AbilityStatsHolder<ItemStackFilter> AdditionalAbilityStatsByStackFilter;
 
         public Inventory(BaseCharacter baseCharacter)
         {
@@ -90,6 +94,10 @@ namespace BrannPack.ItemHandling
 
         }
 
+        public Dictionary<CharacterAbilityStatVariable,ModifiableStat> RequestAdditionalModStats(Item item,params CharacterAbilityStatVariable[] requestedStats)
+        {
+            return null;
+        }
         
     }
 
