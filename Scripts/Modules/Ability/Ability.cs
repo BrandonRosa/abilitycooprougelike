@@ -22,8 +22,8 @@ namespace BrannPack.AbilityHandling
     }
     public class AbilitySlot
     {
-        public BaseCharacter Owner;
-        public BaseCharacter CurrentTarget;
+        public BaseCharacterBody Owner;
+        public BaseCharacterBody CurrentTarget;
         public AbilitySlotType SlotType;
         public Ability Ability;
         public AbilityUpgradeTree CurrentUpgrades;
@@ -36,9 +36,9 @@ namespace BrannPack.AbilityHandling
 
         public void Initialize()
         {
-            //When Owner's Base stats are upated, this should also recalculate stats.
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.StatUpdatedWithNewTotal +=
-                (BaseCharacter baseCharacter, BaseCharacter.CharacterAbilityStatVariable variable, ModifiableStat modStat, float newTotal, float oldTotal) =>
+            //When OwnerBody's Base stats are upated, this should also recalculate stats.
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.StatUpdatedWithNewTotal +=
+                (BaseCharacterBody baseCharacter, BaseCharacterBody.CharacterAbilityStatVariable variable, ModifiableStat modStat, float newTotal, float oldTotal) =>
                 {
                     if (baseCharacter == Owner)
                     {
@@ -86,8 +86,8 @@ namespace BrannPack.AbilityHandling
         private static string Name;
         private static List<AbilityUpgrade> AbilityUpgrades;
 
-        public abstract void UseAbility(BaseCharacter baseCharacter, AbilityUpgradeTree treeProgress, BaseCharacter target);
-        public abstract BaseCharacter UpdateTarget();
+        public abstract void UseAbility(BaseCharacterBody baseCharacter, AbilityUpgradeTree treeProgress, BaseCharacterBody target);
+        public abstract BaseCharacterBody UpdateTarget();
 
     }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BrannPack.Character.BaseCharacter;
+using static BrannPack.Character.BaseCharacterBody;
 using static BrannPack.ModifiableStats.AbilityStats;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -214,7 +214,7 @@ namespace BrannPack.ModifiableStats
     {
         //public class AbilityStatsHolder<T>
         //{
-        //    public T Owner;
+        //    public T OwnerBody;
         //    public ChanceStat Chance;
         //    public DamageStat Damage;
         //    public FireRateStat FireRate;
@@ -236,19 +236,19 @@ namespace BrannPack.ModifiableStats
 
         //    public void Init()
         //    {
-        //        Chance.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Chance, Chance, newTotal, prevTotal);
-        //        Damage.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Damage, Damage, newTotal, prevTotal);
-        //        FireRate.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.FireRate, FireRate, newTotal, prevTotal);
-        //        ProjectileSpeed.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed, newTotal, prevTotal);
-        //        ProcChance.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.ProcChance, ProcChance, newTotal, prevTotal);
-        //        CritDamage.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.CritDamage, CritDamage, newTotal, prevTotal);
-        //        Charges.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Charges, Charges, newTotal, prevTotal);
-        //        Cooldown.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Cooldown, Cooldown, newTotal, prevTotal);
-        //        SpamCooldown.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown, newTotal, prevTotal);
-        //        Range.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Range, Range, newTotal, prevTotal);
-        //        Duration.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Duration, Duration, newTotal, prevTotal);
-        //        Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Luck, Luck, newTotal, prevTotal);
-        //        Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(Owner, CharacterAbilityStatVariable.Lifesteal, Lifesteal, newTotal, prevTotal);
+        //        Chance.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Chance, Chance, newTotal, prevTotal);
+        //        Damage.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Damage, Damage, newTotal, prevTotal);
+        //        FireRate.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.FireRate, FireRate, newTotal, prevTotal);
+        //        ProjectileSpeed.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed, newTotal, prevTotal);
+        //        ProcChance.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.ProcChance, ProcChance, newTotal, prevTotal);
+        //        CritDamage.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.CritDamage, CritDamage, newTotal, prevTotal);
+        //        Charges.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Charges, Charges, newTotal, prevTotal);
+        //        Cooldown.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Cooldown, Cooldown, newTotal, prevTotal);
+        //        SpamCooldown.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown, newTotal, prevTotal);
+        //        Range.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Range, Range, newTotal, prevTotal);
+        //        Duration.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Duration, Duration, newTotal, prevTotal);
+        //        Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Luck, Luck, newTotal, prevTotal);
+        //        Luck.ChangedTotal += (newTotal, prevTotal) => StatUpdatedWithNewTotal?.Invoke(OwnerBody, CharacterAbilityStatVariable.Lifesteal, Lifesteal, newTotal, prevTotal);
         //    }
 
         //    public ModifiableStat GetStatByVariable(CharacterAbilityStatVariable casv)
@@ -297,7 +297,7 @@ namespace BrannPack.ModifiableStats
         //    public void RecalculateByStatVariable(CharacterAbilityStatVariable casv)
         //    {
         //        ModifiableStat tempstat = GetStatByVariable(casv);
-        //        tempstat.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, casv, tempstat); tempstat.CalculateTotal();
+        //        tempstat.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, casv, tempstat); tempstat.CalculateTotal();
         //    }
 
         //    public void RecalculateAndAddStats(CharacterAbilityStatVariable casv,ModifiableStat otherStat)
@@ -322,7 +322,7 @@ namespace BrannPack.ModifiableStats
         //            case CharacterAbilityStatVariable.Lifesteal: Lifesteal.AddCombinedStats(otherStat as Lifesteal); break;
         //        }
 
-        //        RefreshAbilityStatVariable?.Invoke(Owner, casv, tempstat); 
+        //        RefreshAbilityStatVariable?.Invoke(OwnerBody, casv, tempstat); 
         //        tempstat.CalculateTotal();
         //    }
 
@@ -357,19 +357,19 @@ namespace BrannPack.ModifiableStats
         //        RecalculateLifesteal();
 
         //    }
-        //    public void RecalculateChance() { Chance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Chance, Chance); Chance.CalculateTotal(); }
-        //    public void RecalculateDamage() { Damage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Damage, Damage); Damage.CalculateTotal(); }
-        //    public void RecalculateFireRate() { FireRate.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.FireRate, FireRate); FireRate.CalculateTotal(); }
-        //    public void RecalculateProjectileSpeed() { ProjectileSpeed.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed); ProjectileSpeed.CalculateTotal(); }
-        //    public void RecalculateProcChance() { ProcChance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.ProcChance, ProcChance); ProcChance.CalculateTotal(); }
-        //    public void RecalculateCritDamage() { CritDamage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.CritDamage, CritDamage); CritDamage.CalculateTotal(); }
-        //    public void RecalculateCharges() { Charges.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Charges, Charges); Charges.CalculateTotal(); }
-        //    public void RecalculateCooldown() { Cooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Cooldown, Cooldown); Cooldown.CalculateTotal(); }
-        //    public void RecalculateSpamCooldown() { SpamCooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown); SpamCooldown.CalculateTotal(); }
-        //    public void RecalculateRange() { Range.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Range, Range); Range.CalculateTotal(); }
-        //    public void RecalculateDuration() { Duration.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Duration, Duration); Duration.CalculateTotal(); }
-        //    public void RecalculateLuck() { Luck.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Luck, Luck); Luck.CalculateTotal(); }
-        //    public void RecalculateLifesteal() { Lifesteal.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(Owner, CharacterAbilityStatVariable.Lifesteal, Lifesteal); Lifesteal.CalculateTotal(); }
+        //    public void RecalculateChance() { Chance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Chance, Chance); Chance.CalculateTotal(); }
+        //    public void RecalculateDamage() { Damage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Damage, Damage); Damage.CalculateTotal(); }
+        //    public void RecalculateFireRate() { FireRate.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.FireRate, FireRate); FireRate.CalculateTotal(); }
+        //    public void RecalculateProjectileSpeed() { ProjectileSpeed.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.ProjectileSpeed, ProjectileSpeed); ProjectileSpeed.CalculateTotal(); }
+        //    public void RecalculateProcChance() { ProcChance.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.ProcChance, ProcChance); ProcChance.CalculateTotal(); }
+        //    public void RecalculateCritDamage() { CritDamage.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.CritDamage, CritDamage); CritDamage.CalculateTotal(); }
+        //    public void RecalculateCharges() { Charges.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Charges, Charges); Charges.CalculateTotal(); }
+        //    public void RecalculateCooldown() { Cooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Cooldown, Cooldown); Cooldown.CalculateTotal(); }
+        //    public void RecalculateSpamCooldown() { SpamCooldown.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.SpamCooldown, SpamCooldown); SpamCooldown.CalculateTotal(); }
+        //    public void RecalculateRange() { Range.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Range, Range); Range.CalculateTotal(); }
+        //    public void RecalculateDuration() { Duration.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Duration, Duration); Duration.CalculateTotal(); }
+        //    public void RecalculateLuck() { Luck.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Luck, Luck); Luck.CalculateTotal(); }
+        //    public void RecalculateLifesteal() { Lifesteal.ResetModifiedValues(); RefreshAbilityStatVariable?.Invoke(OwnerBody, CharacterAbilityStatVariable.Lifesteal, Lifesteal); Lifesteal.CalculateTotal(); }
 
         //    //public AbilityStatsHolder<T> CombineModifiedStats<U>(AbilityStatsHolder<T> otherStatHolder)
         //    //{

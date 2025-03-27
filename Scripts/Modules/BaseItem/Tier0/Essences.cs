@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using static BrannPack.Character.BaseCharacter;
+using static BrannPack.Character.BaseCharacterBody;
 
 namespace AbilityCoopRougelike.Items
 {
@@ -34,7 +34,7 @@ namespace AbilityCoopRougelike.Items
             //{EffectTag.IsTealEnabler,1 } //Doest enable you Teal items, it IS a teal item. If it gave you teal items it would be different
         };
 
-        public void Subscribe(BaseCharacter character)
+        public void Subscribe(BaseCharacterBody character)
         {
             character.OnStatCalculation += ApplyStats;
         }
@@ -66,7 +66,7 @@ namespace AbilityCoopRougelike.Items
             
         };
 
-        public void Subscribe(BaseCharacter character)
+        public void Subscribe(BaseCharacterBody character)
         {
             character.OnStatCalculation += ApplyStats;
         }
@@ -96,7 +96,7 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public void Subscribe(BaseCharacter character)
+        public void Subscribe(BaseCharacterBody character)
         {
             character.OnStatCalculation += ApplyStats;
         }
@@ -127,7 +127,7 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public void Subscribe(BaseCharacter character)
+        public void Subscribe(BaseCharacterBody character)
         {
             character.OnStatCalculation += ApplyStats;
         }
@@ -159,15 +159,15 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.RefreshAbilityStatVariable -= ModifyRangeStat;
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.RefreshAbilityStatVariable += ModifyRangeStat;
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyRangeStat;
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyRangeStat;
             baseCharacter.RecalculateRange();
         }
 
-        private void ModifyRangeStat(BaseCharacter baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyRangeStat(BaseCharacterBody baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
         {
             if (casv == CharacterAbilityStatVariable.Range && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
@@ -204,15 +204,15 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.RefreshAbilityStatVariable -= ModifyCooldownStat;
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.RefreshAbilityStatVariable += ModifyCooldownStat;
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyCooldownStat;
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyCooldownStat;
             baseCharacter.RecalculateCooldown();
         }
 
-        private void ModifyCooldownStat(BaseCharacter baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyCooldownStat(BaseCharacterBody baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
         {
             if (casv == CharacterAbilityStatVariable.Cooldown && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
@@ -245,17 +245,17 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
             
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            AbilityStats.AbilityStatsHolder<BaseCharacter>.RefreshAbilityStatVariable += ModifyDamageStat;
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyDamageStat;
+            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyDamageStat;
 
             baseCharacter.AbilityStats.RecalculateDamage();
         }
 
-        private void ModifyDamageStat(BaseCharacter baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyDamageStat(BaseCharacterBody baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
         {
             if (casv == CharacterAbilityStatVariable.Damage && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {

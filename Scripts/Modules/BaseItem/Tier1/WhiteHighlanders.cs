@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BrannPack.Character.BaseCharacter;
+using static BrannPack.Character.BaseCharacterBody;
 using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.Items
@@ -38,17 +38,17 @@ namespace BrannPack.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
 
             //AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
             //AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
-            BaseCharacter.AfterMovementRestricted += ItemEffect;
+            BaseCharacterBody.AfterMovementRestricted += ItemEffect;
             //baseCharacter.AbilityStats.RecalculateDamage();
         }
 
-        private void ItemEffect(BaseCharacter baseCharacter,float duration)
+        private void ItemEffect(BaseCharacterBody baseCharacter,float duration)
         {
             if (baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects) 
                 && !baseCharacter.ItemCooldowns.IsOnCooldown(this,1))
@@ -86,7 +86,7 @@ namespace BrannPack.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
 

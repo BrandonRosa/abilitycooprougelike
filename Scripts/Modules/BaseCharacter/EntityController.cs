@@ -10,7 +10,8 @@ namespace BrannPack.Character
 {
     public abstract partial class EntityController: GodotObject
     {
-        public BaseCharacter Owner;
+        public BaseCharacterBody OwnerBody;
+        public CharacterMaster Owner;
 
         public abstract void UpdateInput();
 
@@ -30,17 +31,17 @@ namespace BrannPack.Character
             bool useUlt = Input.GetActionStrength("use_ult") > 0;
 
             if (usePrimary)
-                Owner.Primary.TryUseAbility();
+                OwnerBody.Primary.TryUseAbility();
             if (useSecondary)
-                Owner.Secondary.TryUseAbility();
+                OwnerBody.Secondary.TryUseAbility();
             if (useUtility)
-                Owner.Utility.TryUseAbility();
+                OwnerBody.Utility.TryUseAbility();
             if (useSpecial)
-                Owner.Special.TryUseAbility();
+                OwnerBody.Special.TryUseAbility();
             if (useUlt)
-                Owner.Ult.TryUseAbility();
+                OwnerBody.Ult.TryUseAbility();
 
-            Owner.MoveDirection = inputDirection;
+            OwnerBody.MoveDirection = inputDirection;
         }
     }
 

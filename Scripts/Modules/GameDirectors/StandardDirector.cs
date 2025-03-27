@@ -24,7 +24,7 @@ namespace BrannPack.Directors
         public int Floor = 1;
 
 
-        private Dictionary<CharacterTeam, BaseCharacter> CharactersByTeam;
+        private Dictionary<CharacterTeam, BaseCharacterBody> CharactersByTeam;
 
         public StandardDirector() { if (instance == null) instance = this; }
 

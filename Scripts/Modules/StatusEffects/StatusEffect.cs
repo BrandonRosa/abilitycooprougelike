@@ -12,16 +12,16 @@ namespace BrannPack.StatusEffectHandling
 {
     public class StatusEffectHandler
     {
-        public BaseCharacter Owner;
+        public BaseCharacterBody Owner;
         //Int is the StatusEffect Index
         Dictionary<int, List<StatusEffectStack>> StatusEffects;
 
-        public static event Action<BaseCharacter, StatusEffectInfo> BeforeSEGain;
-        public static event Action<BaseCharacter, StatusEffectInfo> AfterSEGain;
+        public static event Action<BaseCharacterBody, StatusEffectInfo> BeforeSEGain;
+        public static event Action<BaseCharacterBody, StatusEffectInfo> AfterSEGain;
 
-        public static event Action<BaseCharacter, StatusEffectStack> SELoss;
+        public static event Action<BaseCharacterBody, StatusEffectStack> SELoss;
 
-        public StatusEffectHandler(BaseCharacter owner)
+        public StatusEffectHandler(BaseCharacterBody owner)
         {
             Owner = owner;
         }

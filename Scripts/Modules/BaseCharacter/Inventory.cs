@@ -10,7 +10,7 @@ using BrannPack.ModifiableStats;
 using BrannPack.Character;
 using System.Runtime.CompilerServices;
 using static BrannPack.ModifiableStats.AbilityStats;
-using static BrannPack.Character.BaseCharacter;
+using static BrannPack.Character.BaseCharacterBody;
 
 namespace BrannPack.ItemHandling
 {
@@ -47,11 +47,11 @@ namespace BrannPack.ItemHandling
         public InventoryPartition ActiveItemPartition= new InventoryPartition(null,ActiveItemFilter , 1f);
         public InventoryPartition ConfirmationPartition= new InventoryPartition(null,null,float.MaxValue,true);
 
-        public BaseCharacter InventoryOf;
+        public BaseCharacterBody InventoryOf;
 
         public AbilityStatsHolder<ItemStackFilter> AdditionalAbilityStatsByStackFilter;
 
-        public Inventory(BaseCharacter baseCharacter)
+        public Inventory(BaseCharacterBody baseCharacter)
         {
             HighlanderPartitions.ForEach(part => part.PartitionOf = this);
             StandardPartition.PartitionOf = this;

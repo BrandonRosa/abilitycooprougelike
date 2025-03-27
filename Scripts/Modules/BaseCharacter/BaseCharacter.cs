@@ -20,8 +20,24 @@ using AbilityCoopRougelike.Items;
 
 namespace BrannPack.Character
 {
-    public partial class BaseCharacter : CharacterBody2D
+
+    public partial class BaseCharacterBody : CharacterBody2D
     {
+        public static List<BaseCharacterBody> AllCharacters = new List<BaseCharacterBody>();
+
+        public override void _Ready()
+        {
+            base._Ready();
+            AllCharacters.Add(this);
+        }
+
+        public override void _ExitTree()
+        {
+            AllCharacters.Remove(this);
+        }
+
+        [Export] public string CharacterName;
+        [Export] public CharacterMaster CharacterMaster;
 
         [Export] public float Acceleration = 1000f;  // How fast the character accelerates
         [Export] public float Deceleration = 800f;  // How fast the character decelerates when no input is given
@@ -39,14 +55,14 @@ namespace BrannPack.Character
         [Export] private bool IsPlayerControlled;
         [Export] public CharacterTeam Team;
 
-        [Export] public EntityController Controller;
+        
 
 
         public HealthBar HealthBar;
 
         [Export] public AnimatedSprite2D AnimSprite;
 
-        public AbilityStatsHolder<BaseCharacter> AbilityStats;
+        public AbilityStatsHolder<BaseCharacterBody> AbilityStats;
 
         public AbilitySlot Primary;
         public AbilitySlot Secondary;
@@ -59,53 +75,10 @@ namespace BrannPack.Character
         public Vector2 MoveDirection;
 
 
-        //private float BaseHealth;
-        //private float BaseRegen;
-        //private float BaseMaxShield;
-        //private float BaseShieldRegenDelay;
-        //private float BaseShieldRegenRate;
-        //private float BaseBarrierLossRate;
-        //private float BaseTopSpeed;
-        //private float MinimumSpeed;
 
-        //private float CurrentMaxHealth;
-        //private float CurrentHealth;
-        //private float CurrentRegen;
-        //private float CurrentMaxShield;
-        //private float CurrentShieldRegenDelay;
-        //private float CurrentShieldRegenRate;
-        //private float CurrentShield;
-        //private float CurrentArmorGainMult;
-        ////private float CurrentArmor;
-        //private float CurrentBarrierGainMult;
-        //private float CurrentBarrier;
-        //private float CurrentBarrierLossRate;
-        //private float CurrentSpeed => CurrentTopSpeed + CurrentTopSpeed * CurrentSpeedReduction;
-        //private float CurrentTopSpeed;
-        //private float CurrentSpeedReduction => Mathf.Min(0f, SpeedReductionResistance - SpeedReductionPercent);
-        //private float SpeedReductionResistance;
-        //private float SpeedReductionPercent;
-
-        //private float CurrentDamageResistance => PositiveDamageResistance - NegativeDamageResistance;
-        //private float PositiveDamageResistance;
-        //private float NegativeDamageResistance;
-
-
-        private Dictionary<(StatModTarget, CharacterAbilityStatVariable), ModifiableStat> AbilityStatModifiers;
-        private Dictionary<(ItemStackFilter, CharacterAbilityStatVariable), ModifiableStat> ItemStatModifiers;
-
-        public CooldownHandler<Item> ItemCooldowns;
-        
-
-        public Inventory Inventory;
-        private List<BaseCharacter> Minions;
-        private List<BaseCharacter> Familiars;
-
-
-
-        public static event Action<BaseCharacter, CharacterAbilityStatVariable, ModifiableStat> RefreshAbilityStatVariable;
-        public static event Action<BaseCharacter, float> BeforeMovementRestricted;
-        public static event Action<BaseCharacter, float> AfterMovementRestricted;
+        public static event Action<BaseCharacterBody, CharacterAbilityStatVariable, ModifiableStat> RefreshAbilityStatVariable;
+        public static event Action<BaseCharacterBody, float> BeforeMovementRestricted;
+        public static event Action<BaseCharacterBody, float> AfterMovementRestricted;
 
         public bool IsMovementRestricted()
         {
@@ -121,6 +94,7 @@ namespace BrannPack.Character
             base._PhysicsProcess(delta);
 
             float CalculatedSpeed=MoveSpeed.Total;
+            
             // Get input vector
             Vector2 inputDirection = MoveDirection;
             
@@ -177,7 +151,7 @@ namespace BrannPack.Character
     public partial class HealthBar: GodotObject
     {
 
-        public BaseCharacter Owner;
+        public BaseCharacterBody Owner;
         [Export] public List<HealthType> HealthTypes = new List<HealthType>() { };
         protected List<(HealthCatagory, float)> CurrentHealth;
         [Export] public EffectivenessStat DamageResistance;
@@ -216,7 +190,7 @@ namespace BrannPack.Character
         {
             return currentHealth.Sum(curCat => curCat.Item2);
         }
-        public HealthBar(BaseCharacter owner, List<HealthType> healthTypes, EffectivenessStat damageResistance, EffectivenessStat movementSlow, EffectivenessStat healingEffectiveness)
+        public HealthBar(BaseCharacterBody owner, List<HealthType> healthTypes, EffectivenessStat damageResistance, EffectivenessStat movementSlow, EffectivenessStat healingEffectiveness)
         {
             Owner = owner;
             HealthTypes = healthTypes;
@@ -239,8 +213,8 @@ namespace BrannPack.Character
             return GetTotalCurrentHealth(CurrentHealth) - GetTotalCurrentHealth(oldHealth);
         }
 
-        public static event Action<BaseCharacter, DamageInfo> BeforeTakingDamage;
-        public static event Action<BaseCharacter, DamageInfo, List<(HealthCatagory, float)>, float> AfterTakingDamage;
+        public static event Action<BaseCharacterBody, DamageInfo> BeforeTakingDamage;
+        public static event Action<BaseCharacterBody, DamageInfo, List<(HealthCatagory, float)>, float> AfterTakingDamage;
 
         //Returns the amount of ActualDamage taken.
         public float TakeDamage(DamageInfo damageInfo)
@@ -264,7 +238,7 @@ namespace BrannPack.Character
 
         }
 
-        public static event Action<BaseCharacter, HealthType, float, float> AfterMaxHealthChange;
+        public static event Action<BaseCharacterBody, HealthType, float, float> AfterMaxHealthChange;
 
         public float GetMaxHealth()
         {
@@ -293,8 +267,8 @@ namespace BrannPack.Character
     }
     public abstract class EventInfo
     {
-        public BaseCharacter Source;
-        public BaseCharacter Destination;
+        public BaseCharacterBody Source;
+        public BaseCharacterBody Destination;
         public int SourceType;
         public int SourceIndex;
         public int SourceEffect;
@@ -309,6 +283,17 @@ namespace BrannPack.Character
         public float Damage;
         bool IsCrit;
         Vector2 DirectionFrom;
+    }
+
+    public class AttackInfo: EventInfo
+    {
+        public float Damage;
+        bool IsCrit;
+        Vector2 DirectionFrom;
+        Vector2 DirectionTo;
+
+        public Range;
+        public 
     }
 
     public class HealingInfo:EventInfo

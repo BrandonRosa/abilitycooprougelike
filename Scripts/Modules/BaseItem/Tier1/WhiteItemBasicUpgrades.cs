@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BrannPack.Character.BaseCharacter;
+using static BrannPack.Character.BaseCharacterBody;
 
 namespace BrannPack.Items
 {
@@ -35,7 +35,7 @@ namespace BrannPack.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacter baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
 
