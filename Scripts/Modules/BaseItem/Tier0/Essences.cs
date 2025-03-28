@@ -162,14 +162,14 @@ namespace AbilityCoopRougelike.Items
         public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyRangeStat;
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyRangeStat;
+            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyRangeStat;
+            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyRangeStat;
             baseCharacter.RecalculateRange();
         }
 
-        private void ModifyRangeStat(BaseCharacterBody baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyRangeStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)
         {
-            if (casv == CharacterAbilityStatVariable.Range && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (casv == Stat.Range && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if (modStat is AbilityStats.RangeStat rangeStat)
                 {
@@ -207,14 +207,14 @@ namespace AbilityCoopRougelike.Items
         public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyCooldownStat;
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyCooldownStat;
+            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyCooldownStat;
+            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyCooldownStat;
             baseCharacter.RecalculateCooldown();
         }
 
-        private void ModifyCooldownStat(BaseCharacterBody baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyCooldownStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)
         {
-            if (casv == CharacterAbilityStatVariable.Cooldown && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (casv == Stat.Cooldown && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if (modStat is AbilityStats.CooldownStat cooldownStat)
                 {
@@ -249,15 +249,15 @@ namespace AbilityCoopRougelike.Items
         {
             // Ensure the event is only subscribed once
             
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyDamageStat;
+            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyDamageStat;
+            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyDamageStat;
 
             baseCharacter.AbilityStats.RecalculateDamage();
         }
 
-        private void ModifyDamageStat(BaseCharacterBody baseCharacter, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyDamageStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)
         {
-            if (casv == CharacterAbilityStatVariable.Damage && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (casv == Stat.Damage && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if (modStat is AbilityStats.DamageStat DamageStat)
                 {

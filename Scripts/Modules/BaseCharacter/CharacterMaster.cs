@@ -35,9 +35,10 @@ namespace BrannPack.Character
         [Export] private float SizeScale;
         [Export] private bool IsPlayerControlled;
         [Export] public CharacterTeam Team;
+        [Export] public HashSet<CharacterTeam> CanDamageTeams;
 
-        private Dictionary<(StatModTarget, CharacterAbilityStatVariable), ModifiableStat> AbilityStatModifiers;
-        private Dictionary<(ItemStackFilter, CharacterAbilityStatVariable), ModifiableStat> ItemStatModifiers;
+        private Dictionary<(StatModTarget, Stat), ModifiableStat> AbilityStatModifiers;
+        private Dictionary<(ItemStackFilter, Stat), ModifiableStat> ItemStatModifiers;
 
         public CooldownHandler<Item> ItemCooldowns;
 
@@ -45,5 +46,10 @@ namespace BrannPack.Character
         public Inventory Inventory;
         private List<BaseCharacterBody> Minions;
         private List<BaseCharacterBody> Familiars;
+
+        public void DealDamage(BaseCharacterBody victim, float Damage)
+        {
+
+        }
     }
 }

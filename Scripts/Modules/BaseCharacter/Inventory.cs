@@ -49,7 +49,7 @@ namespace BrannPack.ItemHandling
 
         public BaseCharacterBody InventoryOf;
 
-        public AbilityStatsHolder<ItemStackFilter> AdditionalAbilityStatsByStackFilter;
+        public StatsHolder<ItemStackFilter> AdditionalAbilityStatsByStackFilter;
 
         public Inventory(BaseCharacterBody baseCharacter)
         {
@@ -94,7 +94,7 @@ namespace BrannPack.ItemHandling
 
         }
 
-        public Dictionary<CharacterAbilityStatVariable,ModifiableStat> RequestAdditionalModStats(Item item,params CharacterAbilityStatVariable[] requestedStats)
+        public Dictionary<Stat,ModifiableStat> RequestAdditionalModStats(Item item,params Stat[] requestedStats)
         {
             return null;
         }

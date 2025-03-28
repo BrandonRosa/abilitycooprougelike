@@ -27,7 +27,7 @@ namespace BrannPack.AbilityHandling
         public AbilitySlotType SlotType;
         public Ability Ability;
         public AbilityUpgradeTree CurrentUpgrades;
-        public AbilityStats.AbilityStatsHolder<AbilitySlot> ThisAbilityStats;
+        public AbilityStats.StatsHolder<AbilitySlot> ThisAbilityStats;
         public Timer Cooldown;
         public bool IsUsable;
 
@@ -36,15 +36,15 @@ namespace BrannPack.AbilityHandling
 
         public void Initialize()
         {
-            //When OwnerBody's Base stats are upated, this should also recalculate stats.
-            AbilityStats.AbilityStatsHolder<BaseCharacterBody>.StatUpdatedWithNewTotal +=
-                (BaseCharacterBody baseCharacter, BaseCharacterBody.CharacterAbilityStatVariable variable, ModifiableStat modStat, float newTotal, float oldTotal) =>
-                {
-                    if (baseCharacter == Owner)
-                    {
-                        ThisAbilityStats.RecalculateAndAddStats(variable,baseCharacter.AbilityStats.GetStatByVariable(variable));
-                    }
-                };
+            ////When OwnerBody's Base stats are upated, this should also recalculate stats.
+            //AbilityStats.StatsHolder<BaseCharacterBody>.StatUpdatedWithNewTotal +=
+            //    (BaseCharacterBody baseCharacter, BaseCharacterBody.Stat variable, ModifiableStat modStat, float newTotal, float oldTotal) =>
+            //    {
+            //        if (baseCharacter == Owner)
+            //        {
+            //            ThisAbilityStats.RecalculateAndAddStats(variable,baseCharacter.AbilityStats.GetStatByVariable(variable));
+            //        }
+            //    };
 
             
         }
@@ -86,7 +86,7 @@ namespace BrannPack.AbilityHandling
         private static string Name;
         private static List<AbilityUpgrade> AbilityUpgrades;
 
-        public abstract void UseAbility(BaseCharacterBody baseCharacter, AbilityUpgradeTree treeProgress, BaseCharacterBody target);
+        public abstract void UseAbility(BaseCharacterBody baseCharacter,AbilitySlot abilitySlot,AbilityUpgradeTree treeProgress, BaseCharacterBody target);
         public abstract BaseCharacterBody UpdateTarget();
 
     }
@@ -96,17 +96,18 @@ namespace BrannPack.AbilityHandling
         public Dictionary<AbilityUpgrade, bool> IsUpgraded;
     }
 
-    public class AbilityUpgrade
+    [GlobalClass]  // Enables it to be created in the Godot Editor
+    public partial class AbilityUpgrade : Resource
     {
-        public List<AbilityUpgrade> Requirements;
-        public string Name;
-        public string Description;
-        public string AdvancedDescription;
-        public int APCost;
-        public int LockCost;
+        [Export] public string Name;
+        [Export] public string Description;
+        [Export] public string AdvancedDescription;
+        [Export] public int APCost;
+        [Export] public int LockCost;
+        [Export] public List<AbilityUpgrade> Requirements;
     }
 
-    
+
 
     public enum AbilitySlotType
     {

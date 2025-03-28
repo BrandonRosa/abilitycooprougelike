@@ -39,15 +39,15 @@ namespace BrannPack.Items
         {
             // Ensure the event is only subscribed once
 
-            AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
+            AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
+            AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
 
             baseCharacter.AbilityStats.RecalculateDamage();
         }
 
-        private void ModifyDamageStat(AbilitySlot slot, CharacterAbilityStatVariable casv, ModifiableStat modStat)
+        private void ModifyDamageStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
         {
-            if (casv == CharacterAbilityStatVariable.FireRate && slot.SlotType==AbilitySlotType.Primary && slot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (casv == Stat.FireRate && slot.SlotType==AbilitySlotType.Primary && slot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if (modStat is AbilityStats.FireRateStat FirerateStat)
                 {

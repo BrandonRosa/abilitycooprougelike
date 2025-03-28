@@ -62,7 +62,7 @@ namespace BrannPack.Character
 
         [Export] public AnimatedSprite2D AnimSprite;
 
-        public AbilityStatsHolder<BaseCharacterBody> AbilityStats;
+        public StatsHolder<BaseCharacterBody> AbilityStats;
 
         public AbilitySlot Primary;
         public AbilitySlot Secondary;
@@ -76,7 +76,7 @@ namespace BrannPack.Character
 
 
 
-        public static event Action<BaseCharacterBody, CharacterAbilityStatVariable, ModifiableStat> RefreshAbilityStatVariable;
+        public static event Action<BaseCharacterBody, Stat, ModifiableStat> RefreshAbilityStatVariable;
         public static event Action<BaseCharacterBody, float> BeforeMovementRestricted;
         public static event Action<BaseCharacterBody, float> AfterMovementRestricted;
 
@@ -125,7 +125,7 @@ namespace BrannPack.Character
         }
 
 
-        public enum CharacterAbilityStatVariable
+        public enum Stat
         {
             Chance,
             Damage,
@@ -273,6 +273,8 @@ namespace BrannPack.Character
         public int SourceIndex;
         public int SourceEffect;
 
+        public EventInfo(BaseCharacterBody source, BaseCharacterBody destination, int sourceType, int sourceIndex, int sourceEffect) => (Source, Destination, SourceType, SourceIndex, SourceEffect) = (source, destination, sourceType, sourceIndex, sourceEffect);
+
         public virtual bool IsSimilarEvent(EventInfo other)
         {
             return (Source == other.Source && Destination == other.Destination && SourceEffect == other.SourceEffect && SourceIndex==other.SourceIndex) ;
@@ -283,6 +285,12 @@ namespace BrannPack.Character
         public float Damage;
         bool IsCrit;
         Vector2 DirectionFrom;
+
+        public DamageInfo(BaseCharacterBody source, BaseCharacterBody destination, int sourceType, int sourceIndex, int sourceEffect,
+            float damage, bool isCrit, Vector2 directionFrom)
+            : base(source, destination, sourceType, sourceIndex, sourceEffect) =>
+            (Damage, IsCrit, DirectionFrom) = (damage, isCrit, directionFrom);
+
     }
 
     public class AttackInfo: EventInfo

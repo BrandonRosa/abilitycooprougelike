@@ -42,8 +42,8 @@ namespace BrannPack.Items
         {
             // Ensure the event is only subscribed once
 
-            //AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            //AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
+            //AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
+            //AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
             BaseCharacterBody.AfterMovementRestricted += ItemEffect;
             //baseCharacter.AbilityStats.RecalculateDamage();
         }
@@ -90,13 +90,13 @@ namespace BrannPack.Items
         {
             // Ensure the event is only subscribed once
 
-            //AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            AbilityStats.AbilityStatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyChargeStat;
+            //AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
+            AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyChargeStat;
             AbilitySlot.AfterAbilitySlotUse += OnUseItemEffect;
             baseCharacter.Utility.ThisAbilityStats.RecalculateCharges();
         }
 
-        private void ModifyChargeStat(AbilitySlot abilitySlot, CharacterAbilityStatVariable variable, ModifiableStat stat)
+        private void ModifyChargeStat(AbilitySlot abilitySlot, Stat variable, ModifiableStat stat)
         {
             if(abilitySlot.SlotType == AbilitySlotType.Utility && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {

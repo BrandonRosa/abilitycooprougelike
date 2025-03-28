@@ -57,18 +57,17 @@ namespace BrannPack.Helpers.Attacks
     BaseCharacterBody characterBody, Transform2D origin, float facingAngle,
     float sweepRadius, float sweepDepth, int checks, bool respectTerrain = true)
         {
-            List<BaseCharacterBody> hitCharacters = new List<BaseCharacterBody>();
+            HashSet<BaseCharacterBody> hitCharacters = new HashSet<BaseCharacterBody>();
             var spaceState = characterBody.GetWorld2D().DirectSpaceState;
 
             float stepAngle = sweepRadius / (checks - 1); // Step size for each iteration
 
             // Create the raycast
-            var spaceState = characterBody.GetWorld2D().DirectSpaceState;
             var query = new PhysicsRayQueryParameters2D
             {
                 // Set the ray start and end points
-                From = pointA,
-                To = pointB,
+                From = origin.Origin,
+                To = Vector2.Zero,
                 Exclude = { characterBody.GetRid() },
                 // Optionally, filter what should be checked (e.g., Ignore terrain layers if respectTerrain is true)
                 CollisionMask = respectTerrain ? ~(1u << 0) : 0xFFFFFFFF// 0 assumes terrain is on layer 0 (you can modify based on your setup)
@@ -78,33 +77,31 @@ namespace BrannPack.Helpers.Attacks
             {
                 float currentAngle = facingAngle - (sweepRadius / 2) + stepAngle * i; // Calculate angle
                 Vector2 direction = new Vector2(1, 0).Rotated(Mathf.DegToRad(currentAngle)); // Rotate the unit vector
-                Vector2 pointA = origin.Origin; // Starting position
-                Vector2 pointB = pointA + direction * sweepDepth; // End position based on depth
+                Vector2 pointB = query.From + direction * sweepDepth; // End position based on depth
 
                 // Perform raycast
-                var query = PhysicsRayQueryParameters2D.Create(pointA, pointB);
-                query.CollisionMask = respectTerrain ? ~(1 << 0) : (uint)~0; // Ignore terrain if needed
+
+                query.To = pointB;
 
                 var result = spaceState.IntersectRay(query);
 
                 // Process hits
                 if (result.Count > 0)
                 {
-                    var collider = result["collider"] as BaseCharacterBody;
-                    if (collider != null && collider != characterBody) // Avoid self-hit
+                    if (result["collider"].Obj is BaseCharacterBody charBody) // Avoid self-hit
                     {
-                        hitCharacters.Add(collider);
+                        hitCharacters.Add(charBody);
                     }
 
                     // Stop at terrain if enabled
-                    if (respectTerrain && result["collider"] is StaticBody2D)
+                    if (result["collider"].Obj is StaticBody2D)
                     {
                         continue; // Skip further processing if terrain blocks the ray
                     }
                 }
             }
 
-            return hitCharacters;
+            return hitCharacters.ToList();
         }
     }
 }
