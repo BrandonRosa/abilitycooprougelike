@@ -1,4 +1,5 @@
-﻿using BrannPack.CooldownHandling;
+﻿using BrannPack.AbilityHandling;
+using BrannPack.CooldownHandling;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using Godot;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.Character.BaseCharacterBody;
+using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.Character
 {
@@ -40,15 +42,32 @@ namespace BrannPack.Character
         private Dictionary<(StatModTarget, Stat), ModifiableStat> AbilityStatModifiers;
         private Dictionary<(ItemStackFilter, Stat), ModifiableStat> ItemStatModifiers;
 
-        public CooldownHandler<Item> ItemCooldowns;
-
-
         public Inventory Inventory;
         private List<BaseCharacterBody> Minions;
         private List<BaseCharacterBody> Familiars;
 
-        public void DealDamage(BaseCharacterBody victim, float Damage)
+        public AbilitySlot Primary;
+        public AbilitySlot Secondary;
+        public AbilitySlot Utility;
+        public AbilitySlot Special;
+        public AbilitySlot Ult;
+        public AbilitySlot Equipment;
+
+        public HealthBar HealthBar;
+
+        public CooldownHandler Cooldowns;
+
+        public StatsHolder<BaseCharacterBody> Stats;
+
+        public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;
+
+        public void DealDamage(CharacterMaster victim, DamageInfo damageInfo,EventChain eventChain)
         {
+            BeforeDealDamage?.Invoke(this, victim, damageInfo, eventChain);
+
+            //Do damage stuff
+
+            //AfterDealDamage
 
         }
     }

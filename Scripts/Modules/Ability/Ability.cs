@@ -22,7 +22,7 @@ namespace BrannPack.AbilityHandling
     }
     public class AbilitySlot
     {
-        public BaseCharacterBody Owner;
+        public CharacterMaster Owner;
         public BaseCharacterBody CurrentTarget;
         public AbilitySlotType SlotType;
         public Ability Ability;
@@ -36,13 +36,13 @@ namespace BrannPack.AbilityHandling
 
         public void Initialize()
         {
-            ////When OwnerBody's Base stats are upated, this should also recalculate stats.
-            //AbilityStats.StatsHolder<BaseCharacterBody>.StatUpdatedWithNewTotal +=
+            ////When OwnerBody's Base _stats are upated, this should also recalculate _stats.
+            //Stats.StatsHolder<BaseCharacterBody>.StatUpdatedWithNewTotal +=
             //    (BaseCharacterBody baseCharacter, BaseCharacterBody.Stat variable, ModifiableStat modStat, float newTotal, float oldTotal) =>
             //    {
             //        if (baseCharacter == Owner)
             //        {
-            //            ThisAbilityStats.RecalculateAndAddStats(variable,baseCharacter.AbilityStats.GetStatByVariable(variable));
+            //            ThisAbilityStats.RecalculateAndAddStats(variable,baseCharacter.Stats.GetStatByVariable(variable));
             //        }
             //    };
 
@@ -52,9 +52,9 @@ namespace BrannPack.AbilityHandling
         {
             if(IsUsable)
             {
-                BeforeAbilityUse?.Invoke(this);
+                BeforeAbilitySlotUse?.Invoke(this);
                 Ability.UseAbility(Owner, CurrentUpgrades, CurrentTarget);
-                AfterAbilityUse?.Invoke(this);
+                AfterAbilitySlotUse?.Invoke(this);
                 return true;
             }
             return false;

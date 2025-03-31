@@ -91,11 +91,13 @@ namespace BrannPack.ItemHandling
             return null;
         }
 
-        public void OnItemAdded(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems) { SetItemEffects(baseCharacter,itemsAdded, totalItems, true); }
+        public virtual void Init() { }
 
-        public void OnItemRemoved(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems) { SetItemEffects(baseCharacter, itemsAdded, totalItems, false); }
+        public void OnItemAdded(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems) { SetItemEffects(inventory,changes, totalItems, true); }
 
-        public abstract void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true);
+        public void OnItemRemoved(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems) { SetItemEffects(inventory, changes, totalItems, false); }
+
+        public virtual void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true) { }
 
     }
 

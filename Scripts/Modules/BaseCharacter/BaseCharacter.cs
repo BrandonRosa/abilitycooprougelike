@@ -58,25 +58,20 @@ namespace BrannPack.Character
         
 
 
-        public HealthBar HealthBar;
+        public HealthBar StartingHealthBar;
 
         [Export] public AnimatedSprite2D AnimSprite;
 
-        public StatsHolder<BaseCharacterBody> AbilityStats;
+        public StatsHolder StartingStats;
 
-        public AbilitySlot Primary;
-        public AbilitySlot Secondary;
-        public AbilitySlot Utility;
-        public AbilitySlot Special;
-        public AbilitySlot Ult;
-        public AbilitySlot Equipment;
+        
 
         public Vector2 AttackDirection;
         public Vector2 MoveDirection;
 
 
 
-        public static event Action<BaseCharacterBody, Stat, ModifiableStat> RefreshAbilityStatVariable;
+        //public static event Action<BaseCharacterBody, Stat, ModifiableStat> RefreshAbilityStatVariable;
         public static event Action<BaseCharacterBody, float> BeforeMovementRestricted;
         public static event Action<BaseCharacterBody, float> AfterMovementRestricted;
 
@@ -139,7 +134,8 @@ namespace BrannPack.Character
             Range,
             Duration,
             Luck,
-            Lifesteal
+            Lifesteal,
+            MoveSpeed
         }
 
          
@@ -233,7 +229,7 @@ namespace BrannPack.Character
         }
 
 
-        public float Heal(float healingAmount, EffectivenessStat additionalHealingEfficiency = null, HealthCatagory catagory = HealthCatagory.Health)
+        public float Heal(HealingInfo healingInfo,EventChain eventChain)
         {
 
         }
@@ -267,46 +263,55 @@ namespace BrannPack.Character
     }
     public abstract class EventInfo
     {
-        public BaseCharacterBody Source;
-        public BaseCharacterBody Destination;
-        public int SourceType;
-        public int SourceIndex;
-        public int SourceEffect;
+        public CharacterMaster Source;
+        public CharacterMaster Destination;
+        public (int SourceType,int SourceIndex,int SourceEffect) Key;
 
-        public EventInfo(BaseCharacterBody source, BaseCharacterBody destination, int sourceType, int sourceIndex, int sourceEffect) => (Source, Destination, SourceType, SourceIndex, SourceEffect) = (source, destination, sourceType, sourceIndex, sourceEffect);
+        public EventInfo(CharacterMaster source, CharacterMaster destination, (int,int,int) key) => (Source, Destination, Key) = (source, destination, key);
 
         public virtual bool IsSimilarEvent(EventInfo other)
         {
             return (Source == other.Source && Destination == other.Destination && SourceEffect == other.SourceEffect && SourceIndex==other.SourceIndex) ;
         }
     }
+    //Use this when dealing damage from an attack. For example, the explosion from a rocket
     public class DamageInfo: EventInfo
     {
         public float Damage;
         bool IsCrit;
         Vector2 DirectionFrom;
 
-        public DamageInfo(BaseCharacterBody source, BaseCharacterBody destination, int sourceType, int sourceIndex, int sourceEffect,
+        public DamageInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
             float damage, bool isCrit, Vector2 directionFrom)
-            : base(source, destination, sourceType, sourceIndex, sourceEffect) =>
+            : base(source, destination, key) =>
             (Damage, IsCrit, DirectionFrom) = (damage, isCrit, directionFrom);
 
     }
 
+    //Use this when LAUNCHING an attack. For example, launching a rocket
     public class AttackInfo: EventInfo
     {
         public float Damage;
-        bool IsCrit;
-        Vector2 DirectionFrom;
-        Vector2 DirectionTo;
+        public bool IsCrit;
+        public Vector2 DirectionFrom;
+        public Vector2 DirectionTo;
 
-        public Range;
-        public 
+        public StatsHolder Stats;
+        public AttackInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
+            float damage, bool isCrit, StatsHolder stats=null,Vector2 directionFrom=default, Vector2 directionTo= default)
+            : base(source, destination, key) =>
+            (Damage, IsCrit, Stats,DirectionFrom, DirectionTo) = (damage, isCrit, stats,directionFrom,directionTo);
     }
 
-    public class HealingInfo:EventInfo
+    public class HealingInfo : EventInfo
     {
-        public float Amount;
+        float HealingAmount;
+        EffectivenessStat AdditionalHealingEfficiency = null;
+        HealthCatagory Catagory = HealthCatagory.Health;
+
+        public HealingInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
+            float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCatagory catagory = HealthCatagory.Health)
+            : base(source, destination, key) => (HealingAmount,AdditionalHealingEfficiency,Catagory)=(healingAmount,additionalHealingEffeciency,catagory)
     }
 
     

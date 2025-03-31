@@ -252,7 +252,7 @@ namespace AbilityCoopRougelike.Items
             AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyDamageStat;
             AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyDamageStat;
 
-            baseCharacter.AbilityStats.RecalculateDamage();
+            baseCharacter.Stats.RecalculateDamage();
         }
 
         private void ModifyDamageStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)

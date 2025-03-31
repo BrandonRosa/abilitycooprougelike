@@ -42,7 +42,7 @@ namespace BrannPack.Items
             AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
             AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
 
-            baseCharacter.AbilityStats.RecalculateDamage();
+            baseCharacter.Stats.RecalculateDamage();
         }
 
         private void ModifyDamageStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)

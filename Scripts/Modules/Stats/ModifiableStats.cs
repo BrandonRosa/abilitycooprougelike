@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.Character.BaseCharacterBody;
 using static BrannPack.ModifiableStats.AbilityStats;
+using static BrannPack.ModifiableStats.CharacterStats;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace BrannPack.ModifiableStats
@@ -29,6 +30,8 @@ namespace BrannPack.ModifiableStats
             return Total;
         }
         public abstract void ResetModifiedValues();
+
+        public abstract ModifiableStat CopyBase();
     }
     public abstract partial class ModifiableStat<T>: ModifiableStat where T:ModifiableStat<T>
     {
@@ -56,11 +59,27 @@ namespace BrannPack.ModifiableStats
 
         public float GetCombinedTotal(params T[] addStat){return GetCombinedStat(addStat).CalculateTotal();}
 
+        public float GetCombinedTotal(Stat statType ,params StatsHolder[] statsHolders) 
+        {
+            List<T> statList = new();
+            foreach(StatsHolder statHolder in statsHolders)
+            {
+                statList.Add(statHolder.GetStatByVariable<T>(statType));
+            }
+
+            return GetCombinedTotal(statList.ToArray());
+        }
+
         public abstract T Copy();
 
         public static T GetCombinedStat(T baseStat,T[] addStat)
         {
             return baseStat.GetCombinedStat(addStat);
+        }
+
+        public override ModifiableStat CopyBase()
+        {
+            return Copy();
         }
     }
 
@@ -217,30 +236,30 @@ namespace BrannPack.ModifiableStats
         //public class StatsHolder<T>
         //{
         //    public T Owner;
-        //    private Dictionary<Stat, ModifiableStat> stats = new();
+        //    private Dictionary<Stat, ModifiableStat> _stats = new();
 
         //    public static event Action<T, Stat, ModifiableStat> RefreshAbilityStatVariable;
         //    public static event Action<T, Stat, ModifiableStat, float, float> StatUpdatedWithNewTotal;
 
         //    public StatsHolder()
         //    {
-        //        // Initialize dictionary with all possible stats
-        //        stats[Stat.Chance] = new ChanceStat(0f);
-        //        stats[Stat.Damage] = new DamageStat(0f,1f);
-        //        stats[Stat.FireRate] = new FireRateStat(0f);
-        //        stats[Stat.ProjectileSpeed] = new ProjectileSpeedStat(0f);
-        //        stats[Stat.ProcChance] = new ChanceStat(0f);
-        //        stats[Stat.CritDamage] = new DamageStat(0f, 1f);
-        //        stats[Stat.Charges] = new ChargeStat(1f);
-        //        stats[Stat.Cooldown] = new CooldownStat(0f);
-        //        stats[Stat.SpamCooldown] = new CooldownStat(0f);
-        //        stats[Stat.Range] = new RangeStat(1f,10f);
-        //        stats[Stat.Duration] = new DurationStat(1f,10f);
-        //        stats[Stat.Luck] = new ChanceStat(0f);
-        //        stats[Stat.Lifesteal] = new EffectivenessStat();
+        //        // Initialize dictionary with all possible _stats
+        //        _stats[Stat.Chance] = new ChanceStat(0f);
+        //        _stats[Stat.Damage] = new DamageStat(0f,1f);
+        //        _stats[Stat.FireRate] = new FireRateStat(0f);
+        //        _stats[Stat.ProjectileSpeed] = new ProjectileSpeedStat(0f);
+        //        _stats[Stat.ProcChance] = new ChanceStat(0f);
+        //        _stats[Stat.CritDamage] = new DamageStat(0f, 1f);
+        //        _stats[Stat.Charges] = new ChargeStat(1f);
+        //        _stats[Stat.Cooldown] = new CooldownStat(0f);
+        //        _stats[Stat.SpamCooldown] = new CooldownStat(0f);
+        //        _stats[Stat.Range] = new RangeStat(1f,10f);
+        //        _stats[Stat.Duration] = new DurationStat(1f,10f);
+        //        _stats[Stat.Luck] = new ChanceStat(0f);
+        //        _stats[Stat.Lifesteal] = new EffectivenessStat();
 
-        //        // Hook up event listeners for all stats
-        //        foreach (var kvp in stats)
+        //        // Hook up event listeners for all _stats
+        //        foreach (var kvp in _stats)
         //        {
         //            Stat statKey = kvp.Key;
         //            kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
@@ -250,17 +269,17 @@ namespace BrannPack.ModifiableStats
 
         //    public ModifiableStat GetStatByVariable(Stat statType)
         //    {
-        //        return stats.TryGetValue(statType, out var stat) ? stat : null;
+        //        return _stats.TryGetValue(statType, out var stat) ? stat : null;
         //    }
 
         //    public TStat GetStatByVariable<TStat>(Stat statType) where TStat : ModifiableStat
         //    {
-        //        return stats.TryGetValue(statType, out var stat) ? stat as TStat : null;
+        //        return _stats.TryGetValue(statType, out var stat) ? stat as TStat : null;
         //    }
 
         //    public void RecalculateByStatVariable(Stat statType)
         //    {
-        //        if (!stats.TryGetValue(statType, out var stat)) return;
+        //        if (!_stats.TryGetValue(statType, out var stat)) return;
 
         //        stat.ResetModifiedValues();
         //        RefreshAbilityStatVariable?.Invoke(Owner, statType, stat);
@@ -269,7 +288,7 @@ namespace BrannPack.ModifiableStats
 
         //    public void RecalculateAndAddStats(Stat statType, ModifiableStat otherStat)
         //    {
-        //        if (!stats.TryGetValue(statType, out var stat)) return;
+        //        if (!_stats.TryGetValue(statType, out var stat)) return;
 
         //        stat.ResetModifiedValues();
         //        stat.AddCombinedStats(otherStat);
@@ -280,7 +299,7 @@ namespace BrannPack.ModifiableStats
 
         //    public void RecalculateAllStats()
         //    {
-        //        foreach (var statType in stats.Keys)
+        //        foreach (var statType in _stats.Keys)
         //        {
         //            RecalculateByStatVariable(statType);
         //        }
@@ -303,32 +322,50 @@ namespace BrannPack.ModifiableStats
                 {Stat.Range, new RangeStat(1f, 10f)}, 
                 {Stat.Duration, new DurationStat(1f, 10f)}, 
                 {Stat.Luck, new ChanceStat(0f)}, 
-                {Stat.Lifesteal, new EffectivenessStat()} 
+                {Stat.Lifesteal, new EffectivenessStat()},
+                {Stat.MoveSpeed, new MoveSpeedStat(1,10) }
             };
-            private Dictionary<Stat, ModifiableStat> stats = new();
+            private Dictionary<Stat, ModifiableStat> _stats = new();
 
             public event Action<Stat, ModifiableStat> RefreshAbilityStatVariable;
             public event Action<Stat, ModifiableStat, float, float> StatUpdatedWithNewTotal;
 
             public StatsHolder()
             {
+            }
 
-                // Hook up event listeners for all stats
+            public StatsHolder(Dictionary<Stat, ModifiableStat> stats)
+            {
+                _stats=stats
+                // Hook up event listeners for all _stats
                 foreach (var kvp in stats)
                 {
                     Stat statKey = kvp.Key;
                     kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
-                        StatUpdatedWithNewTotal?.Invoke(Owner, statKey, kvp.Value, newTotal, prevTotal);
+                        StatUpdatedWithNewTotal?.Invoke(statKey, kvp.Value, newTotal, prevTotal);
+                }
+            }
+
+            public StatsHolder(params Stat[] zeroStats)
+            {
+                foreach (Stat stat in zeroStats)
+                {
+                    if (DefaultZeroStats.TryGetValue(stat, out var defaultStat))
+                    {
+                        _stats[stat] = defaultStat.CopyBase();
+                        _stats[stat].ChangedTotal += (newTotal, prevTotal) =>
+                        StatUpdatedWithNewTotal?.Invoke( stat, _stats[stat], newTotal, prevTotal);
+                    }
                 }
             }
 
             public void SetStat<T>(Stat stat,T modifiableStat) where T : ModifiableStat
             {
-                if(stats.ContainsKey(stat))
-                    stats[stat].ChangedTotal-= (newTotal, prevTotal) =>
-                        StatUpdatedWithNewTotal?.Invoke(stat, stats[stat], newTotal, prevTotal);
+                if(_stats.ContainsKey(stat))
+                    _stats[stat].ChangedTotal-= (newTotal, prevTotal) =>
+                        StatUpdatedWithNewTotal?.Invoke(stat, _stats[stat], newTotal, prevTotal);
 
-                stats[stat] = modifiableStat;
+                _stats[stat] = modifiableStat;
 
                 modifiableStat.ChangedTotal+= (newTotal, prevTotal) =>
                         StatUpdatedWithNewTotal?.Invoke(stat, modifiableStat, newTotal, prevTotal);
@@ -336,40 +373,83 @@ namespace BrannPack.ModifiableStats
 
             public ModifiableStat GetStatByVariable(Stat statType)
             {
-                return stats.TryGetValue(statType, out var stat) ? stat : null;
+                return _stats.TryGetValue(statType, out var stat) ? stat : null;
             }
 
             public TStat GetStatByVariable<TStat>(Stat statType) where TStat : ModifiableStat
             {
-                return stats.TryGetValue(statType, out var stat) ? stat as TStat : null;
+                return _stats.TryGetValue(statType, out var stat) ? stat as TStat : null;
             }
 
             public void RecalculateByStatVariable(Stat statType)
             {
-                if (!stats.TryGetValue(statType, out var stat)) return;
+                if (!_stats.TryGetValue(statType, out var stat)) return;
 
                 stat.ResetModifiedValues();
-                RefreshAbilityStatVariable?.Invoke(Owner, statType, stat);
+                RefreshAbilityStatVariable?.Invoke(statType, stat);
                 stat.CalculateTotal();
             }
 
             public void RecalculateAndAddStats(Stat statType, ModifiableStat otherStat)
             {
-                if (!stats.TryGetValue(statType, out var stat)) return;
+                if (!_stats.TryGetValue(statType, out var stat)) return;
 
                 stat.ResetModifiedValues();
                 stat.AddCombinedStats(otherStat);
 
-                RefreshAbilityStatVariable?.Invoke(Owner, statType, stat);
+                RefreshAbilityStatVariable?.Invoke(statType, stat);
                 stat.CalculateTotal();
             }
 
             public void RecalculateAllStats()
             {
-                foreach (var statType in stats.Keys)
+                foreach (var statType in _stats.Keys)
                 {
                     RecalculateByStatVariable(statType);
                 }
+            }
+        }
+
+        public class StatsHolder<T> : StatsHolder
+        {
+            public T Owner;
+            public static event Action<T, Stat, ModifiableStat> GlobalRefreshAbilityStatVariable;
+            public static event Action<T, Stat, ModifiableStat, float, float> GlobalStatUpdatedWithNewTotal;
+
+            public StatsHolder(T owner) : base()
+            {
+                Owner = owner;
+
+                // Subscribe instance-level events to global events
+                RefreshAbilityStatVariable += (stat, modStat) =>
+                    GlobalRefreshAbilityStatVariable?.Invoke(Owner, stat, modStat);
+
+                StatUpdatedWithNewTotal += (stat, modStat, newTotal, prevTotal) =>
+                    GlobalStatUpdatedWithNewTotal?.Invoke(Owner, stat, modStat, newTotal, prevTotal);
+            }
+
+            public StatsHolder(T owner, Dictionary<Stat, ModifiableStat> stats) : base(stats)
+            {
+                Owner = owner;
+
+                // Subscribe instance-level events to global events
+                RefreshAbilityStatVariable += (stat, modStat) =>
+                    GlobalRefreshAbilityStatVariable?.Invoke(Owner, stat, modStat);
+
+                StatUpdatedWithNewTotal += (stat, modStat, newTotal, prevTotal) =>
+                    GlobalStatUpdatedWithNewTotal?.Invoke(Owner, stat, modStat, newTotal, prevTotal);
+            }
+
+            public StatsHolder(T owner, params Stat[] zeroStats) : base(zeroStats)
+            {
+                Owner = owner;
+
+                // Subscribe instance-level events to global events
+                RefreshAbilityStatVariable += (stat, modStat) =>
+                    GlobalRefreshAbilityStatVariable?.Invoke(Owner, stat, modStat);
+
+                StatUpdatedWithNewTotal += (stat, modStat, newTotal, prevTotal) =>
+                    GlobalStatUpdatedWithNewTotal?.Invoke(Owner, stat, modStat, newTotal, prevTotal);
             }
         }
 

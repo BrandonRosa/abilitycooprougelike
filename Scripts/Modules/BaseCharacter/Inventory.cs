@@ -47,17 +47,17 @@ namespace BrannPack.ItemHandling
         public InventoryPartition ActiveItemPartition= new InventoryPartition(null,ActiveItemFilter , 1f);
         public InventoryPartition ConfirmationPartition= new InventoryPartition(null,null,float.MaxValue,true);
 
-        public BaseCharacterBody InventoryOf;
+        public CharacterMaster InventoryOf;
 
         public StatsHolder<ItemStackFilter> AdditionalAbilityStatsByStackFilter;
 
-        public Inventory(BaseCharacterBody baseCharacter)
+        public Inventory(CharacterMaster master)
         {
             HighlanderPartitions.ForEach(part => part.PartitionOf = this);
             StandardPartition.PartitionOf = this;
             ActiveItemPartition.PartitionOf = this;
             ConfirmationPartition.PartitionOf = this;
-            InventoryOf = baseCharacter;
+            InventoryOf = master;
         }
 
         public void RefreshAllEffectivePartitions()

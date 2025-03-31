@@ -1,4 +1,5 @@
 ﻿using BrannPack.Helpers.Initializers;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,37 +8,46 @@ using System.Threading.Tasks;
 
 namespace BrannPack.CooldownHandling
 {
-    public class CooldownHandler<T> where T : IIndexable
+    public class CooldownHandler
     {
-        // First int: Index of the item/ability/status effect (from IIndexable).
-        // Second int: Cooldown instance (for multiple cooldowns per item).
-        private Dictionary<int, Dictionary<int, Cooldown>> Cooldowns = new();
+        // Second int: Index of the item/ability/status effect (from IIndexable).
+        // Third int: Cooldown instance (for multiple cooldowns per item).
+        private Dictionary<(int indexType,int sourceIndex,int cooldownSource), Cooldown> Cooldowns = new();
+
 
         /// <summary>
         /// Adds a cooldown for a given instance of T.
         /// </summary>
-        public void AddCooldown(T instance, int cooldownInstance, float duration)
+        public Cooldown AddCooldown((int indexType, int sourceIndex, int cooldownSource) key, float duration, bool removeFromHandlerOnCompletion=false)
         {
-            if (!Cooldowns.TryGetValue(instance.Index, out var instanceCooldowns))
+            //If the cooldown 
+            if (!Cooldowns.TryGetValue(key, out var cooldown))
             {
-                instanceCooldowns = new Dictionary<int, Cooldown>();
-                Cooldowns[instance.Index] = instanceCooldowns;
+                cooldown = new Cooldown(duration,removeFromHandlerOnCompletion);
+                Cooldowns[key] = cooldown;
+                
+            }
+            else 
+            {
+                cooldown.Duration += duration;
             }
 
-            instanceCooldowns[cooldownInstance] = new Cooldown(duration);
+            return cooldown;
+        }
+
+        public void SetCooldown((int indexType, int sourceIndex, int cooldownSource) key, float duration, bool removeFromHandlerOnCompletion = false)
+        {  
+                Cooldowns[key] = new Cooldown(duration, removeFromHandlerOnCompletion);
         }
 
         /// <summary>
         /// Checks if a cooldown is still active.
         /// </summary>
-        public bool IsOnCooldown(T instance, int cooldownInstance)
+        public bool IsOnCooldown((int indexType, int sourceIndex, int cooldownSource) key)
         {
-            if (Cooldowns.TryGetValue(instance.Index, out var instanceCooldowns))
+            if (Cooldowns.TryGetValue(key, out var cooldown))
             {
-                if (instanceCooldowns.TryGetValue(cooldownInstance, out var cooldown))
-                {
-                    return !cooldown.IsExpired;
-                }
+                return !cooldown.IsExpired;
             }
             return false;
         }
@@ -45,14 +55,11 @@ namespace BrannPack.CooldownHandling
         /// <summary>
         /// Gets the remaining cooldown time.
         /// </summary>
-        public float GetRemainingCooldown(T instance, int cooldownInstance)
+        public float GetRemainingCooldown((int indexType, int sourceIndex, int cooldownSource) key, int cooldownInstance)
         {
-            if (Cooldowns.TryGetValue(instance.Index, out var instanceCooldowns))
+            if (Cooldowns.TryGetValue(key, out var cooldown))
             {
-                if (instanceCooldowns.TryGetValue(cooldownInstance, out var cooldown))
-                {
                     return cooldown.RemainingTime;
-                }
             }
             return 0f;
         }
@@ -62,49 +69,46 @@ namespace BrannPack.CooldownHandling
         /// </summary>
         public void UpdateCooldowns(float deltaTime)
         {
-            List<int> toRemove = new();
+            List<(int indexType, int sourceIndex, int cooldownSource)> toRemove = new();
 
-            foreach (var (index, instanceCooldowns) in Cooldowns)
+            foreach (var (key, cooldown) in Cooldowns)
             {
-                List<int> expiredInstances = new();
-
-                foreach (var (cooldownInstance, cooldown) in instanceCooldowns)
-                {
-                    cooldown.Update(deltaTime);
-                    if (cooldown.IsExpired)
-                        expiredInstances.Add(cooldownInstance);
-                }
-
-                foreach (int expired in expiredInstances)
-                    instanceCooldowns.Remove(expired);
-
-                if (instanceCooldowns.Count == 0)
-                    toRemove.Add(index);
+                cooldown.Update(deltaTime);
+                if (cooldown.IsExpired && cooldown.RemoveFromHandlerOnCompletion)
+                    toRemove.Add(key);
             }
 
-            foreach (int index in toRemove)
-                Cooldowns.Remove(index);
+            foreach (var key in toRemove)
+                Cooldowns.Remove(key);
         }
     }
 
 
     public class Cooldown
     {
-        public float Duration { get; }
+        public float Duration;
         private float elapsedTime;
 
-        public Cooldown(float duration)
+        public bool RemoveFromHandlerOnCompletion;
+
+        public Cooldown(float duration, bool removeFromHandlerOnCompletion=true)
         {
             Duration = duration;
             elapsedTime = 0f;
+            RemoveFromHandlerOnCompletion = removeFromHandlerOnCompletion;
         }
+
+        public event Action<Cooldown> CompletedCooldown;
 
         public bool IsExpired => elapsedTime >= Duration;
         public float RemainingTime => Math.Max(0, Duration - elapsedTime);
 
         public void Update(float deltaTime)
         {
-            elapsedTime += deltaTime;
+            if(!IsExpired)
+                elapsedTime += deltaTime;
+                if (IsExpired)
+                    CompletedCooldown?.Invoke(this);
         }
     }
 
