@@ -15,11 +15,11 @@ using static BrannPack.ModifiableStats.CharacterStats;
 
 namespace BrannPack.Items
 {
-    public class OnHighDamage_DealMoreAndArmor:Item<OnHighDamage_DealMoreAndArmor>
+    public class OnHighDamage_DealMoreAndArmor : Item<OnHighDamage_DealMoreAndArmor>
     {
         public override ItemTier Tier { get; init; } = Tier1.instance;
         public override ItemSubTier SubTier { get; init; } = null;
-        public override ItemModifier[] DefaultModifiers { get; init; } = {};
+        public override ItemModifier[] DefaultModifiers { get; init; } = { };
         public override ItemModifier[] PossibleModifiers { get; init; } = { Highlander.instance };
         public override string Name { get; init; } = "";
         public override string CodeName { get; init; } = "OnHighDamage_DealMoreAndArmor";
@@ -28,10 +28,13 @@ namespace BrannPack.Items
         public override bool RequiresConfirmation { get; init; } = false;
         public override bool IsSharable { get; init; } = true;
 
-        public CooldownStat cooldownStat = new CooldownStat(10f);
-        public DamageStat extraDamage = new DamageStat(25f,2.5f);
-        public DamageStat gainedArmor = new DamageStat(15f, 1.5f);
+
+        public DamageStat damage = new DamageStat(25f, .8f);
+        public CooldownStat cooldown = new CooldownStat(10f);
+        public float initialArmor = 15f;
+        public float armorPerStack = 1f; //1.2f
         public float requiredDamage = 50f;
+        public float stackToDamageRatio = 1.25f;
         public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
         {
             {EffectTag.IsArmorEnabler,2},
@@ -53,23 +56,94 @@ namespace BrannPack.Items
 
         private void HighDamageHit(CharacterMaster source, CharacterMaster victim, DamageInfo damageInfo, EventChain eventChain)
         {
-            if(damageInfo.Damage>requiredDamage && !source.Cooldowns.IsOnCooldown((0,instance.Index,1)) 
+            if (damageInfo.Damage > requiredDamage && !source.Cooldowns.IsOnCooldown((0, instance.Index, 1))
                 && source.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
-                float cooldownDuration = cooldownStat.GetCombinedTotal(Stat.Cooldown, source.Stats);
+                //Prep For BeforeAttack
+                StatsHolder attackstat = new StatsHolder();
+                DamageStat instDamage = damage.Copy();
+                instDamage.ChangeAdditionalDamage((effects.Positive - 1f) * 1.25f);
+
+                CooldownStat instCooldown = cooldown.Copy();
+                instCooldown.AddCombinedStats(source.Stats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
+
+                attackstat.SetStat(Stat.Damage, instDamage);
+                attackstat.SetStat(Stat.Cooldown, instCooldown);
+
+                AttackInfo attackInfo = new AttackInfo(source, victim, (0, instance.Index, 1), damageInfo.IsCrit, attackstat);
+
+
+                source.BeforeAttack(attackInfo, eventChain);
+
+                float cooldownDuration = instCooldown.CalculateTotal();
                 source.Cooldowns.AddCooldown((0, instance.Index, 1), cooldownDuration);
 
-                DamageStat extraStackDamage = new DamageStat(0, 0, 0);
-                extraDamage.ChangeAdditionalDamage(effects.Positive - 1f);
-                float addedDamage = extraDamage.GetCombinedTotal(extraStackDamage);
+                damageInfo.Damage += instDamage.CalculateTotal();
+                eventChain.TryAddEventInfo(attackInfo);
 
-                damageInfo.Damage += addedDamage;
+                float addedArmor = initialArmor + (effects.Positive - 1f) * armorPerStack;
 
-                eventChain.TryAddEventInfo(new AttackInfo(damageInfo.Source, damageInfo.Destination, (0, instance.Index, 1), addedDamage, false));
-                float addedArmor = gainedArmor.GetCombinedTotal(extraStackDamage);
+                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 1), addedArmor, null, HealthCatagory.Armor), eventChain);
 
-                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 1), addedArmor, null, HealthCatagory.Armor),eventChain);
 
+                source.AfterAttack(attackInfo, eventChain);
             }
         }
     }
+    public class Cth_LSUp_FRDn : Item<Cth_LSUp_FRDn>
+    {
+        public override ItemTier Tier { get; init; } = Tier1.instance;
+        public override ItemSubTier SubTier { get; init; } = null;
+        public override ItemModifier[] DefaultModifiers { get; init; } = { Chthonic.instance };
+        public override ItemModifier[] PossibleModifiers { get; init; } = { Chthonic.instance, Highlander.instance };
+        public override string Name { get; init; } = "";
+        public override string CodeName { get; init; } = "Cth_LSUp_FRDn";
+        public override string Description { get; init; } = "Your Primary gains Lifesteal but loses firerate";
+        public override string AdvancedDescription { get; init; } = "";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = true;
+
+        public float primaryLifesteal = .07f;
+        public float primaryFireRateDown = .05f;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
+        {
+            {EffectTag.IsAttack,-1 }
+            {EffectTag.IsDamageDep,2 },
+            {EffectTag.IsDefensive,2 },
+            {EffectTag.IsFireRateDep,2 },
+            {EffectTag.IsFireRateEnabler,-1 }
+            {EffectTag.IsHealEnabler,2 },
+            {EffectTag.IsPrimaryDep,3 }
+
+        };
+
+        public override void Init()
+        {
+            // Ensure the event is only subscribed once
+            StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ApplyStats;
+        }
+
+        public override void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
+        {
+            inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Lifesteal);
+            inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.FireRate);
+        }
+
+        private void ApplyStats(AbilitySlot abilitySlot, Stat statType, ModifiableStat stat)
+        {
+            if(abilitySlot.Owner.UsingInventory && abilitySlot.SlotType==AbilitySlotType.Primary && (statType==Stat.Lifesteal || statType==Stat.FireRate)
+                && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            {
+                if(statType==Stat.Lifesteal)
+                {
+                    ((EffectivenessStat)stat).ChangeAdditivePercentage(primaryLifesteal * effects.Positive / Chthonic.instance.itemEffectModifier.Positive);
+                }
+                else
+                {
+                    float fireRateDown = -(1f-MathF.Pow(1 - primaryFireRateDown, effects.Negative / Chthonic.instance.itemEffectModifier.Negative));
+                    ((FireRateStat)stat).ChangeFireRatePercentage(fireRateDown);
+                }
+            }
+        }
+    }
+}

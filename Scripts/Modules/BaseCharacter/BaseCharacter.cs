@@ -134,7 +134,9 @@ namespace BrannPack.Character
             Range,
             Duration,
             Luck,
-            Lifesteal,
+            ChainLifesteal, //For Player, Abilities, or Items..All attacks after this have lifesteal.
+            Lifesteal, //Specifically for attacks/abilities. THIS attack has lifesteal
+                        //Total Lifesteal for an attack is ChainLifesteal of the last damagedealt plus chainlifesteal of the current attack plus Lifesteal of that current attack. plus chainlifesteal of the player
             MoveSpeed
         }
 
@@ -278,29 +280,28 @@ namespace BrannPack.Character
     public class DamageInfo: EventInfo
     {
         public float Damage;
-        bool IsCrit;
-        Vector2 DirectionFrom;
-
+        public bool IsCrit;
+        public Vector2 DirectionFrom;
+        public StatsHolder Stats;
         public DamageInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
-            float damage, bool isCrit, Vector2 directionFrom)
+            float damage, bool isCrit, Vector2 directionFrom=default,StatsHolder stats=null)
             : base(source, destination, key) =>
-            (Damage, IsCrit, DirectionFrom) = (damage, isCrit, directionFrom);
+            (Damage, IsCrit, DirectionFrom,Stats) = (damage, isCrit, directionFrom,stats);
 
     }
 
     //Use this when LAUNCHING an attack. For example, launching a rocket
     public class AttackInfo: EventInfo
     {
-        public float Damage;
         public bool IsCrit;
-        public Vector2 DirectionFrom;
+        public Vector2 Origin;
         public Vector2 DirectionTo;
 
         public StatsHolder Stats;
         public AttackInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
-            float damage, bool isCrit, StatsHolder stats=null,Vector2 directionFrom=default, Vector2 directionTo= default)
+            bool isCrit, StatsHolder stats=null,Vector2 directionFrom=default, Vector2 directionTo= default)
             : base(source, destination, key) =>
-            (Damage, IsCrit, Stats,DirectionFrom, DirectionTo) = (damage, isCrit, stats,directionFrom,directionTo);
+            (IsCrit, Stats,Origin, DirectionTo) = (isCrit, stats,directionFrom,directionTo);
     }
 
     public class HealingInfo : EventInfo

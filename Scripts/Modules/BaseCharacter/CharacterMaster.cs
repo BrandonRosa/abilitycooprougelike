@@ -43,6 +43,7 @@ namespace BrannPack.Character
         private Dictionary<(ItemStackFilter, Stat), ModifiableStat> ItemStatModifiers;
 
         public Inventory Inventory;
+        public bool UsingInventory;
         private List<BaseCharacterBody> Minions;
         private List<BaseCharacterBody> Familiars;
 
@@ -69,6 +70,32 @@ namespace BrannPack.Character
 
             //AfterDealDamage
 
+            ///Lifesteal Notes
+            ///- When an attack is caused by something, ALWAYS add the chainlifesteal of the cause to the new attack (assuming the attack can deal damage). 
+
+
+            //Adds the chainlifesteal/lifesteal of the damage to the chain lifesteal of the player.
+            EffectivenessStat totalLifesteal = Stats.GetStatByVariable<EffectivenessStat>(Stat.ChainLifesteal)
+                .GetCombinedStat(damageInfo.Stats.GetStatByVariable<EffectivenessStat>(Stat.ChainLifesteal),
+                                damageInfo.Stats.GetStatByVariable<EffectivenessStat>(Stat.Lifesteal));
+            float totalToHeal = totalLifesteal.CalculateTotal() * damageInfo.Damage;
+
+            if (totalToHeal > 0f)
+            {
+                HealthBar.Heal(new HealingInfo(this,this,damageInfo.Key,totalToHeal), eventChain);
+            }
         }
+
+        public static event Action<CharacterMaster,AttackInfo, EventChain> BeforeAttackEvent;
+        public static event Action<CharacterMaster, AttackInfo, EventChain> AfterAttackEvent;
+        public void BeforeAttack(AttackInfo attackInfo,EventChain eventChain)
+        {
+            BeforeAttackEvent?.Invoke(this,attackInfo, eventChain);
+            
+
+            //AfterAttack
+        }
+
+        public void AfterAttack(AttackInfo attackInfo, EventChain eventChain) { AfterAttackEvent?.Invoke(this, attackInfo, eventChain); }
     }
 }

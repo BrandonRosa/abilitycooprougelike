@@ -35,14 +35,17 @@ namespace BrannPack.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void Init()
+        {
+            AbilityStats.StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ModifyDamageStat;
+        }
+
+        public override void SetItemEffects(Inventory inventory, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
+            
 
-            AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            AbilityStats.StatsHolder<AbilitySlot>.RefreshAbilityStatVariable += ModifyDamageStat;
-
-            baseCharacter.Stats.RecalculateDamage();
+            inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Damage);
         }
 
         private void ModifyDamageStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)

@@ -322,7 +322,8 @@ namespace BrannPack.ModifiableStats
                 {Stat.Range, new RangeStat(1f, 10f)}, 
                 {Stat.Duration, new DurationStat(1f, 10f)}, 
                 {Stat.Luck, new ChanceStat(0f)}, 
-                {Stat.Lifesteal, new EffectivenessStat()},
+                {Stat.ChainLifesteal, new EffectivenessStat(0f,0f)},
+                {Stat.Lifesteal, new EffectivenessStat(0f,0f)},
                 {Stat.MoveSpeed, new MoveSpeedStat(1,10) }
             };
             private Dictionary<Stat, ModifiableStat> _stats = new();
@@ -407,6 +408,16 @@ namespace BrannPack.ModifiableStats
                 {
                     RecalculateByStatVariable(statType);
                 }
+            }
+
+            public StatsHolder Copy()
+            {
+                Dictionary<Stat, ModifiableStat> newDict = new();
+                foreach(var kvp in _stats)
+                {
+                    newDict[kvp.Key] = kvp.Value.CopyBase();
+                }
+                return new StatsHolder(newDict);
             }
         }
 

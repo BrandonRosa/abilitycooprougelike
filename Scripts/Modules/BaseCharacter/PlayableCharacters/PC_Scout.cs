@@ -26,7 +26,7 @@ namespace BrannPack.Character.Playable
         protected CooldownStat SpamCooldown = new CooldownStat(.1f);
         protected ChargeStat Charges = new ChargeStat(2f);
 
-        public AbilityUpgrade SSG_U1_Cooldown=
+        //public AbilityUpgrade SSG_U1_Cooldown=
         public override BaseCharacterBody UpdateTarget()
         {
             

@@ -140,6 +140,7 @@ namespace BrannPack.ItemHandling
     {
         public abstract string Name { get; init; }
         public abstract string CodeName { get; init; }
+        public abstract float ValueMult { get; init; }
         public List<Item> AllItemsInTier;
         public List<Item> AllUnlockedItems;
 
@@ -151,7 +152,18 @@ namespace BrannPack.ItemHandling
     {
         public override string Name { get; init; } = "Highlander";
         public override string CodeName { get; init; } = "NoStack";
-        public override ItemEffectModifier itemEffectModifier { get; init; } = new ItemEffectModifier { Multiplier = 3 };
+
+        public override float ValueMult { get; init; } = 3f;
+        public override ItemEffectModifier itemEffectModifier { get; init; } = new ItemEffectModifier { Multiplier = 2.5f };
+    }
+
+    public class Chthonic : ItemModifier<Chthonic>
+    {
+        public override string Name { get; init; } = "Chthonic";
+        public override string CodeName { get; init; } = "GoodAndBad";
+
+        public override float ValueMult { get; init; } = 1.5f;
+        public override ItemEffectModifier itemEffectModifier { get; init; } = new ItemEffectModifier {Positive=1.75f, Negative=.5f };
     }
 
     //Dep = Quality of Effects are Improved (Crit based effects)
