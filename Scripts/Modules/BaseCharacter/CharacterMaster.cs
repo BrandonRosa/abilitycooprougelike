@@ -39,7 +39,8 @@ namespace BrannPack.Character
         [Export] public CharacterTeam Team;
         [Export] public HashSet<CharacterTeam> CanDamageTeams;
 
-        private Dictionary<(StatModTarget, Stat), ModifiableStat> AbilityStatModifiers;
+        public BaseCharacterBody Body;
+
         private Dictionary<(ItemStackFilter, Stat), ModifiableStat> ItemStatModifiers;
 
         public Inventory Inventory;
@@ -58,7 +59,7 @@ namespace BrannPack.Character
 
         public CooldownHandler Cooldowns;
 
-        public StatsHolder<BaseCharacterBody> Stats;
+        public StatsHolder<CharacterMaster> Stats;
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;
 

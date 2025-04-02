@@ -18,18 +18,20 @@ namespace BrannPack.CooldownHandling
         /// <summary>
         /// Adds a cooldown for a given instance of T.
         /// </summary>
-        public Cooldown AddCooldown((int indexType, int sourceIndex, int cooldownSource) key, float duration, bool removeFromHandlerOnCompletion=false)
+        public Cooldown AddCooldown((int indexType, int sourceIndex, int cooldownSource) key, float duration, bool removeFromHandlerOnCompletion=false, Action<Cooldown> onComplete = null)
         {
             //If the cooldown 
             if (!Cooldowns.TryGetValue(key, out var cooldown))
             {
-                cooldown = new Cooldown(duration,removeFromHandlerOnCompletion);
+                cooldown = new Cooldown(duration,removeFromHandlerOnCompletion,onComplete);
                 Cooldowns[key] = cooldown;
                 
             }
             else 
             {
                 cooldown.Duration += duration;
+                if (onComplete != null)
+                    cooldown.CompletedCooldown += onComplete;
             }
 
             return cooldown;
@@ -91,11 +93,14 @@ namespace BrannPack.CooldownHandling
 
         public bool RemoveFromHandlerOnCompletion;
 
-        public Cooldown(float duration, bool removeFromHandlerOnCompletion=true)
+        public Cooldown(float duration, bool removeFromHandlerOnCompletion = true, Action<Cooldown> onComplete = null)
         {
             Duration = duration;
             elapsedTime = 0f;
             RemoveFromHandlerOnCompletion = removeFromHandlerOnCompletion;
+
+            if (onComplete != null)
+                CompletedCooldown += onComplete;
         }
 
         public event Action<Cooldown> CompletedCooldown;

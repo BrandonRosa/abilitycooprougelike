@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.Character.BaseCharacterBody;
@@ -13,6 +14,26 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace BrannPack.ModifiableStats
 {
+    public enum Stat
+    {
+        Chance,
+        Damage,
+        FireRate,
+        ProjectileSpeed,
+        ProcChance,
+        CritChance,
+        CritDamage,
+        Charges,
+        Cooldown,
+        SpamCooldown,
+        Range,
+        Duration,
+        Luck,
+        ChainLifesteal, //For Player, Abilities, or Items..All attacks after this have lifesteal.
+        Lifesteal, //Specifically for attacks/abilities. THIS attack has lifesteal
+                   //Total Lifesteal for an attack is ChainLifesteal of the last damagedealt plus chainlifesteal of the current attack plus Lifesteal of that current attack. plus chainlifesteal of the player
+        MoveSpeed
+    }
     public abstract partial class ModifiableStat: Resource
     {
         public abstract float Total { get; protected set; }
@@ -32,6 +53,8 @@ namespace BrannPack.ModifiableStats
         public abstract void ResetModifiedValues();
 
         public abstract ModifiableStat CopyBase();
+
+        public abstract void AddUnsafeCombinedStats(params ModifiableStat[] addStat);
     }
     public abstract partial class ModifiableStat<T>: ModifiableStat where T:ModifiableStat<T>
     {
@@ -49,6 +72,14 @@ namespace BrannPack.ModifiableStats
         
 
         public abstract void AddCombinedStats(params T[] addStat);
+
+        public override void AddUnsafeCombinedStats(params ModifiableStat[] addStat)
+        {
+            if (!addStat.All(stat => stat is T))
+                throw new InvalidCastException($"All provided stats must be of type {typeof(T).Name}.");
+
+            AddCombinedStats(addStat.Cast<T>().ToArray());
+        }
 
         public T GetCombinedStat(params T[] addStat)
         {
@@ -291,7 +322,7 @@ namespace BrannPack.ModifiableStats
         //        if (!_stats.TryGetValue(statType, out var stat)) return;
 
         //        stat.ResetModifiedValues();
-        //        stat.AddCombinedStats(otherStat);
+        //        stat.AddUnsafeCombinedStats(otherStat);
 
         //        RefreshAbilityStatVariable?.Invoke(Owner, statType, stat);
         //        stat.CalculateTotal();
@@ -308,6 +339,8 @@ namespace BrannPack.ModifiableStats
 
         public class StatsHolder
         {
+            
+
             public static Dictionary<Stat, ModifiableStat> DefaultZeroStats = new Dictionary<Stat, ModifiableStat>()
             {
                 {Stat.Chance, new ChanceStat(0f)},
@@ -337,14 +370,7 @@ namespace BrannPack.ModifiableStats
 
             public StatsHolder(Dictionary<Stat, ModifiableStat> stats)
             {
-                _stats=stats
-                // Hook up event listeners for all _stats
-                foreach (var kvp in stats)
-                {
-                    Stat statKey = kvp.Key;
-                    kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
-                        StatUpdatedWithNewTotal?.Invoke(statKey, kvp.Value, newTotal, prevTotal);
-                }
+                SetAllStats(stats);
             }
 
             public StatsHolder(params Stat[] zeroStats)
@@ -357,6 +383,20 @@ namespace BrannPack.ModifiableStats
                         _stats[stat].ChangedTotal += (newTotal, prevTotal) =>
                         StatUpdatedWithNewTotal?.Invoke( stat, _stats[stat], newTotal, prevTotal);
                     }
+                }
+            }
+
+            public void SetAllStats(Dictionary<Stat, ModifiableStat> stats, bool clearPrevious=true)
+            {
+                if (clearPrevious) _stats.Clear();
+
+                _stats = stats;
+                // Hook up event listeners for all _stats
+                foreach (var kvp in stats)
+                {
+                    Stat statKey = kvp.Key;
+                    kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
+                        StatUpdatedWithNewTotal?.Invoke(statKey, kvp.Value, newTotal, prevTotal);
                 }
             }
 
@@ -391,16 +431,16 @@ namespace BrannPack.ModifiableStats
                 stat.CalculateTotal();
             }
 
-            public void RecalculateAndAddStats(Stat statType, ModifiableStat otherStat)
-            {
-                if (!_stats.TryGetValue(statType, out var stat)) return;
+            //public void RecalculateAndAddStats(Stat statType, ModifiableStat otherStat)
+            //{
+            //    if (!_stats.TryGetValue(statType, out var stat)) return;
 
-                stat.ResetModifiedValues();
-                stat.AddCombinedStats(otherStat);
+            //    stat.ResetModifiedValues();
+            //    stat.AddUnsafeCombinedStats(otherStat);
 
-                RefreshAbilityStatVariable?.Invoke(statType, stat);
-                stat.CalculateTotal();
-            }
+            //    RefreshAbilityStatVariable?.Invoke(statType, stat);
+            //    stat.CalculateTotal();
+            //}
 
             public void RecalculateAllStats()
             {
@@ -418,6 +458,26 @@ namespace BrannPack.ModifiableStats
                     newDict[kvp.Key] = kvp.Value.CopyBase();
                 }
                 return new StatsHolder(newDict);
+            }
+
+            public StatsHolder CopyAndAddAllStats(params StatsHolder[] statsHolders)
+            {
+                StatsHolder temp = this.Copy();
+
+                foreach (var statKey in _stats.Keys)
+                {
+                    var matchingStats = statsHolders
+                        .Select(holder => holder.GetStatByVariable(statKey))
+                        .Where(stat => stat != null)
+                        .ToArray();
+
+                    if (matchingStats.Length > 0)
+                    {
+                        temp._stats[statKey].AddUnsafeCombinedStats(matchingStats);
+                    }
+                }
+
+                return temp;
             }
         }
 
@@ -461,6 +521,134 @@ namespace BrannPack.ModifiableStats
 
                 StatUpdatedWithNewTotal += (stat, modStat, newTotal, prevTotal) =>
                     GlobalStatUpdatedWithNewTotal?.Invoke(Owner, stat, modStat, newTotal, prevTotal);
+            }
+        }
+
+        public class StatsByCritera<T> where T : IComparable<T>
+        {
+            private struct CriteriaEntry
+            {
+                public T Key;
+                public Stat StatType;
+                public ModifiableStat StatValue;
+            }
+
+            private List<CriteriaEntry> _criteriaStats = new();
+            public Dictionary<Stat, ModifiableStat> DefaultStats = new();
+            public StatsHolder CurrentStats { get; private set; } = new();
+
+            public StatsByCritera(Dictionary<Stat,ModifiableStat> defaultStats,Dictionary<T,Dictionary<Stat,ModifiableStat>> critereaStats)
+            {
+                DefaultStats = defaultStats;
+                SetCriteriaStatsBulk(critereaStats);
+            }
+
+            public StatsHolder CopyAndGetStatsByCriterea(HashSet<T> criterea)
+            {
+                return this.Copy().UpdateCurrentStats(criterea);
+            }
+
+            public StatsByCritera<T> Copy()
+            {
+                // Create a new instance
+                var copy = new StatsByCritera<T>(new Dictionary<Stat, ModifiableStat>(), new Dictionary<T, Dictionary<Stat, ModifiableStat>>());
+
+                // Copy DefaultStats with new ModifiableStat instances
+                foreach (var kvp in DefaultStats)
+                {
+                    copy.DefaultStats[kvp.Key] = kvp.Value.CopyBase();
+                }
+
+                // Copy _criteriaStats with new objects
+                copy._criteriaStats = _criteriaStats
+                    .Select(entry => new CriteriaEntry
+                    {
+                        Key = entry.Key,
+                        StatType = entry.StatType,
+                        StatValue = entry.StatValue.CopyBase()
+                    })
+                    .ToList();
+
+                // Copy CurrentStats
+                copy.CurrentStats = CurrentStats.Copy();
+
+                return copy;
+            }
+
+            public StatsHolder UpdateCurrentStats(HashSet<T> criterea)
+            {
+                // Sort by Key descending (higher priority first)
+                _criteriaStats.Sort((a, b) => b.Key.CompareTo(a.Key));
+
+                // Filter criteriaStats to only include active criteria
+                var filteredStats = _criteriaStats.Where(entry => criterea.Contains(entry.Key));
+
+                Dictionary<Stat, ModifiableStat> mergedStats = new();
+
+                // Merge from highest priority down
+                foreach (var entry in filteredStats)
+                {
+                    if (!mergedStats.ContainsKey(entry.StatType))
+                    {
+                        mergedStats[entry.StatType] = entry.StatValue;
+                    }
+                }
+
+                // Fill in missing stats from DefaultStats
+                foreach (var defaultPair in DefaultStats)
+                {
+                    if (!mergedStats.ContainsKey(defaultPair.Key))
+                    {
+                        mergedStats[defaultPair.Key] = defaultPair.Value;
+                    }
+                }
+
+                // Update CurrentStats
+                CurrentStats.SetAllStats(mergedStats,true);
+                return CurrentStats;
+            }
+
+            public void SetCriteriaStats(T key, Stat stat, ModifiableStat value)
+            {
+                // Remove existing entry with the same key/stat if it exists
+                _criteriaStats.RemoveAll(e => e.Key.Equals(key) && e.StatType == stat);
+
+                // Add new entry
+                _criteriaStats.Add(new CriteriaEntry { Key = key, StatType = stat, StatValue = value });
+
+            }
+
+            public void RemoveCriteriaStats(T key)
+            {
+                _criteriaStats.RemoveAll(e => e.Key.Equals(key));
+            }
+
+            public void SetDefaultStats(Dictionary<Stat, ModifiableStat> defaultStats)
+            {
+                DefaultStats = defaultStats;
+            }
+
+            /// <summary>
+            /// Mass updates the criteria list by converting from a Dictionary<T, Dictionary<Stat, ModifiableStat>>.
+            /// </summary>
+            public void SetCriteriaStatsBulk(Dictionary<T, Dictionary<Stat, ModifiableStat>> criteriaDict)
+            {
+                _criteriaStats.Clear();
+
+                foreach (var kvp in criteriaDict)
+                {
+                    T key = kvp.Key;
+                    foreach (var statPair in kvp.Value)
+                    {
+                        _criteriaStats.Add(new CriteriaEntry
+                        {
+                            Key = key,
+                            StatType = statPair.Key,
+                            StatValue = statPair.Value.CopyBase()
+                        });
+                    }
+                }
+
             }
         }
 

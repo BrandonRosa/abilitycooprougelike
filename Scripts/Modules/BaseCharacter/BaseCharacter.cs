@@ -120,25 +120,7 @@ namespace BrannPack.Character
         }
 
 
-        public enum Stat
-        {
-            Chance,
-            Damage,
-            FireRate,
-            ProjectileSpeed,
-            ProcChance,
-            CritDamage,
-            Charges,
-            Cooldown,
-            SpamCooldown,
-            Range,
-            Duration,
-            Luck,
-            ChainLifesteal, //For Player, Abilities, or Items..All attacks after this have lifesteal.
-            Lifesteal, //Specifically for attacks/abilities. THIS attack has lifesteal
-                        //Total Lifesteal for an attack is ChainLifesteal of the last damagedealt plus chainlifesteal of the current attack plus Lifesteal of that current attack. plus chainlifesteal of the player
-            MoveSpeed
-        }
+        
 
          
 

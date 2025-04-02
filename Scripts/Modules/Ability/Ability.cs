@@ -6,20 +6,11 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.AbilityHandling
 {
-    public abstract class Ability<T> : Ability where T : Ability<T>
-    {
-        public static T instance { get; private set; }
-
-        public Ability()
-        {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
-            instance = this as T;
-            instance.SetIndex();
-        }
-    }
+    
     public class AbilitySlot
     {
         public CharacterMaster Owner;
@@ -60,6 +51,18 @@ namespace BrannPack.AbilityHandling
             return false;
         }
     }
+
+    public abstract class Ability<T> : Ability where T : Ability<T>
+    {
+        public static T instance { get; private set; }
+
+        public Ability()
+        {
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
+            instance = this as T;
+            instance.SetIndex();
+        }
+    }
     public abstract class Ability : IIndexable
     {
         protected static int NextIndex = 0;
@@ -67,7 +70,7 @@ namespace BrannPack.AbilityHandling
 
         public void SetIndex() { if (Index != -1) Index = NextIndex++; }
 
-        public Dictionary<AbilityStat, Ability> ModifiableStats;
+        public abstract StatsByCritera<AbilityUpgrade> Stats { get; set; }
         private float BaseCooldown;
         private float CurrentCooldown;
         private float NoSpamCooldown;
@@ -86,7 +89,7 @@ namespace BrannPack.AbilityHandling
         private static string Name;
         private static List<AbilityUpgrade> AbilityUpgrades;
 
-        public abstract void UseAbility(BaseCharacterBody baseCharacter,AbilitySlot abilitySlot,AbilityUpgradeTree treeProgress, BaseCharacterBody target);
+        public abstract void UseAbility(CharacterMaster master,AbilitySlot abilitySlot,AbilityUpgradeTree treeProgress, BaseCharacterBody target, EventChain eventChain=default);
         public abstract BaseCharacterBody UpdateTarget();
 
     }
@@ -97,7 +100,7 @@ namespace BrannPack.AbilityHandling
     }
 
     [GlobalClass]  // Enables it to be created in the Godot Editor
-    public partial class AbilityUpgrade : Resource
+    public partial class AbilityUpgrade : Resource, IComparable<AbilityUpgrade>
     {
         [Export] public string Name;
         [Export] public string Description;
@@ -105,6 +108,39 @@ namespace BrannPack.AbilityHandling
         [Export] public int APCost;
         [Export] public int LockCost;
         [Export] public List<AbilityUpgrade> Requirements;
+        [Export] public int Height;
+        [Export] public int Column;
+
+        public int CompareTo(object compareTo)
+        {
+            if (compareTo is not AbilityUpgrade other)
+                throw new ArgumentException("Object is not an AbilityUpgrade");
+
+            // If 'other' is a requirement of this, 'this' is always greater
+            if (Requirements.Contains(other))
+                return 1;
+
+            // If 'this' is a requirement of 'other', 'this' is always smaller
+            if (other.Requirements.Contains(this))
+                return -1;
+
+            // Compare by height (higher values are considered "greater")
+            return Height.CompareTo(other.Height);
+        }
+
+        public int CompareTo(AbilityUpgrade other)
+        {
+            // If 'other' is a requirement of this, 'this' is always greater
+            if (Requirements.Contains(other))
+                return 1;
+
+            // If 'this' is a requirement of 'other', 'this' is always smaller
+            if (other.Requirements.Contains(this))
+                return -1;
+
+            // Compare by height (higher values are considered "greater")
+            return Height.CompareTo(other.Height);
+        }
     }
 
 
