@@ -3,9 +3,12 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.Helpers.Attacks
 {
@@ -54,8 +57,8 @@ namespace BrannPack.Helpers.Attacks
         }
 
         public static List<BaseCharacterBody> GetCharactersInShotgunBlast(
-    BaseCharacterBody characterBody, Transform2D origin, float facingAngle,
-    float sweepRadius, float sweepDepth, int checks, bool respectTerrain = true)
+            BaseCharacterBody characterBody, Transform2D origin, float facingAngle,
+            float sweepRadius, float sweepDepth, int checks, bool respectTerrain = true)
         {
             HashSet<BaseCharacterBody> hitCharacters = new HashSet<BaseCharacterBody>();
             var spaceState = characterBody.GetWorld2D().DirectSpaceState;
@@ -102,6 +105,73 @@ namespace BrannPack.Helpers.Attacks
             }
 
             return hitCharacters.ToList();
+        }
+
+        public static List<BaseCharacterBody> GetCharactersInRotatedBox(BaseCharacterBody characterBody, Vector2 center, float width, float length, float rotationAngle)
+        {
+            PhysicsDirectSpaceState2D spaceState = characterBody.GetWorld2D().DirectSpaceState;
+
+            RectangleShape2D hitbox = new RectangleShape2D();
+
+            hitbox.Size = new Vector2(width / 2, length / 2); // Half-size
+
+
+            PhysicsShapeQueryParameters2D query = new()
+            {
+                Transform = new Transform2D(rotationAngle, center), // Apply rotation
+                Shape = hitbox,
+                CollideWithBodies = true,
+                CollideWithAreas = false
+            };
+
+            var results = spaceState.IntersectShape(query);
+
+            List<BaseCharacterBody> hitTargets = new();
+            foreach (var result in results)
+            {
+                if (result["collider"].Obj is BaseCharacterBody charBody)
+                {
+                   hitTargets.Add(charBody);
+                }
+            }
+
+            return hitTargets;
+        }
+
+        public static (bool IsSuccess, int SuccessfulRolls, int LuckUsed, int BadLuckUsed) RollWithProcAndLucks(float chance,float procChance, float luck, float badLuck)
+        {
+            int rerolls = (int)Mathf.Floor(luck) +(Roll(luck% 1f)?1:0);
+            int badReroll = (int)Mathf.Floor(badLuck) + (Roll(badLuck % 1f) ? 1 : 0);
+            int successRolls = (int)Mathf.Floor(chance* procChance);
+            float percent = (chance* procChance)%1f;
+
+            bool success = false;
+            var rglbl = RollGoodLuckBadLuck(percent,rerolls,badReroll);
+            successRolls += (rglbl.Success ? 1 : 0);
+            if (successRolls> 0)
+                success = true;
+            return (success, successRolls,rerolls-rglbl.GoodLuckLeft,badReroll-rglbl.BadLuckLeft);
+        }
+        private static (bool Success,int GoodLuckLeft, int BadLuckLeft) RollGoodLuckBadLuck(float chance, int goodLuckLeft, int badLuckLeft)
+        {
+            if (Roll(chance))
+            {
+                if (0 < badLuckLeft)
+                    return RollGoodLuckBadLuck(chance, goodLuckLeft, badLuckLeft - 1);
+                else
+                    return (true, goodLuckLeft, badLuckLeft);
+            }
+            else
+            {
+                if (0 < goodLuckLeft)
+                    return RollGoodLuckBadLuck(chance, goodLuckLeft - 1, badLuckLeft);
+                else
+                    return (false, goodLuckLeft, badLuckLeft);
+            }
+        }
+        private static bool Roll(float chance)
+        {
+            return GD.Randf() < chance; // GD.Randf() generates a float between 0 and 1
         }
     }
 }

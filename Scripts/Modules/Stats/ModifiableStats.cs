@@ -29,6 +29,7 @@ namespace BrannPack.ModifiableStats
         Range,
         Duration,
         Luck,
+        BadLuck,
         ChainLifesteal, //For Player, Abilities, or Items..All attacks after this have lifesteal.
         Lifesteal, //Specifically for attacks/abilities. THIS attack has lifesteal
                    //Total Lifesteal for an attack is ChainLifesteal of the last damagedealt plus chainlifesteal of the current attack plus Lifesteal of that current attack. plus chainlifesteal of the player
@@ -354,7 +355,8 @@ namespace BrannPack.ModifiableStats
                 {Stat.SpamCooldown, new CooldownStat(0f)}, 
                 {Stat.Range, new RangeStat(1f, 10f)}, 
                 {Stat.Duration, new DurationStat(1f, 10f)}, 
-                {Stat.Luck, new ChanceStat(0f)}, 
+                {Stat.Luck, new ChanceStat(0f,0f)},
+                {Stat.BadLuck, new ChanceStat(0f,0f) },
                 {Stat.ChainLifesteal, new EffectivenessStat(0f,0f)},
                 {Stat.Lifesteal, new EffectivenessStat(0f,0f)},
                 {Stat.MoveSpeed, new MoveSpeedStat(1,10) }

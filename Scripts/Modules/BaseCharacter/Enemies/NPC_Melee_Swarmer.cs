@@ -61,37 +61,47 @@ namespace BrannPack.Character.NonPlayable
 
             AttackInfo attackInfo = new AttackInfo(master, null, (1, instance.Index, 0), false, stats);
 
-
             master.BeforeAttack(attackInfo, eventChain);
+            float damage = stats.GetStatByVariable<DamageStat>(Stat.Damage)?.CalculateTotal() ?? 10f;
+            float critChance = stats.GetStatByVariable<ChanceStat>(Stat.CritChance)?.CalculateTotal() ?? 0f;
+            float goodLuck = stats.GetStatByVariable<ChanceStat>(Stat.Luck)?.CalculateTotal() ?? 0f;
+            float badLuck = stats.GetStatByVariable<ChanceStat>(Stat.BadLuck)?.CalculateTotal() ?? 0f;
+            var rolls = AttackHelper.RollWithProcAndLucks(critChance, 1, goodLuck, badLuck);
+            bool isCrit = rolls.IsSuccess;
+
+            attackInfo.IsCrit = isCrit;
+
+            if (!eventChain.TryAddEventInfo(attackInfo))return;
 
             // Add a cooldown equal to the wind-up time before executing the attack
             master.Cooldowns.AddCooldown((1, instance.Index, 10), windUpTime, true, (cooldown) =>
             {
+                // Get the first collision shape
+                var shape = master.Body.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
                 // Get attack dimensions (Width X, Length Y)
-                float characterWidth = master.CharacterBody.HitboxWidth;
-                float width = characterWidth * 0.75f; // Set width to 75% of character's hitbox width
+                float characterWidth = 1f;//(shape?.Shape as RectangleShape2D)?.Size.x ?? 0f;
+                float width = characterWidth * 0.75f;  // 75% of character width
                 float length = stats.GetStatByVariable<RangeStat>(Stat.Range)?.CalculateTotal() ?? 1f;
 
-                // Define the attack origin and direction
-                Vector2 attackDirection = master.CharacterBody.ForwardDirection.Normalized(); // Ensure it's normalized
-                Vector2 attackOrigin = master.CharacterBody.Position + attackDirection * (characterWidth / 2); // Adjust origin to front
+                // Define attack direction & rotation
+                Vector2 attackDirection = master.Body.MoveDirection.Normalized();
+                Vector2 attackOrigin = master.Body.Position + attackDirection * (characterWidth / 2);
+                Vector2 attackCenter = attackOrigin + attackDirection * (length / 2);
 
-                // Calculate the attack box/capsule center
-                Vector2 attackCenter = attackOrigin + attackDirection * (length / 2); // Center it in front of the character
+                float rotationAngle = attackDirection.Angle(); // Get attack direction as rotation
 
-                // Get all character masters within the area
-                List<CharacterMaster> hitTargets = GetCharactersInBox(attackCenter, width, length);
+                // Get characters in rotated hitbox
+                List<BaseCharacterBody> hitTargets = AttackHelper.GetCharactersInRotatedBox(master.Body,attackCenter, width, length, rotationAngle);
 
                 // Damage all valid targets
                 foreach (var hitTarget in hitTargets)
                 {
-                    if (master.CanDamageTeams.Contains(hitTarget.Team))
+                    if (master.CanDamageTeams.Contains(hitTarget.CharacterMaster.Team))
                     {
-                        float damage = stats.GetStatByVariable<DamageStat>(Stat.Damage)?.CalculateTotal() ?? 10f;
-                        bool isCrit = stats.GetStatByVariable<ChanceStat>(Stat.CritChance)?.Roll() ?? false;
+                        
 
-                        DamageInfo damageInfo = new DamageInfo(master, hitTarget, (1, instance.Index, 0), damage, isCrit);
-                        master.DealDamage(hitTarget, damageInfo, eventChain);
+                        DamageInfo damageInfo = new DamageInfo(master, hitTarget.CharacterMaster, (1, instance.Index, 0), damage, isCrit);
+                        master.DealDamage(hitTarget.CharacterMaster, damageInfo, eventChain);
                     }
                 }
 

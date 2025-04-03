@@ -56,7 +56,7 @@ namespace BrannPack.Items
 
         private void HighDamageHit(CharacterMaster source, CharacterMaster victim, DamageInfo damageInfo, EventChain eventChain)
         {
-            if (damageInfo.Damage > requiredDamage && !source.Cooldowns.IsOnCooldown((0, instance.Index, 1))
+            if (source.UsingInventory && damageInfo.Damage > requiredDamage && !source.Cooldowns.IsOnCooldown((0, instance.Index, 10))
                 && source.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 //Prep For BeforeAttack
@@ -70,20 +70,20 @@ namespace BrannPack.Items
                 attackstat.SetStat(Stat.Damage, instDamage);
                 attackstat.SetStat(Stat.Cooldown, instCooldown);
 
-                AttackInfo attackInfo = new AttackInfo(source, victim, (0, instance.Index, 1), damageInfo.IsCrit, attackstat);
+                AttackInfo attackInfo = new AttackInfo(source, victim, (0, instance.Index, 0), damageInfo.IsCrit, attackstat);
 
 
                 source.BeforeAttack(attackInfo, eventChain);
 
                 float cooldownDuration = instCooldown.CalculateTotal();
-                source.Cooldowns.AddCooldown((0, instance.Index, 1), cooldownDuration);
+                source.Cooldowns.AddCooldown((0, instance.Index, 10), cooldownDuration);
 
                 damageInfo.Damage += instDamage.CalculateTotal();
                 eventChain.TryAddEventInfo(attackInfo);
 
                 float addedArmor = initialArmor + (effects.Positive - 1f) * armorPerStack;
 
-                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 1), addedArmor, null, HealthCatagory.Armor), eventChain);
+                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 20), addedArmor, null, HealthCatagory.Armor), eventChain);
 
 
                 source.AfterAttack(attackInfo, eventChain);
@@ -143,6 +143,41 @@ namespace BrannPack.Items
                     float fireRateDown = -(1f-MathF.Pow(1 - primaryFireRateDown, effects.Negative / Chthonic.instance.itemEffectModifier.Negative));
                     ((FireRateStat)stat).ChangeFireRatePercentage(fireRateDown);
                 }
+            }
+        }
+    }
+
+    public class FlatDamageReduction : Item<FlatDamageReduction>
+    {
+        public override ItemTier Tier { get; init; } = Tier1.instance;
+        public override ItemSubTier SubTier { get; init; } = null;
+        public override ItemModifier[] DefaultModifiers { get; init; } = {};
+        public override ItemModifier[] PossibleModifiers { get; init; } = {Highlander.instance };
+        public override string Name { get; init; } = "";
+        public override string CodeName { get; init; } = "Flat_Damage_Reduction";
+        public override string Description { get; init; } = "When taking damage, take 5 less (No less than 1).";
+        public override string AdvancedDescription { get; init; } = "";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = true;
+
+        public float flatDamageReduction = 5f;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
+        {
+            {EffectTag.IsDefensive,4 }
+
+        };
+
+        public override void Init()
+        {
+            // Ensure the event is only subscribed once
+            CharacterMaster.BeforeTakeDamage += ModifyDamageTaken;
+        }
+
+        private void ModifyDamageTaken(CharacterMaster source, CharacterMaster dealer, DamageInfo damageInfo, EventChain eventChain)
+        {
+            if(source.UsingInventory && source.Inventory.AllEffectiveItemCount.TryGetValue(this,out ItemEffectModifier effects))
+            {
+                damageInfo.Damage = MathF.Max(1f, damageInfo.Damage - flatDamageReduction * effects.Positive);
             }
         }
     }

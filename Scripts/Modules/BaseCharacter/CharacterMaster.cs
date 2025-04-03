@@ -87,6 +87,20 @@ namespace BrannPack.Character
             }
         }
 
+        public static event Action<CharacterMaster, CharacterMaster, DamageInfo, EventChain> BeforeTakeDamage;
+        public static event Action<CharacterMaster, CharacterMaster, DamageInfo, EventChain> AfterTakeDamage;
+
+        public void TakeDamage(CharacterMaster dealer,DamageInfo damageInfo, EventChain eventChain)
+        {
+            BeforeTakeDamage?.Invoke(this, dealer, damageInfo, eventChain);
+
+
+            HealthBar.TakeDamage();
+
+
+            AfterTakeDamage?.Invoke(this, dealer, damageInfo, eventChain);
+        }
+
         public static event Action<CharacterMaster,AttackInfo, EventChain> BeforeAttackEvent;
         public static event Action<CharacterMaster, AttackInfo, EventChain> AfterAttackEvent;
         public void BeforeAttack(AttackInfo attackInfo,EventChain eventChain)

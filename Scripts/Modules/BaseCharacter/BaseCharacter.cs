@@ -193,13 +193,13 @@ namespace BrannPack.Character
             return GetTotalCurrentHealth(CurrentHealth) - GetTotalCurrentHealth(oldHealth);
         }
 
-        public static event Action<BaseCharacterBody, DamageInfo> BeforeTakingDamage;
-        public static event Action<BaseCharacterBody, DamageInfo, List<(HealthCatagory, float)>, float> AfterTakingDamage;
+        public static event Action<BaseCharacterBody, DamageInfo> BeforeLoseHealth;
+        public static event Action<BaseCharacterBody, DamageInfo, List<(HealthCatagory, float)>, float> AfterLoseHealth;
 
         //Returns the amount of ActualDamage taken.
         public float TakeDamage(DamageInfo damageInfo)
         {
-            BeforeTakingDamage?.Invoke(Owner, damageInfo);
+            BeforeLoseHealth?.Invoke(Owner, damageInfo);
 
             float damageTaken = damageInfo.Damage;
             float totalDamageTaken = 0f;
@@ -208,7 +208,7 @@ namespace BrannPack.Character
             HealthTypes.AsEnumerable().Reverse().Aggregate(damageTaken, (leftoverDamge, currentType) =>
             { float damage = currentType.TakeDamage(damageTaken); totalDamageTaken += damage; damageTakenByType.Add((currentType.Catagory, damage)); return damage; });
 
-            AfterTakingDamage?.Invoke(Owner, damageInfo, damageTakenByType, totalDamageTaken);
+            AfterLoseHealth?.Invoke(Owner, damageInfo, damageTakenByType, totalDamageTaken);
             return UpdateCurrentHealth();
         }
 
