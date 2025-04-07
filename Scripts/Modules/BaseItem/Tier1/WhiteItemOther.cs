@@ -83,7 +83,7 @@ namespace BrannPack.Items
 
                 float addedArmor = initialArmor + (effects.Positive - 1f) * armorPerStack;
 
-                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 20), addedArmor, null, HealthCatagory.Armor), eventChain);
+                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 20), addedArmor, null, HealthBehavior.Armor), eventChain);
 
 
                 source.AfterAttack(attackInfo, eventChain);
@@ -107,11 +107,11 @@ namespace BrannPack.Items
         public float primaryFireRateDown = .05f;
         public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
         {
-            {EffectTag.IsAttack,-1 }
+            {EffectTag.IsAttack,-1 },
             {EffectTag.IsDamageDep,2 },
             {EffectTag.IsDefensive,2 },
             {EffectTag.IsFireRateDep,2 },
-            {EffectTag.IsFireRateEnabler,-1 }
+            {EffectTag.IsFireRateEnabler,-1 },
             {EffectTag.IsHealEnabler,2 },
             {EffectTag.IsPrimaryDep,3 }
 

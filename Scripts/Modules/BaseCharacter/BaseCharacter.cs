@@ -119,6 +119,11 @@ namespace BrannPack.Character
             base._Process(delta);
         }
 
+        public void InitializeBaseCharacterBody()
+        {
+
+        }
+
 
         
 
@@ -128,108 +133,8 @@ namespace BrannPack.Character
     }
     public enum CharacterTeam { Player, Enemy }
 
-    public partial class HealthBar: GodotObject
-    {
+    
 
-        public BaseCharacterBody Owner;
-        [Export] public List<HealthType> HealthTypes = new List<HealthType>() { };
-        protected List<(HealthCatagory, float)> CurrentHealth;
-        [Export] public EffectivenessStat DamageResistance;
-        [Export] public EffectivenessStat HealingEffectiveness;
-
-        public void Init()
-        {
-            Health health = new Health(0f, new MaxHealthStat(100f));
-
-            Armor armor = new Armor(0f, new MaxHealthStat(0f));
-            armor.MaxValue.AddFollowingMaxHealth(health.MaxValue);
-
-            Shield shield = new Shield(0f, new MaxHealthStat(0f));
-
-            BarrierHealth barrier = new BarrierHealth(0f, new MaxHealthStat(0f));
-            barrier.MaxValue.AddFollowingMaxHealth(health.MaxValue);
-            armor.AfterCurrentValueChange += (float currentValue, float valueadded, float overvalue) =>
-            {
-                if (currentValue > health.MaxValue.Total)
-                    barrier.MaxValue.ChangeAdditionalMaxHealth(Math.Max(0f, currentValue - health.MaxValue.Total));
-            };
-            barrier.MaxValue.AddFollowingMaxHealth(shield.MaxValue);
-
-
-            AddHealthType(health, armor, shield, barrier);
-
-        }
-
-        public void AddHealthType(params HealthType[] healthTypes)
-        {
-            foreach (HealthType healthType in healthTypes)
-                healthType.MaxValue.ChangedTotal += (float newValue, float oldValue) => AfterMaxHealthChange?.Invoke(Owner, healthType, newValue, oldValue);
-        }
-
-        public static float GetTotalCurrentHealth(List<(HealthCatagory, float)> currentHealth)
-        {
-            return currentHealth.Sum(curCat => curCat.Item2);
-        }
-        public HealthBar(BaseCharacterBody owner, List<HealthType> healthTypes, EffectivenessStat damageResistance, EffectivenessStat movementSlow, EffectivenessStat healingEffectiveness)
-        {
-            Owner = owner;
-            HealthTypes = healthTypes;
-            DamageResistance = damageResistance;
-            MovementSlow = movementSlow;
-            HealingEffectiveness = healingEffectiveness;
-        }
-
-        public List<(HealthCatagory, float)> CalculateCurrentHealth()
-        {
-            List<(HealthCatagory, float)> temp = new List<(HealthCatagory, float)>();
-            HealthTypes.ForEach(health => temp.Add((health.Catagory, health.CurrentValue)));
-            return temp;
-
-        }
-        public float UpdateCurrentHealth()
-        {
-            List<(HealthCatagory, float)> oldHealth = CurrentHealth;
-            CurrentHealth = CalculateCurrentHealth();
-            return GetTotalCurrentHealth(CurrentHealth) - GetTotalCurrentHealth(oldHealth);
-        }
-
-        public static event Action<BaseCharacterBody, DamageInfo> BeforeLoseHealth;
-        public static event Action<BaseCharacterBody, DamageInfo, List<(HealthCatagory, float)>, float> AfterLoseHealth;
-
-        //Returns the amount of ActualDamage taken.
-        public float TakeDamage(DamageInfo damageInfo)
-        {
-            BeforeLoseHealth?.Invoke(Owner, damageInfo);
-
-            float damageTaken = damageInfo.Damage;
-            float totalDamageTaken = 0f;
-
-            List<(HealthCatagory, float)> damageTakenByType = new List<(HealthCatagory, float)>();
-            HealthTypes.AsEnumerable().Reverse().Aggregate(damageTaken, (leftoverDamge, currentType) =>
-            { float damage = currentType.TakeDamage(damageTaken); totalDamageTaken += damage; damageTakenByType.Add((currentType.Catagory, damage)); return damage; });
-
-            AfterLoseHealth?.Invoke(Owner, damageInfo, damageTakenByType, totalDamageTaken);
-            return UpdateCurrentHealth();
-        }
-
-
-        public float Heal(HealingInfo healingInfo,EventChain eventChain)
-        {
-
-        }
-
-        public static event Action<BaseCharacterBody, HealthType, float, float> AfterMaxHealthChange;
-
-        public float GetMaxHealth()
-        {
-
-        }
-
-        public float GetMaxShield()
-        {
-
-        }
-    }
 
     public class EventChain
     {
@@ -290,11 +195,22 @@ namespace BrannPack.Character
     {
         float HealingAmount;
         EffectivenessStat AdditionalHealingEfficiency = null;
-        HealthCatagory Catagory = HealthCatagory.Health;
+        HealthCategories Catagory = HealthCategories.Health;
 
         public HealingInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
-            float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCatagory catagory = HealthCatagory.Health)
-            : base(source, destination, key) => (HealingAmount,AdditionalHealingEfficiency,Catagory)=(healingAmount,additionalHealingEffeciency,catagory)
+            float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCategories catagory = HealthCategories.Health)
+            : base(source, destination, key) => (HealingAmount, AdditionalHealingEfficiency, Catagory) = (healingAmount, additionalHealingEffeciency, catagory);
+    }
+
+    public class HealthChangeInfo: EventInfo
+    {
+        public float Change;
+        public EffectivenessStat AdditionalChangeEffectiveness;
+        public HealthType HealthType;
+
+        public HealthChangeInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
+            float change, HealthType healthType, EffectivenessStat additionalChangeEffectiveness)
+            : base(source, destination, key) => (Change, HealthType, AdditionalChangeEffectiveness) = (change, healthType, additionalChangeEffectiveness);
     }
 
     

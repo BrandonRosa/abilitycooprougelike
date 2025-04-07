@@ -1,4 +1,5 @@
 ﻿using BrannPack.Character;
+using BrannPack.Helpers.Initializers;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -33,8 +34,16 @@ namespace BrannPack.ModifiableStats
         ChainLifesteal, //For Player, Abilities, or Items..All attacks after this have lifesteal.
         Lifesteal, //Specifically for attacks/abilities. THIS attack has lifesteal
                    //Total Lifesteal for an attack is ChainLifesteal of the last damagedealt plus chainlifesteal of the current attack plus Lifesteal of that current attack. plus chainlifesteal of the player
-        MoveSpeed
+        MoveSpeed,
+        MaxHealth,
+        HealthRegen,
+        MaxArmor,
+        MaxShield,
+        ShieldRegenRate,
+        ShieldRegenDelay,
+        MaxBarrier
     }
+
     public abstract partial class ModifiableStat: Resource
     {
         public abstract float Total { get; protected set; }
@@ -339,10 +348,8 @@ namespace BrannPack.ModifiableStats
         //}
 
         public class StatsHolder
-        {
-            
-
-            public static Dictionary<Stat, ModifiableStat> DefaultZeroStats = new Dictionary<Stat, ModifiableStat>()
+        { 
+            private static Dictionary<Stat, ModifiableStat> DefaultZeroStats = new Dictionary<Stat, ModifiableStat>()
             {
                 {Stat.Chance, new ChanceStat(0f)},
                 {Stat.Damage, new DamageStat(0f, 1f)},
@@ -350,7 +357,7 @@ namespace BrannPack.ModifiableStats
                 {Stat.ProjectileSpeed, new ProjectileSpeedStat(0f)},
                 {Stat.ProcChance, new ChanceStat(0f)},
                 {Stat.CritDamage, new DamageStat(0f, 1f)},
-                {Stat.Charges, new ChargeStat(1f)}, 
+                {Stat.Charges, new ChargeStat(0f)}, 
                 {Stat.Cooldown, new CooldownStat(0f)},
                 {Stat.SpamCooldown, new CooldownStat(0f)}, 
                 {Stat.Range, new RangeStat(1f, 10f)}, 
@@ -359,8 +366,25 @@ namespace BrannPack.ModifiableStats
                 {Stat.BadLuck, new ChanceStat(0f,0f) },
                 {Stat.ChainLifesteal, new EffectivenessStat(0f,0f)},
                 {Stat.Lifesteal, new EffectivenessStat(0f,0f)},
-                {Stat.MoveSpeed, new MoveSpeedStat(1,10) }
+                {Stat.MoveSpeed, new MoveSpeedStat(1,10) },
+                {Stat.MaxHealth, new MaxHealthStat(0f) },
+                {Stat.HealthRegen, new RegenStat(0f,0f) },
+                {Stat.MaxShield, new MaxHealthStat(0f) }
             };
+
+            public static Dictionary<Stat, ModifiableStat> GetZeroStatsCopy()
+            {
+                Dictionary<Stat, ModifiableStat> temp = new Dictionary<Stat, ModifiableStat>();
+                foreach (var kvp in DefaultZeroStats)
+                {
+                    temp[kvp.Key] = kvp.Value.CopyBase();
+                }
+
+                return temp;
+            }
+
+            public static StatsHolder ZeroStatHoler = new StatsHolder(DefaultZeroStats);
+
             private Dictionary<Stat, ModifiableStat> _stats = new();
 
             public event Action<Stat, ModifiableStat> RefreshAbilityStatVariable;
@@ -392,10 +416,11 @@ namespace BrannPack.ModifiableStats
             {
                 if (clearPrevious) _stats.Clear();
 
-                _stats = stats;
+                
                 // Hook up event listeners for all _stats
                 foreach (var kvp in stats)
                 {
+                    _stats[kvp.Key] = kvp.Value;
                     Stat statKey = kvp.Key;
                     kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
                         StatUpdatedWithNewTotal?.Invoke(statKey, kvp.Value, newTotal, prevTotal);
@@ -478,7 +503,7 @@ namespace BrannPack.ModifiableStats
                         temp._stats[statKey].AddUnsafeCombinedStats(matchingStats);
                     }
                 }
-
+                
                 return temp;
             }
         }
@@ -1126,15 +1151,15 @@ namespace BrannPack.ModifiableStats
             public MoveSpeedStat(float baseValue, float softMax, float speedMinimum = 1f, float scaleConstant = 1.8f) : base(baseValue) => (SpeedMinimum, SoftMax, ScaleConstant) = (speedMinimum, softMax, scaleConstant);
             protected override float TotalValueMath()
             {
-                float slowResist =SlowResistPercentages.Aggregate(1f, (total, next) => total * next);
+                float slowResist = SlowResistPercentages.Aggregate(1f, (total, next) => total * next);
                 float slow = SlowPercentages.Aggregate(1f, (total, next) => total * next);
-                float totalUnmodChange = BaseValue * (1f+SpeedFlatPercentage - Mathf.Clamp(((1-slow)*slowResist),0f,1f));
+                float totalUnmodChange = BaseValue * (1f + SpeedFlatPercentage - Mathf.Clamp(((1 - slow) * slowResist), 0f, 1f));
                 return Mathf.Max(SpeedMinimum, SoftMax - (SoftMax - BaseValue) * Mathf.Exp(-ScaleConstant * totalUnmodChange / SoftMax));
             }
 
             public override void ResetModifiedValues() { SpeedFlatPercentage = 0f; SlowPercentages.Clear(); }
 
-            public void ChangeFlatSpeedPercentage(float percentChange,bool undo=false)
+            public void ChangeFlatSpeedPercentage(float percentChange, bool undo = false)
             {
                 if (!undo)
                     SpeedFlatPercentage += percentChange;
@@ -1145,7 +1170,7 @@ namespace BrannPack.ModifiableStats
             {
                 if (!undo)
                 {
-                    if (percentChange >= 0) SlowResistPercentages.Add(1f-percentChange);
+                    if (percentChange >= 0) SlowResistPercentages.Add(1f - percentChange);
                     else SlowPercentages.Add(1f - percentChange);
                 }
                 else
@@ -1238,7 +1263,7 @@ namespace BrannPack.ModifiableStats
             public float MinimumMaxHealth = 0f;
 
             public float AdditionalMaxHealth = 0f;
-            public List<MaxHealthStat> FollowingMaxHealth=new List<MaxHealthStat>();
+            public List<MaxHealthStat> FollowingMaxHealth = new List<MaxHealthStat>();
             public float MaxHealthPercentIncrease = 0f;
             public List<float> MaxHealthPercentDecreases = new List<float>();
 
@@ -1248,16 +1273,18 @@ namespace BrannPack.ModifiableStats
             {
                 FollowingMaxHealth.Add(maxHealthStat);
                 maxHealthStat.ChangedTotal += (float newTotal, float oldTotal) => CalculateTotal();
+                CalculateTotal();
             }
 
             public bool RemoveFollowingMaxHealth(MaxHealthStat maxHealthStat)
             {
-                bool removed=FollowingMaxHealth.Remove(maxHealthStat);
-                maxHealthStat.ChangedTotal += (float newTotal, float oldTotal) => CalculateTotal();
+                bool removed = FollowingMaxHealth.Remove(maxHealthStat);
+                maxHealthStat.ChangedTotal -= (float newTotal, float oldTotal) => CalculateTotal();
+                CalculateTotal();
                 return removed;
             }
 
-            protected override float TotalValueMath() { return Mathf.Max(MinimumMaxHealth, BaseValue +FollowingMaxHealth.Sum(maxhealth=>maxhealth.Total) + AdditionalMaxHealth * MaxHealthScaling) * (1f + MaxHealthPercentIncrease - (1f - MaxHealthPercentDecreases.Aggregate(1f, (total, next) => total * next))); }
+            protected override float TotalValueMath() { return Mathf.Max(MinimumMaxHealth, BaseValue + FollowingMaxHealth.Sum(maxhealth => maxhealth.CalculateTotal()) + AdditionalMaxHealth * MaxHealthScaling) * (1f + MaxHealthPercentIncrease - (1f - MaxHealthPercentDecreases.Aggregate(1f, (total, next) => total * next))); }
 
             public override void ResetModifiedValues() { AdditionalMaxHealth = 0f; MaxHealthPercentIncrease = 0f; MaxHealthPercentDecreases.Clear(); }
             public void ChangeAdditionalMaxHealth(float changeValue, bool undo = false) { if (!undo) AdditionalMaxHealth += changeValue; else AdditionalMaxHealth -= changeValue; }
@@ -1300,69 +1327,83 @@ namespace BrannPack.ModifiableStats
             }
 
         }
-        public abstract partial class HealthType :Resource
+        public abstract partial class HealthBehavior : Resource
         {
-            public abstract HealthCatagory Catagory { get; protected set; }
+            public abstract bool AddToDenominator { get; protected set; }
+            public abstract bool CoversHealth { get; protected set; }
+
 
             public float CurrentValue;
             public MaxHealthStat MaxValue;
             public EffectivenessStat DamageResistance;
             public EffectivenessStat ObtainGain;
-            public HealthType(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null)
+            public HealthBehavior(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null)
             {
                 (CurrentValue, MaxValue, DamageResistance) = (startingHealth, maxHealthStat, damageResistance);
                 MaxValue.ChangedTotal += MaxChanged;
             }
 
             //public static int DamagePriority { get; set; }   //Damage goes from HighPriority to Low Priority
-            public float TakeDamage(float damage, EffectivenessStat additionalDamageResistance = null)
+            public (float damageTaken, float overDamage) TakeDamage(HealthChangeInfo changeInfo)
             {
-                float overDamage = Mathf.Min(0f, CurrentValue - damage);
-                CurrentValue = Mathf.Max(0f,CurrentValue- damage);
-                return overDamage;
+                float mult = (1 - DamageResistance.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness));
+                float damageTaken =changeInfo.Change * mult;
+                float overDamage = -Mathf.Min(0f, CurrentValue + damageTaken)/mult;
+                CurrentValue = Mathf.Max(0f, CurrentValue - damageTaken);
+                return (damageTaken,overDamage);
             }
 
-            public event Action<float,float,float> AfterCurrentValueChange;
-            public float AddCurrentValue(float addValue)
+            public event Action<float, float, float> AfterCurrentValueChange;
+            public float AddCurrentValue(HealthChangeInfo changeInfo)
             {
                 addValue = addValue * ObtainGain.Total;
-                float overAdd = Mathf.Max(0f, CurrentValue + addValue- MaxValue.Total);
+                float overAdd = Mathf.Max(0f, CurrentValue + addValue - MaxValue.CalculateTotal());
                 CurrentValue = Mathf.Min(MaxValue.Total, CurrentValue + addValue);
-                AfterCurrentValueChange?.Invoke(CurrentValue,addValue, overAdd);
+                AfterCurrentValueChange?.Invoke(CurrentValue, addValue, overAdd);
                 return CurrentValue;
             }
 
             public abstract void NaturalCurrentChange();
-            protected abstract void MaxChanged(float newValue,float oldValue);
+            protected abstract void MaxChanged(float newValue, float oldValue);
+
+            public abstract float GetCurrentValue();
+
+            public float GetOverValue()
+            {
+                return MathF.Max(0, CurrentValue-MaxValue.FollowingMaxHealth.Sum(maxhealth => maxhealth.CalculateTotal()));
+            }
         }
 
-        public partial class Health : HealthType
+        public partial class Health : HealthBehavior
         {
             public RegenStat NaturalRegen; //In HP/s
             public float NaturalRegenRate = 0f; //In seconds
             public float SecondsUntilNextRegenTick = 0f;
-            public override HealthCatagory Catagory { get; protected set; } = HealthCatagory.Health;
+            public override HealthCategories Catagory { get; protected set; } = HealthCategories.Health;
             public Health(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
 
             public override void NaturalCurrentChange()// Do natural regen code here..
             {
-                throw new NotImplementedException();
+                
             }
 
             protected override void MaxChanged(float newValue, float oldValue)
             {
-                throw new NotImplementedException();
+                
+            }
+
+            public override float GetCurrentValue()
+            {
+                return Math.Clamp(CurrentValue, 0f, MaxValue.Total);
             }
         }
-        public partial class Armor : HealthType
+        public partial class Armor : HealthBehavior
         {
-            public RegenStat NaturalRegen; //In HP/s
-            public float NaturalRegenRate = 0f; //In seconds
-            public float SecondsUntilNextRegenTick = 0f;
 
-            public override HealthCatagory Catagory { get; protected set; } = HealthCatagory.Armor;
+
+            public override HealthType Catagory { get; protected set; } = HealthType.Armor;
             public Armor(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
@@ -1376,15 +1417,20 @@ namespace BrannPack.ModifiableStats
             {
                 throw new NotImplementedException();
             }
+
+            public override float GetCurrentValue()
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public partial class Shield : HealthType
+        public partial class Shield : HealthBehavior
         {
             public RegenStat NaturalRegen; //In HP/s
             public float NaturalRegenRate = 0f; //In seconds
             public float SecondsUntilNextRegenTick = 0f;
 
-            public override HealthCatagory Catagory { get; protected set; } = HealthCatagory.Shield;
+            public override HealthBehavior Catagory { get; protected set; } = HealthBehavior.Shield;
             public Shield(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
@@ -1400,13 +1446,13 @@ namespace BrannPack.ModifiableStats
             }
         }
 
-        public partial class BarrierHealth : HealthType
+        public partial class BarrierHealth : HealthBehavior
         {
             public RegenStat NaturalRegen; //In HP/s
             public float NaturalRegenRate = 0f; //In seconds
             public float SecondsUntilNextRegenTick = 0f;
 
-            public override HealthCatagory Catagory { get; protected set; } = HealthCatagory.Barrier;
+            public override HealthBehavior Catagory { get; protected set; } = HealthBehavior.Barrier;
             public BarrierHealth(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
@@ -1422,13 +1468,27 @@ namespace BrannPack.ModifiableStats
             }
         }
 
-        public enum HealthCatagory
+        public enum HealthType
         {
-            Health, CelledHealth, CursedHealth ,
-                Armor, 
-            Shield, CelledShield, Gaurd, 
-                Barrier //Max Health has no limit. Max Armor usually can only be equal to MaxHealth. Shield has no limit.  BarrierHealth is at most Health+Shied
+            Health, CelledHealth, CursedHealth,
+            Armor,
+            Shield, CelledShield, Gaurd,
+            Barrier //Max Health has no limit. Max Armor usually can only be equal to MaxHealth. Shield has no limit.  BarrierHealth is at most Health+Shied
         }
+
+        public enum HealthCategories
+        {
+            Health, Armor, Shield, Gaurd, Barrier
+        }
+
+        public static Dictionary<HealthType, (HealthCategories Category, bool AddsToDenominator, bool CoversHealth)> HealthTypeInfo = new()
+        {
+                { HealthType.Health,(HealthCategories.Health,true,false) },
+                { HealthType.Armor,(HealthCategories.Armor,false,true) },
+                { HealthType.Shield,(HealthCategories.Shield,true,false) },
+                { HealthType.Barrier,(HealthCategories.Barrier,true,false) },
+        };
+        public static HealthType[] HealthTypeOrder = new HealthType[] { HealthType.Health, HealthType.Armor, HealthType.Shield, HealthType.Barrier };
 
     }
 }

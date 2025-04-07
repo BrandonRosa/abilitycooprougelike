@@ -28,10 +28,7 @@ namespace BrannPack.ItemHandling
         public int Index { get; protected set; } = -1;
 
         public void SetIndex() { if(Index!=-1)Index = NextIndex++; }
-        public abstract ItemTier Tier { get; init; }
-        public abstract ItemSubTier SubTier { get; init; }
-        public abstract ItemModifier[] DefaultModifiers { get; init; }
-        public abstract ItemModifier[] PossibleModifiers { get; init; }
+
         private int _itemIndex;
         public int ItemIndex
         {
@@ -42,6 +39,11 @@ namespace BrannPack.ItemHandling
                     _itemIndex = value;
             }
         }
+        public abstract ItemTier Tier { get; init; }
+        public abstract ItemSubTier SubTier { get; init; }
+        public abstract ItemModifier[] DefaultModifiers { get; init; }
+        public abstract ItemModifier[] PossibleModifiers { get; init; }
+        
 
         public abstract string Name { get; init; }
         public abstract string CodeName { get; init; }
