@@ -1329,9 +1329,6 @@ namespace BrannPack.ModifiableStats
         }
         public abstract partial class HealthBehavior : Resource
         {
-            public abstract bool AddToDenominator { get; protected set; }
-            public abstract bool CoversHealth { get; protected set; }
-
 
             public float CurrentValue;
             public MaxHealthStat MaxValue;
@@ -1354,13 +1351,14 @@ namespace BrannPack.ModifiableStats
             }
 
             public event Action<float, float, float> AfterCurrentValueChange;
-            public float AddCurrentValue(HealthChangeInfo changeInfo)
+            public (float amountAdded,float overAdd) AddCurrentValue(HealthChangeInfo changeInfo)
             {
-                addValue = addValue * ObtainGain.Total;
-                float overAdd = Mathf.Max(0f, CurrentValue + addValue - MaxValue.CalculateTotal());
-                CurrentValue = Mathf.Min(MaxValue.Total, CurrentValue + addValue);
-                AfterCurrentValueChange?.Invoke(CurrentValue, addValue, overAdd);
-                return CurrentValue;
+                float mult = ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness));
+                float amountAdded = changeInfo.Change * mult;
+                float overAdd = Mathf.Max(0f, CurrentValue + amountAdded - MaxValue.CalculateTotal())/mult;
+                CurrentValue = MathF.Min(MaxValue.CalculateTotal(), amountAdded + CurrentValue);
+                //AfterCurrentValueChange?.Invoke(CurrentValue, addValue, overAdd);
+                return (amountAdded,overAdd);
             }
 
             public abstract void NaturalCurrentChange();

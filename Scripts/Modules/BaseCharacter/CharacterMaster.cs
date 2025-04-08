@@ -84,7 +84,7 @@ namespace BrannPack.Character
             };
             Stats.SetAllStats(stats, false);
 
-            HealthBar= new HealthBar((MaxHealthStat)stats[Stat.MaxHealth], (MaxHealthStat)stats[Stat.MaxArmor], (MaxHealthStat)stats[Stat.MaxShield], (MaxHealthStat)stats[Stat.MaxBarrier])
+            HealthBar= new HealthBar(this,(MaxHealthStat)stats[Stat.MaxHealth], (MaxHealthStat)stats[Stat.MaxArmor], (MaxHealthStat)stats[Stat.MaxShield], (MaxHealthStat)stats[Stat.MaxBarrier])
 
             Inventory = new Inventory(this);
         }
@@ -313,18 +313,24 @@ namespace BrannPack.Character
             return totalDamageTaken;
         }
         public static event Action<HealthBar, HealthChangeInfo> BeforeHealthChange;
+        public static event Action<HealthBar, HealthChangeInfo> AfterHealthChange;
         public (float change,float leftOverChange) ChangeHealth(HealthChangeInfo changeInfo)
         {
+            BeforeHealthChange?.Invoke(this, changeInfo);
             if (changeInfo.Change == 0)
                 return (0f,changeInfo.Change);
 
-            BeforeHealthChange?.Invoke(this, changeInfo);
+            
 
-
+            (float,float) result = (0f,0f);
             if (changeInfo.Change > 0)
-                return HealthList[changeInfo.HealthType].TakeDamage(changeInfo);
+                result= HealthList[changeInfo.HealthType].TakeDamage(changeInfo);
             else
-                return HealthList[changeInfo.HealthType].AddCurrentValue(changeInfo);
+                result= HealthList[changeInfo.HealthType].AddCurrentValue(changeInfo);
+
+            AfterHealthChange?.Invoke(this, changeInfo);
+
+            return result;
 
         }
 
@@ -335,14 +341,5 @@ namespace BrannPack.Character
 
         public static event Action<HealthBar, HealthBehavior, float, float> AfterMaxHealthChange;
 
-        public float GetMaxHealth()
-        {
-
-        }
-
-        public float GetMaxShield()
-        {
-
-        }
     }
 }
