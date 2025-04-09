@@ -1,4 +1,5 @@
 using BrannPack.Character;
+using BrannPack.CooldownHandling;
 using BrannPack.Helpers.Initializers;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
@@ -14,12 +15,16 @@ namespace BrannPack.AbilityHandling
     public class AbilitySlot
     {
         public CharacterMaster Owner;
-        public BaseCharacterBody CurrentTarget;
+
         public AbilitySlotType SlotType;
         public Ability Ability;
-        public AbilityUpgradeTree CurrentUpgrades;
+        public HashSet<AbilityUpgrade> CurrentUpgrades;
+
         public AbilityStats.StatsHolder<AbilitySlot> ThisAbilityStats;
-        public Timer Cooldown;
+
+        public ChargedCooldown CCooldown;
+        public float CurrentCharges;
+
         public bool IsUsable;
 
         public static event Action<AbilitySlot> BeforeAbilitySlotUse;
@@ -27,16 +32,33 @@ namespace BrannPack.AbilityHandling
 
         public void Initialize()
         {
-            ////When OwnerBody's Base _stats are upated, this should also recalculate _stats.
-            //Stats.StatsHolder<BaseCharacterBody>.StatUpdatedWithNewTotal +=
-            //    (BaseCharacterBody baseCharacter, BaseCharacterBody.Stat variable, ModifiableStat modStat, float newTotal, float oldTotal) =>
-            //    {
-            //        if (baseCharacter == Owner)
-            //        {
-            //            ThisAbilityStats.RecalculateAndAddStats(variable,baseCharacter.Stats.GetStatByVariable(variable));
-            //        }
-            //    };
+            var abilityDefaultStats = Ability.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
+            ThisAbilityStats = abilityDefaultStats.ToGlobalStatsHolder<AbilitySlot>(this);
 
+            var cooldown = ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown);
+            var charges = ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges);
+            CCooldown = new ChargedCooldown(cooldown, charges);
+            
+        }
+
+        public void SetAbilityUpgrade(AbilityUpgrade abilityUpgrade,bool enabled)
+        {
+            if (enabled)
+            {
+                CurrentUpgrades.Add(abilityUpgrade);
+                var stats = Ability.Stats.GetCritereaSpecificStats(abilityUpgrade);
+                ThisAbilityStats.SetStatBaseValues(stats);
+            }
+            else
+            {
+                if (!CurrentUpgrades.Remove(abilityUpgrade))
+                    return;
+                var allStats = Ability.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
+                //ThisAbilityStats.SetAllStats(allStats.)
+            }
+            
+
+            //Update ThisAbilityStats BaseStats with stats
             
         }
         public bool TryUseAbility()
@@ -49,6 +71,16 @@ namespace BrannPack.AbilityHandling
                 return true;
             }
             return false;
+        }
+
+        public (float secondsOnCooldown, float cooldownPercent, float charges, float maxCharges, int abilityIndex) GetSimpleCooldownInfo()
+        {
+
+        }
+
+        public void Update(float deltaTime)
+        {
+
         }
     }
 

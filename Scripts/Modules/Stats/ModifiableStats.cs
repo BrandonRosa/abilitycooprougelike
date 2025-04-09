@@ -4,6 +4,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -64,6 +65,8 @@ namespace BrannPack.ModifiableStats
 
         public abstract ModifiableStat CopyBase();
 
+        public abstract void SetUnsafeBase(ModifiableStat stat);
+
         public abstract void AddUnsafeCombinedStats(params ModifiableStat[] addStat);
     }
     public abstract partial class ModifiableStat<T>: ModifiableStat where T:ModifiableStat<T>
@@ -116,6 +119,15 @@ namespace BrannPack.ModifiableStats
         public static T GetCombinedStat(T baseStat,T[] addStat)
         {
             return baseStat.GetCombinedStat(addStat);
+        }
+
+        public abstract void SetBase(T stat);
+
+        public override void SetUnsafeBase(ModifiableStat stat)
+        {
+            if(!(stat is T))
+                throw new InvalidCastException($"All provided stats must be of type {typeof(T).Name}.");
+            SetBase((T)stat);
         }
 
         public override ModifiableStat CopyBase()
@@ -209,7 +221,12 @@ namespace BrannPack.ModifiableStats
         public List<float> MultipliedPercentageDecreases = new List<float>();
         public float AdditivePercentageChange = 0f;
 
-
+        public override void SetBase(EffectivenessStat stat)
+        {
+            MinimumValue = stat.MinimumValue;
+            MaximumValue = stat.MaximumValue;
+            BaseValue = stat.BaseValue;
+        }
         public EffectivenessStat(float baseValue=1f, float? minimumValue = null, float? maximumValue = null) : base(baseValue) => ( MinimumValue, MaximumValue) = ( minimumValue, maximumValue);
 
         protected override float TotalValueMath()
@@ -240,7 +257,7 @@ namespace BrannPack.ModifiableStats
 
         public void ChangeAdditivePercentage(float changeValue, bool undo = false) { if (!undo) AdditivePercentageChange += changeValue; else AdditivePercentageChange -= changeValue; }
 
-        public override EffectivenessStat AddCombinedStats(params EffectivenessStat[] addStat)
+        public override void AddCombinedStats(params EffectivenessStat[] addStat)
         {
 
             EffectivenessStat tempCombined = this.Copy();
@@ -253,8 +270,6 @@ namespace BrannPack.ModifiableStats
                 AdditivePercentageChange += stat.AdditivePercentageChange;
 
             }
-
-            return tempCombined;
 
         }
 
@@ -385,7 +400,7 @@ namespace BrannPack.ModifiableStats
 
             public static StatsHolder ZeroStatHoler = new StatsHolder(DefaultZeroStats);
 
-            private Dictionary<Stat, ModifiableStat> _stats = new();
+            protected Dictionary<Stat, ModifiableStat> _stats = new();
 
             public event Action<Stat, ModifiableStat> RefreshAbilityStatVariable;
             public event Action<Stat, ModifiableStat, float, float> StatUpdatedWithNewTotal;
@@ -424,6 +439,17 @@ namespace BrannPack.ModifiableStats
                     Stat statKey = kvp.Key;
                     kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
                         StatUpdatedWithNewTotal?.Invoke(statKey, kvp.Value, newTotal, prevTotal);
+                }
+            }
+
+            public void SetStatBaseValues(Dictionary<Stat, ModifiableStat> stats)
+            {
+                foreach(var kvp in stats)
+                {
+                    if(_stats.TryGetValue(kvp.Key, out ModifiableStat origStat))
+                    {
+                        origStat.SetUnsafeBase(kvp.Value);
+                    }
                 }
             }
 
@@ -479,12 +505,18 @@ namespace BrannPack.ModifiableStats
 
             public StatsHolder Copy()
             {
+                
+                return new StatsHolder(CopyDictionary());
+            }
+
+            public Dictionary<Stat,ModifiableStat> CopyDictionary()
+            {
                 Dictionary<Stat, ModifiableStat> newDict = new();
-                foreach(var kvp in _stats)
+                foreach (var kvp in _stats)
                 {
                     newDict[kvp.Key] = kvp.Value.CopyBase();
                 }
-                return new StatsHolder(newDict);
+                return newDict;
             }
 
             public StatsHolder CopyAndAddAllStats(params StatsHolder[] statsHolders)
@@ -506,6 +538,7 @@ namespace BrannPack.ModifiableStats
                 
                 return temp;
             }
+            public StatsHolder<T> ToGlobalStatsHolder<T>(T owner) { return new StatsHolder<T>(owner, _stats); }
         }
 
         public class StatsHolder<T> : StatsHolder
@@ -549,6 +582,8 @@ namespace BrannPack.ModifiableStats
                 StatUpdatedWithNewTotal += (stat, modStat, newTotal, prevTotal) =>
                     GlobalStatUpdatedWithNewTotal?.Invoke(Owner, stat, modStat, newTotal, prevTotal);
             }
+
+            public StatsHolder(T owner, StatsHolder statsHolder) : this(owner, statsHolder.CopyDictionary()) { }
         }
 
         public class StatsByCritera<T> where T : IComparable<T>
@@ -677,6 +712,22 @@ namespace BrannPack.ModifiableStats
                 }
 
             }
+
+            public Dictionary<Stat, ModifiableStat> GetCritereaSpecificStats(T criteria)
+            {
+                var result = new Dictionary<Stat, ModifiableStat>();
+
+                // Loop through the criteria entries and match the key with the given criteria
+                foreach (var entry in _criteriaStats)
+                {
+                    if (entry.Key.CompareTo(criteria) == 0) // If the criteria matches
+                    {
+                        result[entry.StatType] = entry.StatValue;
+                    }
+                }
+
+                return result; // Return the dictionary with the matching criteria
+            }
         }
 
         public partial class DamageStat : ModifiableStat<DamageStat>
@@ -688,6 +739,12 @@ namespace BrannPack.ModifiableStats
             public float DamagePercentIncrease = 0f;
             public List<float> DamagePercentDecreases = new List<float>();
 
+            public override void SetBase(DamageStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                DamageScaling = stat.DamageScaling;
+                MinimumDamage = stat.MinimumDamage;
+            }
             public DamageStat(float baseValue, float damageScaling, float minimumDamage = 0f) : base(baseValue) => (DamageScaling, MinimumDamage) = (damageScaling, minimumDamage);
 
             protected override float TotalValueMath() { return Mathf.Max(MinimumDamage, BaseValue + AdditionalDamage * DamageScaling) * (1f + DamagePercentIncrease - (1f - DamagePercentDecreases.Aggregate(1f, (total, next) => total * next))); }
@@ -744,6 +801,13 @@ namespace BrannPack.ModifiableStats
 
             //Reduction Calculation has to be done carfully. a 25% reduction and a 45% reduction would end up being 58.75% (41.25% of the original) 
             public FireRateStat(float baseValue, float fireRateMinimum = 1f) : base(baseValue) => FireRateMinimum = fireRateMinimum;
+
+            public override void SetBase(FireRateStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                FireRateMinimum = stat.FireRateMinimum;
+            }
+
             protected override float TotalValueMath() { return Mathf.Max(FireRateMinimum, (BaseValue * (1f + FireRateUpPercentage - (1f - FireRateDownPercentages.Aggregate(1f, (total, next) => total * next))))); }
 
             public override void ResetModifiedValues() { FireRateUpPercentage = 0f; FireRateDownPercentages.Clear(); }
@@ -777,10 +841,9 @@ namespace BrannPack.ModifiableStats
             public override FireRateStat Copy()
             {
                 FireRateStat newCombinedStat = new FireRateStat(BaseValue, FireRateMinimum);
-                newCombinedStat.AdditionalFireRate = AdditionalFireRate;
 
-                newCombinedStat.FireRatePercentDecreases = new List<float>(FireRatePercentDecreases);
-                newCombinedStat.FireRatePercentIncrease = FireRatePercentIncrease;
+                newCombinedStat.FireRateDownPercentages = new List<float>(FireRateDownPercentages);
+                newCombinedStat.FireRateUpPercentage = FireRateUpPercentage;
 
                 return newCombinedStat;
             }
@@ -798,6 +861,12 @@ namespace BrannPack.ModifiableStats
             public float? ProjectileSpeedMaximum;
 
             public ProjectileSpeedStat(float baseValue, float projectileSpeedMinumum = 0f, float? projectileSpeedMaximum = null) : base(baseValue) => (ProjectileSpeedMinumum, ProjectileSpeedMaximum) = (projectileSpeedMinumum, projectileSpeedMaximum);
+            public override void SetBase(ProjectileSpeedStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                ProjectileSpeedMinumum = stat.ProjectileSpeedMinumum;
+                ProjectileSpeedMaximum = stat.ProjectileSpeedMaximum;
+            }
             protected override float TotalValueMath()
             {
                 float tempTotal = (BaseValue) * (1f + ProjectileSpeedUpPercentage - (1f - ProjectileSpeedDownPercentage.Aggregate(1f, (total, next) => total * next)));
@@ -855,6 +924,11 @@ namespace BrannPack.ModifiableStats
             public float MinimumChance = 0f;
 
             public ChanceStat(float baseValue, float minimumChance = 0f) : base(baseValue) => ChanceUpPercentage = minimumChance;
+            public override void SetBase(ChanceStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                MinimumChance = stat.MinimumChance;
+            }
 
             protected override float TotalValueMath() { return Mathf.Max(MinimumChance, BaseValue * (1f + ChanceUpPercentage)); }
             public override void ResetModifiedValues() { ChanceUpPercentage = 0f; }
@@ -892,6 +966,13 @@ namespace BrannPack.ModifiableStats
             //public List<float> ChargePercentDecreases = new List<float>();
 
             public ChargeStat(float baseValue, float chargeScaling = 1f, float minimumCharges = 1f) : base(baseValue) => (ChargeScaling, MinimumCharges) = (chargeScaling, minimumCharges);
+
+            public override void SetBase(ChargeStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                ChargeScaling = stat.ChargeScaling;
+                MinimumCharges = stat.MinimumCharges;
+            }
 
             protected override float TotalValueMath() { return Mathf.Max(MinimumCharges, BaseValue + AdditionalCharges * ChargeScaling) * (1f + ChargePercentFlat); }
 
@@ -938,6 +1019,13 @@ namespace BrannPack.ModifiableStats
             public List<float> CooldownPercentDecreases = new List<float>();
 
             public CooldownStat(float baseValue, float minimumCooldown = .1f,float cooldownScaling=1f) : base(baseValue) => (CooldownScaling, MinimumCooldown) = (cooldownScaling, minimumCooldown);
+
+            public override void SetBase(CooldownStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                CooldownScaling = stat.CooldownScaling;
+                MinimumCooldown = stat.MinimumCooldown;
+            }
 
             protected override float TotalValueMath() { return Mathf.Max(MinimumCooldown, BaseValue + AdditionalCooldown * CooldownScaling) * (1f + CooldownPercentIncrease - (1f - CooldownPercentDecreases.Aggregate(1f, (total, next) => total * next))); }
 
@@ -1033,6 +1121,15 @@ namespace BrannPack.ModifiableStats
 
             //Reduction Calculation has to be done carfully. a 25% reduction and a 45% reduction would end up being 58.75% (41.25% of the original) 
             public RangeStat(float baseValue, float softMax, float rangeMinimum = 1f, float scaleConstant=1.8f) : base(baseValue) => (RangeMinimum, SoftMax,ScaleConstant) = (rangeMinimum, softMax,scaleConstant);
+
+            public override void SetBase(RangeStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                RangeMinimum = stat.RangeMinimum;
+                SoftMax = stat.SoftMax;
+                ScaleConstant = stat.ScaleConstant;
+            }
+
             protected override float TotalValueMath()
             {
                 float totalUnmodChange = BaseValue * (RangeFlatPercentage - (1f - RangeDownPercentages.Aggregate(1f, (total, next) => total * next)));
@@ -1089,6 +1186,14 @@ namespace BrannPack.ModifiableStats
 
             //Reduction Calculation has to be done carfully. a 25% reduction and a 45% reduction would end up being 58.75% (41.25% of the original) 
             public DurationStat(float baseValue, float softMax, float durationMinimum = 1f, float scaleConstant = 1.5f) : base(baseValue) => (DurationMinimum, SoftMax, ScaleConstant) = (durationMinimum, softMax, scaleConstant);
+
+            public override void SetBase(DurationStat stat)
+            {
+                BaseValue = stat.BaseValue;
+                DurationMinimum = stat.DurationMinimum;
+                SoftMax = stat.SoftMax;
+                ScaleConstant = stat.ScaleConstant;
+            }
             protected override float TotalValueMath()
             {
                 float totalUnmodChange = BaseValue * (DurationFlatPercentage - (1f - DurationDownPercentages.Aggregate(1f, (total, next) => total * next)));

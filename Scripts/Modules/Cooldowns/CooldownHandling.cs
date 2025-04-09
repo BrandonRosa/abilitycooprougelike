@@ -1,10 +1,12 @@
 ﻿using BrannPack.Helpers.Initializers;
+using BrannPack.ModifiableStats;
 using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace BrannPack.CooldownHandling
 {
@@ -89,7 +91,9 @@ namespace BrannPack.CooldownHandling
     public class Cooldown
     {
         public float Duration;
-        private float elapsedTime;
+        protected float elapsedTime;
+        public virtual float PercentageComplete => elapsedTime/Duration;
+        public bool IsPaused = false;
 
         public bool RemoveFromHandlerOnCompletion;
 
@@ -105,16 +109,75 @@ namespace BrannPack.CooldownHandling
 
         public event Action<Cooldown> CompletedCooldown;
 
-        public bool IsExpired => elapsedTime >= Duration;
+        public virtual bool IsExpired => elapsedTime >= Duration;
         public float RemainingTime => Math.Max(0, Duration - elapsedTime);
 
-        public void Update(float deltaTime)
+        public virtual void Update(float deltaTime)
         {
-            if(!IsExpired)
+            if(!IsExpired && !IsPaused)
                 elapsedTime += deltaTime;
                 if (IsExpired)
                     CompletedCooldown?.Invoke(this);
         }
+
+        public virtual void Reset()
+        {
+            elapsedTime = 0f;
+        }
     }
 
+    public class ChargedCooldown : Cooldown
+    {
+        public float CurrentCharges = 0;
+        public float PartialCharges => CurrentCharges + PercentageComplete; 
+        public ModifiableStats.AbilityStats.ChargeStat TrackedMaxCharges;
+        public ModifiableStats.AbilityStats.CooldownStat TrackedCooldown;
+
+        public ChargedCooldown(ModifiableStats.AbilityStats.CooldownStat cooldownStat, ModifiableStats.AbilityStats.ChargeStat chargeStat, Action<Cooldown> onComplete = null) : base(cooldownStat.CalculateTotal(), false, onComplete)
+        {
+            TrackedMaxCharges = chargeStat;
+            TrackedCooldown = cooldownStat;
+            cooldownStat.ChangedTotal += UpdateDuration;
+        }
+
+        public void SetCooldownStat(ModifiableStats.AbilityStats.CooldownStat cooldownStat)
+        {
+            TrackedCooldown.ChangedTotal -= UpdateDuration;
+            var old = TrackedCooldown.CalculateTotal();
+
+            TrackedCooldown = cooldownStat;
+            cooldownStat.ChangedTotal += UpdateDuration;
+            UpdateDuration(cooldownStat.CalculateTotal(),old);
+        }
+
+        private void UpdateDuration(float newValue, float oldValue)
+        {
+            elapsedTime = PercentageComplete * newValue;
+            Duration = newValue;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            if (IsExpired)
+                CurrentCharges++;
+            if (PartialCharges >= TrackedMaxCharges.CalculateTotal())
+            {
+                IsPaused = true;
+            }
+            else
+            {
+                Reset();
+            }
+        }
+
+        public bool TryUseCharge()
+        {
+            if (CurrentCharges <= 0f)
+                return false;
+            CurrentCharges--;
+            
+            return true;
+        }
+    }
 }
