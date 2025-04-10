@@ -179,5 +179,13 @@ namespace BrannPack.CooldownHandling
             
             return true;
         }
+
+        public void MaxOut()
+        {
+            var maxCharges = TrackedMaxCharges.CalculateTotal();
+            CurrentCharges = Mathf.Floor(maxCharges);
+            elapsedTime = maxCharges % 1f * Duration;
+            IsPaused = true;
+        }
     }
 }

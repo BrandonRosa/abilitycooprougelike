@@ -1,6 +1,7 @@
 using BrannPack.Character;
 using BrannPack.CooldownHandling;
 using BrannPack.Helpers.Initializers;
+using BrannPack.InputHelpers;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using Godot;
@@ -61,7 +62,7 @@ namespace BrannPack.AbilityHandling
             //Update ThisAbilityStats BaseStats with stats
             
         }
-        public bool TryUseAbility()
+        public bool TryUseAbility(InputPressState pressState)
         {
             if(IsUsable)
             {

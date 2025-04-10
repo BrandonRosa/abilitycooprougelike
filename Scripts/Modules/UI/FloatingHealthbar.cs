@@ -1,4 +1,5 @@
-﻿using BrannPack.Character;
+﻿using BrannPack.AbilityHandling;
+using BrannPack.Character;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -75,9 +76,12 @@ namespace BrannPack.UI
     }
     public partial class MiniCooldownIcon : Control
     {
-        [Export] public int MaxCharges = 1;
-        [Export] public int CurrentCharges = 1;
-        [Export] public float CooldownProgress = 0f; // 0 = full, 1 = empty
+        AbilitySlot abilitySlot;
+        float CooldownProgress => abilitySlot.CCooldown.PercentageComplete;
+        int MaxIntCharges => (int)abilitySlot.CCooldown.TrackedMaxCharges.CalculateTotal();
+
+        int CurrentIntCharges => (int)abilitySlot.CCooldown.CurrentCharges;
+        int OldIntCharges=0;
 
         private const float CircleRadius = 12f;
         private const float ArcRadius = 16f;
@@ -94,8 +98,12 @@ namespace BrannPack.UI
             // Cooldown fill (simulate radial fill with segments)
             DrawCooldownFill(center, CircleRadius - 1, 32, CooldownProgress);
 
-            // Draw charge arcs
-            DrawChargeArcs(center, ArcRadius, ArcDegrees, MaxCharges, CurrentCharges);
+            if (OldIntCharges != CurrentIntCharges)
+            {
+                // Draw charge arcs
+                DrawChargeArcs(center, ArcRadius, ArcDegrees, MaxIntCharges, CurrentIntCharges);
+                OldIntCharges = CurrentIntCharges;
+            }
         }
 
         private void DrawCooldownFill(Vector2 center, float radius, int segments, float progress)
@@ -132,7 +140,8 @@ namespace BrannPack.UI
 
         public override void _Process(double delta)
         {
-            QueueRedraw(); // Redraw each frame for cooldown updates
+            if(!abilitySlot.CCooldown.IsPaused)
+                QueueRedraw(); // Redraw each frame for cooldown updates
         }
     }
 }
