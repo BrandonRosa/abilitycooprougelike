@@ -12,7 +12,7 @@ using static BrannPack.ModifiableStats.CharacterStats;
 
 namespace BrannPack.Character
 {
-    public partial class CharacterMaster:Node
+    public partial class CharacterMaster : Node
     {
 
         public static List<CharacterMaster> AllMasters = new List<CharacterMaster>();
@@ -27,7 +27,7 @@ namespace BrannPack.Character
         {
             AllMasters.Remove(this);
         }
-        
+
 
         [Export] public EntityController Controller;
 
@@ -38,7 +38,13 @@ namespace BrannPack.Character
         [Export] public float StartingHealthRegen;
         [Export] public float HealthRegenScaling;
 
-        [Export] public List<string> StartingItems;
+        [Export] public string[] StartingItems;
+
+        [Export] public string StartingPrimary;
+        [Export] public string StartingSecondary;
+        [Export] public string StartingUtility;
+        [Export] public string StartingSpecial;
+        [Export] public string StartingUlt;
 
         [Export] private float AbilityScale;
         [Export] private float HealthScale;
@@ -57,11 +63,11 @@ namespace BrannPack.Character
         private List<BaseCharacterBody> Minions;
         private List<BaseCharacterBody> Familiars;
 
-        [Export] public AbilitySlot Primary;
-        [Export] public AbilitySlot Secondary;
-        [Export] public AbilitySlot Utility;
-        [Export] public AbilitySlot Special;
-        [Export] public AbilitySlot Ult;
+        public AbilitySlot Primary;
+        public AbilitySlot Secondary;
+        public AbilitySlot Utility;
+        public AbilitySlot Special;
+        public AbilitySlot Ult;
         public AbilitySlot Equipment;
 
         public HealthBar HealthBar;
@@ -87,6 +93,14 @@ namespace BrannPack.Character
             HealthBar= new HealthBar(this,(MaxHealthStat)stats[Stat.MaxHealth], (MaxHealthStat)stats[Stat.MaxArmor], (MaxHealthStat)stats[Stat.MaxShield], (MaxHealthStat)stats[Stat.MaxBarrier])
 
             Inventory = new Inventory(this);
+
+            Primary = new AbilitySlot(this, StartingPrimary, AbilitySlotType.Primary);
+            Secondary = new AbilitySlot(this, StartingSecondary, AbilitySlotType.Secondary);
+            Utility = new AbilitySlot(this, StartingUtility, AbilitySlotType.Utility);
+            Special = new AbilitySlot(this, StartingSpecial, AbilitySlotType.Special);
+            Ult = new AbilitySlot(this, StartingUlt, AbilitySlotType.Ult);
+
+
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

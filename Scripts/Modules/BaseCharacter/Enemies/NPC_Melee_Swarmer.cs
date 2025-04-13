@@ -21,13 +21,18 @@ namespace BrannPack.Character.NonPlayable
 
     public class SwarmerSmash : Ability<SwarmerSmash>
     {
-        public override StatsByCritera<AbilityUpgrade> Stats { get; set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStats.ModifiableStat>
+        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStats.ModifiableStat>
         {
             {Stat.Damage, new DamageStat(15f, 1.2f)},
             {Stat.Cooldown, new CooldownStat(2f) },
             {Stat.FireRate, new FireRateStat(1f)},
             {Stat.Range, new RangeStat(1,3,.5f) }
         },null);
+        public override string Name { get; protected set; } = "Swipe";
+        public override string CodeName { get; protected set; } = "MELEE_SWARMER_SWIPE";
+        public override string Description { get; protected set; } = "Swipe Nearby Enemies";
+        public override string AdvancedDescription { get; protected set; }
+
         //private float BlastWidth = 15;
         //protected RangeStat BlastRange = new RangeStat(1.2f, 8f, .5f);
         //protected DamageStat Damage = new DamageStat(30, .9f);

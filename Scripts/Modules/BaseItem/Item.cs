@@ -67,7 +67,7 @@ namespace BrannPack.ItemHandling
             //BestChoices:
             //1- If close to completing a set MAKE THOSE HIGHEST PRIORITY
             //2- Items that synergize with current items(Debuff/other item synergy) are very high priority
-            //3- Items that Syergize with Ability Catagory are very high priority
+            //3- Items that Syergize with AbilityInstance Catagory are very high priority
             //4- Highest Basic Catagory is low priority
             //5- Highest Tier/Sub-Tier/Modifier catagory is low priority
             //6- Lowest Basic Catagory is lowest priority
@@ -179,7 +179,7 @@ namespace BrannPack.ItemHandling
         IsDamageDep, IsDamageEnabler, IsRangeDep,IsRangeEnabler, IsDurationDep,IsDurationEnabler, IsCooldownDep, IsCooldownEnabler,
         IsFireRateDep,IsFireRateEnabler, IsChargeDep, IsChargeEnabler,
 
-        //Ability Catagory
+        //AbilityInstance Catagory
         IsPrimaryDep, IsPrimaryEnabler,IsSecondaryDep, IsSeconaryEnabler, IsUtilityDep, IsUtilityEnabler, IsSpecialDep, IsSpecialEnabler,IsUltDep, IsUltEnabler,IsItemDep, IsItemEnabler,IsActiveDep, IsActiveEnabler,
 
         //Item Tier Catagory

@@ -10,5 +10,33 @@ namespace BrannPack.Helpers.Initializers
     {
     }
 
-    public interface IIndexable{public int Index { get; } }
+    public interface IIndexable
+    {
+        public int Index { get; } 
+        public abstract string CodeName { get; }
+    }
+
+    public class Registry<T> where T : IIndexable
+    {
+        private readonly Dictionary<int, T> _byIndex = new();
+        private readonly Dictionary<string, T> _byCodeName = new();
+
+        public void Register(T obj)
+        {
+            _byIndex[obj.Index] = obj;
+            _byCodeName[obj.CodeName] = obj;
+        }
+
+        public T Get(int index)
+        {
+            return _byIndex.TryGetValue(index, out var result) ? result : default;
+        }
+
+        public T Get(string codeName)
+        {
+            return _byCodeName.TryGetValue(codeName, out var result) ? result : default;
+        }
+
+        public IEnumerable<T> All => _byIndex.Values;
+    }
 }

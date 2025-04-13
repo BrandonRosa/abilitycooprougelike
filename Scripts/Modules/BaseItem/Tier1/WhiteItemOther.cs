@@ -22,7 +22,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = { };
         public override ItemModifier[] PossibleModifiers { get; init; } = { Highlander.instance };
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "OnHighDamage_DealMoreAndArmor";
+        public override string CodeName { get; init; } = "FLAT_DMG_UP_W_ARMR_B4_HIGH_DMG_ATK";
         public override string Description { get; init; } = "Before dealing a large burst of damage, deal 25 more damage and gain armor. CD 10s";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -97,7 +97,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = { Chthonic.instance };
         public override ItemModifier[] PossibleModifiers { get; init; } = { Chthonic.instance, Highlander.instance };
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "Cth_LSUp_FRDn";
+        public override string CodeName { get; init; } = "LFST_UP_N_FR_DOWN";
         public override string Description { get; init; } = "Your Primary gains Lifesteal but loses firerate";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -154,7 +154,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = {};
         public override ItemModifier[] PossibleModifiers { get; init; } = {Highlander.instance };
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "Flat_Damage_Reduction";
+        public override string CodeName { get; init; } = "INCOM_FLAT_DMG_DOWN_B4_TAKE_DMG";
         public override string Description { get; init; } = "When taking damage, take 5 less (No less than 1).";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;

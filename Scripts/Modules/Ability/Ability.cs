@@ -18,22 +18,29 @@ namespace BrannPack.AbilityHandling
         public CharacterMaster Owner;
 
         public AbilitySlotType SlotType;
-        public Ability Ability;
+        public Ability AbilityInstance;
         public HashSet<AbilityUpgrade> CurrentUpgrades;
 
         public AbilityStats.StatsHolder<AbilitySlot> ThisAbilityStats;
 
         public ChargedCooldown CCooldown;
-        public float CurrentCharges;
+        public float CurrentCharges=> CCooldown.CurrentCharges;
 
-        public bool IsUsable;
+        public bool IsUsable=>CurrentCharges>0;
 
         public static event Action<AbilitySlot> BeforeAbilitySlotUse;
         public static event Action<AbilitySlot> AfterAbilitySlotUse;
 
+        public AbilitySlot(CharacterMaster owner,string abilityCodeName, AbilitySlotType slotType)
+        {
+            Owner = owner;
+            AbilityInstance = Ability.AbilityRegistry.Get(abilityCodeName);
+            SlotType = slotType;
+        }
+
         public void Initialize()
         {
-            var abilityDefaultStats = Ability.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
+            var abilityDefaultStats = AbilityInstance.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
             ThisAbilityStats = abilityDefaultStats.ToGlobalStatsHolder<AbilitySlot>(this);
 
             var cooldown = ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown);
@@ -47,14 +54,14 @@ namespace BrannPack.AbilityHandling
             if (enabled)
             {
                 CurrentUpgrades.Add(abilityUpgrade);
-                var stats = Ability.Stats.GetCritereaSpecificStats(abilityUpgrade);
+                var stats = AbilityInstance.Stats.GetCritereaSpecificStats(abilityUpgrade);
                 ThisAbilityStats.SetStatBaseValues(stats);
             }
             else
             {
                 if (!CurrentUpgrades.Remove(abilityUpgrade))
                     return;
-                var allStats = Ability.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
+                var allStats = AbilityInstance.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
                 //ThisAbilityStats.SetAllStats(allStats.)
             }
             
@@ -67,7 +74,7 @@ namespace BrannPack.AbilityHandling
             if(IsUsable)
             {
                 BeforeAbilitySlotUse?.Invoke(this);
-                Ability.UseAbility(Owner, CurrentUpgrades, CurrentTarget);
+                AbilityInstance.UseAbility(Owner, CurrentUpgrades, CurrentTarget);
                 AfterAbilitySlotUse?.Invoke(this);
                 return true;
             }
@@ -89,26 +96,29 @@ namespace BrannPack.AbilityHandling
     {
         public static T instance { get; private set; }
 
+
         public Ability()
         {
             if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
             instance = this as T;
             instance.SetIndex();
+            Ability.AbilityRegistry.Register(instance);
         }
     }
     public abstract class Ability : IIndexable
     {
         protected static int NextIndex = 0;
+        public static Registry<Ability> AbilityRegistry = new Registry<Ability>();
         public int Index { get; protected set; } = -1;
 
         public void SetIndex() { if (Index != -1) Index = NextIndex++; }
 
-        public abstract StatsByCritera<AbilityUpgrade> Stats { get; set; }
-        private float BaseCooldown;
-        private float CurrentCooldown;
-        private float NoSpamCooldown;
-        private float MaxCharges;
-        private float CurrentCharges;
+        public abstract StatsByCritera<AbilityUpgrade> Stats { get; protected set; }
+        public abstract string Name { get; protected set; }
+        public abstract string CodeName { get; protected set; }
+        public abstract string Description { get; protected set; }
+
+        public abstract string AdvancedDescription { get; protected set; }
 
         private bool CanCharge;
         private bool IsInfiniteUse;
@@ -117,14 +127,30 @@ namespace BrannPack.AbilityHandling
         private AbilityUpgradeTree UpgradeTree;
 
         //private image ArtWork;
-        private static string Description;
-        private static string AdvancedDescription;
-        private static string Name;
+
         private static List<AbilityUpgrade> AbilityUpgrades;
 
         public abstract void UseAbility(CharacterMaster master,AbilitySlot abilitySlot,AbilityUpgradeTree treeProgress, BaseCharacterBody target, EventChain eventChain=default);
         public abstract BaseCharacterBody UpdateTarget();
 
+    }
+
+    public class EmptyAbility : Ability<EmptyAbility>
+    {
+        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>(),new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>());
+        public override string Name { get; protected set; } = "None";
+        public override string CodeName { get; protected set; } = "NONE";
+        public override string Description { get; protected set; } = "";
+        public override string AdvancedDescription { get; protected set; } = "";
+
+        public override BaseCharacterBody UpdateTarget()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUpgradeTree treeProgress, BaseCharacterBody target, EventChain eventChain = null)
+        {
+        }
     }
 
     public class AbilityUpgradeTree

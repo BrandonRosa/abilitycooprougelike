@@ -19,7 +19,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "AbUp_PrimaryFireRate";
+        public override string CodeName { get; init; } = "PRIM_FR_UP";
         public override string Description { get; init; } = "Increase the firerate on your primary ability";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -67,7 +67,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "AbUp_SecondaryCharge";
+        public override string CodeName { get; init; } = "SEC_CHRG_UP";
         public override string Description { get; init; } = "Gain a charge on your secondary ability";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;

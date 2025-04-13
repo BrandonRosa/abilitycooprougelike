@@ -21,7 +21,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } =new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Life";
-        public override string CodeName { get; init; } = "EO_Health";
+        public override string CodeName { get; init; } = "EO_MAXHP_UP";
         public override string Description { get; init; } ="Slightly Increase Max Health";
         public override string AdvancedDescription { get; init; } ="";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -52,7 +52,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Recovery";
-        public override string CodeName { get; init; } = "EO_Regen";
+        public override string CodeName { get; init; } = "EO_REGN_UP";
         public override string Description { get; init; } = "Slightly Increase Regen";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -84,7 +84,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Resiliance";
-        public override string CodeName { get; init; } = "EO_Resistance";
+        public override string CodeName { get; init; } = "EO_RESIST_UP";
         public override string Description { get; init; } = "Slightly Increase Damage Resistance";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -114,7 +114,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Velocity";
-        public override string CodeName { get; init; } = "EO_Movespeed";
+        public override string CodeName { get; init; } = "EO_MVSPD_UP";
         public override string Description { get; init; } = "Slightly Increase Move Speed";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -145,7 +145,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Influence";
-        public override string CodeName { get; init; } = "EO_Range";
+        public override string CodeName { get; init; } = "EO_RANG_UP";
         public override string Description { get; init; } = "Slightly Increase Range";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -186,7 +186,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Vigor";
-        public override string CodeName { get; init; } = "EO_Cooldown";
+        public override string CodeName { get; init; } = "EO_CD_UP";
         public override string Description { get; init; } = "Slightly Reduce Cooldown";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -231,7 +231,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Strength";
-        public override string CodeName { get; init; } = "EO_Strength";
+        public override string CodeName { get; init; } = "EO_DMGE_UP";
         public override string Description { get; init; } = "Slightly Increase Damage";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;

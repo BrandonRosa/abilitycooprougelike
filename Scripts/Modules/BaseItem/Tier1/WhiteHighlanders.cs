@@ -24,7 +24,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = { Highlander.instance };
         public override ItemModifier[] PossibleModifiers { get; init; } = {Highlander.instance};
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "ArmorOnMovementRestrict";
+        public override string CodeName { get; init; } = "ARMR_UP_ON_MVSPD_RESTRICT";
         public override string Description { get; init; } = "When movement restricted, gain 40% of your HP in Armor. Has a 15s Cooldown.";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -68,7 +68,7 @@ namespace BrannPack.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = { Highlander.instance };
         public override ItemModifier[] PossibleModifiers { get; init; } = { Highlander.instance };
         public override string Name { get; init; } = "";
-        public override string CodeName { get; init; } = "UtilityChargeAndMoveSpeedOnUse";
+        public override string CodeName { get; init; } = "UTIL_CHRG_UP_N_MVSPD_UP_ON_UTIL_USE";
         public override string Description { get; init; } = "Gain a charge on your utility. Gain movespeed after using it.";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
