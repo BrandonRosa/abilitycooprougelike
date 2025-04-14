@@ -46,7 +46,7 @@ namespace BrannPack.Character.Playable
             List<BaseCharacterBody> charactersInBlast=AttackHelper.GetCharactersInShotgunBlast(master.Body, master.Body.GetGlobalTransform(), master.Body.AttackDirection.Angle(), BlastWidth, range, 5);
             foreach(BaseCharacterBody characterBody in charactersInBlast)
             {
-                if (master.CanDamageTeams.Contains(characterBody.Team))
+                if (master.CanDamageTeams.Contains(characterBody.CharacterMaster.Team))
                 {
                     DamageInfo info = new DamageInfo(master,characterBody.CharacterMaster,(1,this.Index,0),damage,false);
                     master.DealDamage(characterBody.CharacterMaster, info,null);

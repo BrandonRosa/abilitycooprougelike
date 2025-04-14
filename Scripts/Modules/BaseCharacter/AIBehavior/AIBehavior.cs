@@ -49,7 +49,7 @@ namespace BrannPack.AIBehavior
             // This should filter the characters that are on opposing teams, not dead, etc.
             return GetTree().GetNodesInGroup("Players") // Or "Characters"
                 .OfType<BaseCharacterBody>()
-                .Where(c => c.CharacterMaster.IsAlive && c.Team != Master.Team)
+                .Where(c => c.CharacterMaster.IsAlive && c.CharacterMaster.Team != Master.Team)
                 .ToList();
         }
 
