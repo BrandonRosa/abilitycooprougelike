@@ -16,7 +16,7 @@ namespace BrannPack.Character.NonPlayable
 
     public static class PC_Scout
     {
-        public static PackedScene Prefab = (PackedScene)ResourceLoader.Load("res://path_to_prefab.tscn");
+        //public static PackedScene Prefab = (PackedScene)ResourceLoader.Load("res://path_to_prefab.tscn");
     }
 
     public class SwarmerSmash : Ability<SwarmerSmash>
@@ -43,10 +43,10 @@ namespace BrannPack.Character.NonPlayable
         //public AbilityUpgrade SSG_U1_Cooldown=
         public override BaseCharacterBody UpdateTarget()
         {
-            
+            return null;
         }
 
-        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUpgradeTree treeProgress, BaseCharacterBody target, EventChain eventChain = default)
+        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, EventChain eventChain = default)
         {
             //an attack that takes 1/FireRate second to wind up (Add a cooldown to the character) and start the attack animation fot the character
             // Once that cooldown is completed, create a Collison box/capsule (with width X(left-right) and length(Front-back) of Y) directly infront of the front facing direction of the character master.
@@ -57,10 +57,7 @@ namespace BrannPack.Character.NonPlayable
             // Get the attack wind-up time based on FireRate
             float windUpTime = 1f / master.Stats.GetStatByVariable<FireRateStat>(Stat.FireRate)?.CalculateTotal() ?? 1f;
             StatsHolder stats = Stats.CopyAndGetStatsByCriterea(
-                        treeProgress.IsUpgraded
-                            .Where(kvp => kvp.Value) // Filter for true values
-                            .Select(kvp => kvp.Key) // Select only the keys
-                            .ToHashSet() // Convert to HashSet<T>
+                        abilitySlot.CurrentUpgrades
                         );
             stats=stats.CopyAndAddAllStats(master.Stats,abilitySlot.ThisAbilityStats);
 

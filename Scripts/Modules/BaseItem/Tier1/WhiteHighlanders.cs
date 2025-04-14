@@ -53,10 +53,10 @@ namespace BrannPack.Items
             if (master.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects) 
                 && !master.Cooldowns.IsOnCooldown((0,instance.Index,1)))
             {
-                float ArmorAmount=  .4f*master.HealthBar.GetMaxHealth() * effects.Positive / Highlander.instance.itemEffectModifier.Multiplier;
+                float ArmorAmount=  .4f*master.HealthBar.HealthList[HealthType.Health].MaxValue.CalculateTotal() * effects.Positive / Highlander.instance.itemEffectModifier.Multiplier;
                 float cooldownDuration = cooldownStat.GetCombinedTotal(Stat.Cooldown,master.Stats);
                 master.Cooldowns.AddCooldown((0, instance.Index, 1),cooldownDuration);
-               master.HealthBar.Heal(ArmorAmount, null, CharacterStats.HealthBehavior.Armor);
+               master.HealthBar.Heal(new HealingInfo(baseCharacter.CharacterMaster,baseCharacter.CharacterMaster,(0,this.Index,20),ArmorAmount,null,HealthCategories.Armor),null);
             }
         }
     }

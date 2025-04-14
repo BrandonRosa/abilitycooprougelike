@@ -485,7 +485,7 @@ namespace BrannPack.ItemHandling
             IsNotAnyBehaviors = isNotAnyBehaviors;
             IsNotAllBehaviors = isNotAllBehaviors;
             RequiresConfirmation = requiresConfirmation;
-            this.count = count;
+            this.countCompare = count;
         }
 
         public bool IsItemStackApplicable(InventoryItemStack itemStack, FilterOverlapPriority overlapPriority = FilterOverlapPriority.WhitelistPriority) { return IsItemStackApplicable(itemStack, this, overlapPriority); }

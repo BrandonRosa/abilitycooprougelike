@@ -33,14 +33,7 @@ namespace BrannPack.StatusEffectHandling
         {
             if (statusEffect == null) return;
 
-            StatusEffectInfo info = new()
-            {
-                Source = Owner,
-                Target = Owner,
-                InitialDuration = duration,
-                InitialCount = count
-            };
-
+            StatusEffectInfo info =null;
             // Invoke the "Before Status Effect Gain" event
             BeforeSEGain?.Invoke(Owner, info);
 
@@ -184,6 +177,10 @@ namespace BrannPack.StatusEffectHandling
     {
         public float InitialDuration;
         public float InitialCount;
+
+        public StatusEffectInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key) : base(source, destination, key)
+        {
+        }
     }
 
 

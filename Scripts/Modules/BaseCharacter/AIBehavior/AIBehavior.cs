@@ -21,16 +21,16 @@ namespace BrannPack.AIBehavior
         }
 
         public CharacterMaster Master;
-        public ITargetSelector TargetSelector = new NearestTargetSelector(); // Default
+        //public ITargetSelector TargetSelector = new NearestTargetSelector(); // Default
 
         private BaseCharacterBody currentTarget;
         private AIState currentState;
         private Ability selectedAbility;
 
-        public override void _Process(float delta)
+        public override void _Process(double delta)
         {
-            List<Character> visibleEnemies = FindVisibleTargets(); // You'll define this
-            currentTarget = TargetSelector.GetTarget(this, visibleEnemies);
+            //List<Character> visibleEnemies = FindVisibleTargets(); // You'll define this
+           // currentTarget = TargetSelector.GetTarget(this, visibleEnemies);
 
             if (currentTarget == null)
             {
@@ -38,18 +38,18 @@ namespace BrannPack.AIBehavior
                 return;
             }
 
-            float distanceToTarget = (currentTarget.GlobalPosition - Owner.GlobalPosition).Length();
-            selectedAbility = GetUsableAbility(distanceToTarget);
-            UpdateState(selectedAbility, distanceToTarget);
+            //float distanceToTarget = (currentTarget.GlobalPosition - Owner.GlobalPosition).Length();
+            //selectedAbility = GetUsableAbility(distanceToTarget);
+            //UpdateState(selectedAbility, distanceToTarget);
             ActBasedOnState();
         }
 
-        private List<Character> FindVisibleTargets()
+        private List<BaseCharacterBody> FindVisibleTargets()
         {
             // This should filter the characters that are on opposing teams, not dead, etc.
             return GetTree().GetNodesInGroup("Players") // Or "Characters"
-                .OfType<Character>()
-                .Where(c => c.IsAlive && c.Team != Owner.Team)
+                .OfType<BaseCharacterBody>()
+                .Where(c => c.CharacterMaster.IsAlive && c.Team != Master.Team)
                 .ToList();
         }
 
@@ -64,8 +64,8 @@ namespace BrannPack.AIBehavior
                     MoveAwayFromTarget();
                     break;
                 case AIState.Attack:
-                    if (selectedAbility != null)
-                        Owner.TryUseAbility(selectedAbility);
+                    //if (selectedAbility != null)
+                        //Owner.TryUseAbility(selectedAbility);
                     break;
                 default:
                     break;
@@ -88,15 +88,15 @@ namespace BrannPack.AIBehavior
         BaseCharacterBody GetTarget(EnemyAI self, List<BaseCharacterBody> potentialTargets);
     }
 
-    public class NearestTargetSelector : ITargetSelector
-    {
-        public BaseCharacterBody GetTarget(EnemyAI self, List<BaseCharacterBody> potentialTargets)
-        {
-            return potentialTargets
-                .OrderBy(t => (t.GlobalPosition - self.Owner.Body.GlobalPosition).LengthSquared())
-                .FirstOrDefault();
-        }
-    }
+    //public class NearestTargetSelector : ITargetSelector
+    //{
+    //    public BaseCharacterBody GetTarget(EnemyAI self, List<BaseCharacterBody> potentialTargets)
+    //    {
+    //        return potentialTargets
+    //            .OrderBy(t => (t.GlobalPosition - self.Owner.Body.GlobalPosition).LengthSquared())
+    //            .FirstOrDefault();
+    //    }
+    //}
 
 
 }

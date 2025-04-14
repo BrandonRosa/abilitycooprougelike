@@ -75,6 +75,11 @@ namespace BrannPack.Character
         public static event Action<BaseCharacterBody, float> BeforeMovementRestricted;
         public static event Action<BaseCharacterBody, float> AfterMovementRestricted;
 
+        public void Init()
+        {
+
+        }
+
         public bool IsMovementRestricted()
         {
             return false;
@@ -160,7 +165,7 @@ namespace BrannPack.Character
 
         public virtual bool IsSimilarEvent(EventInfo other)
         {
-            return (Source == other.Source && Destination == other.Destination && SourceEffect == other.SourceEffect && SourceIndex==other.SourceIndex) ;
+            return (Source == other.Source && Destination == other.Destination && Key==other.Key) ;
         }
     }
     //Use this when dealing damage from an attack. For example, the explosion from a rocket

@@ -16,11 +16,22 @@ namespace BrannPack.Character
     {
 
         public static List<CharacterMaster> AllMasters = new List<CharacterMaster>();
+        [Export] public PackedScene BodyScene;
 
         public override void _Ready()
         {
             base._Ready();
             AllMasters.Add(this);
+
+            if (Body == null && BodyScene != null)
+            {
+                Body = BodyScene.Instantiate<BaseCharacterBody>();
+                AddChild(Body);
+               // Body.GlobalPosition = GlobalPosition; // or set Transform, etc.
+                Body.Init(); // Pass reference to master if needed
+            }
+
+            Init(); // Your existing setup code
         }
 
         public override void _ExitTree()
@@ -52,7 +63,8 @@ namespace BrannPack.Character
         [Export] private float SizeScale;
         [Export] private bool IsPlayerControlled;
         [Export] public CharacterTeam Team;
-        [Export] public HashSet<CharacterTeam> CanDamageTeams;
+        //[Export] public CharacterTeam[] InitialCanDamageTeams;
+        public HashSet<CharacterTeam> CanDamageTeams;
 
         public BaseCharacterBody Body;
 
@@ -76,6 +88,10 @@ namespace BrannPack.Character
 
         public StatsHolder<CharacterMaster> Stats;
 
+        public bool IsAlive=> HealthBar.CurrentValueVisible > 0f;
+
+
+
         public void Init()
         {
             Stats = new StatsHolder<CharacterMaster>(this, StatsHolder.GetZeroStatsCopy());
@@ -90,7 +106,7 @@ namespace BrannPack.Character
             };
             Stats.SetAllStats(stats, false);
 
-            HealthBar= new HealthBar(this,(MaxHealthStat)stats[Stat.MaxHealth], (MaxHealthStat)stats[Stat.MaxArmor], (MaxHealthStat)stats[Stat.MaxShield], (MaxHealthStat)stats[Stat.MaxBarrier])
+            HealthBar = new HealthBar(this, (MaxHealthStat)stats[Stat.MaxHealth], (MaxHealthStat)stats[Stat.MaxArmor], (MaxHealthStat)stats[Stat.MaxShield], (MaxHealthStat)stats[Stat.MaxBarrier]);
 
             Inventory = new Inventory(this);
 
@@ -350,7 +366,7 @@ namespace BrannPack.Character
 
         public float Heal(HealingInfo healingInfo, EventChain eventChain)
         {
-
+            return 0;
         }
 
         public static event Action<HealthBar, HealthBehavior, float, float> AfterMaxHealthChange;

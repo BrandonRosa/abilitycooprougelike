@@ -74,7 +74,7 @@ namespace BrannPack.AbilityHandling
             if(IsUsable)
             {
                 BeforeAbilitySlotUse?.Invoke(this);
-                AbilityInstance.UseAbility(Owner, CurrentUpgrades, CurrentTarget);
+                AbilityInstance.UseAbility(Owner, this, null);
                 AfterAbilitySlotUse?.Invoke(this);
                 return true;
             }
@@ -83,7 +83,7 @@ namespace BrannPack.AbilityHandling
 
         public (float secondsOnCooldown, float cooldownPercent, float charges, float maxCharges, int abilityIndex) GetSimpleCooldownInfo()
         {
-
+            return (0, 0, 0, 0, 0);
         }
 
         public void Update(float deltaTime)
@@ -130,7 +130,7 @@ namespace BrannPack.AbilityHandling
 
         private static List<AbilityUpgrade> AbilityUpgrades;
 
-        public abstract void UseAbility(CharacterMaster master,AbilitySlot abilitySlot,AbilityUpgradeTree treeProgress, BaseCharacterBody target, EventChain eventChain=default);
+        public abstract void UseAbility(CharacterMaster master,AbilitySlot abilitySlot, EventChain eventChain=default);
         public abstract BaseCharacterBody UpdateTarget();
 
     }
@@ -148,7 +148,7 @@ namespace BrannPack.AbilityHandling
             throw new NotImplementedException();
         }
 
-        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUpgradeTree treeProgress, BaseCharacterBody target, EventChain eventChain = null)
+        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot,  EventChain eventChain = null)
         {
         }
     }
@@ -166,7 +166,7 @@ namespace BrannPack.AbilityHandling
         [Export] public string AdvancedDescription;
         [Export] public int APCost;
         [Export] public int LockCost;
-        [Export] public List<AbilityUpgrade> Requirements;
+        [Export] public AbilityUpgrade[] Requirements;
         [Export] public int Height;
         [Export] public int Column;
 

@@ -195,7 +195,7 @@ namespace BrannPack.ItemHandling
 
         //Debuff Catagory
         IsBleedDep,IsBleedEnabler,IsCritDep,IsCritEnabler, IsPoisonDep, IsPoisonEnabler, IsFireDep, IsFireEnabler, 
-            IsEnemySlowStuckDep, IsEnemySlowStuckEnabler, IsSEDebuffDeper, IsSEDebuffEnabler, IsSEBuffDeper, IsSEBuffEnabler, IsResistReducerDeper, IsResistReducerEnabler
+            IsEnemySlowStuckDep, IsEnemySlowStuckEnabler, IsSEDebuffDeper, IsSEDebuffEnabler, IsSEBuffDeper, IsSEBuffEnabler, IsResistReducerDeper, IsResistReducerEnabler,
 
         //Ally Catgory
         IsFamiliarDep, IsFamiliarEnabler, IsMinionDep, IsMinionEnabler, IsAllyDep, IsAllyEnabler,

@@ -83,7 +83,7 @@ namespace BrannPack.Items
 
                 float addedArmor = initialArmor + (effects.Positive - 1f) * armorPerStack;
 
-                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 20), addedArmor, null, HealthBehavior.Armor), eventChain);
+                source.HealthBar.Heal(new HealingInfo(source, source, (0, instance.Index, 20), addedArmor, null, HealthCategories.Armor), eventChain);
 
 
                 source.AfterAttack(attackInfo, eventChain);

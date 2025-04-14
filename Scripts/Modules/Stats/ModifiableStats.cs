@@ -136,81 +136,81 @@ namespace BrannPack.ModifiableStats
         }
     }
 
-    public partial class FullExpandedStat : ModifiableStat<FullExpandedStat>
-    {
-        public float AdditionalScaling;
-        public float? MinimumValue;
-        public float? MaximumValue;
+    //public partial class FullExpandedStat : ModifiableStat<FullExpandedStat>
+    //{
+    //    public float AdditionalScaling;
+    //    public float? MinimumValue;
+    //    public float? MaximumValue;
 
-        public float AdditionalBaseValue;
+    //    public float AdditionalBaseValue;
 
-        public List<float> MultipliedPercentageIncreases = new List<float>();
-        public List<float> MultipliedPercentageDecreases = new List<float>();
-        public float AdditivePercentageChange = 0f;
+    //    public List<float> MultipliedPercentageIncreases = new List<float>();
+    //    public List<float> MultipliedPercentageDecreases = new List<float>();
+    //    public float AdditivePercentageChange = 0f;
 
-        public float AdditiveFlatNonScaledChange = 0f;
+    //    public float AdditiveFlatNonScaledChange = 0f;
 
-        public FullExpandedStat(float baseValue, float additionalScaling = 1f, float? minimumValue = null, float? maximumValue = null) : base(baseValue) => (AdditionalScaling, MinimumValue, MaximumValue) = (additionalScaling, minimumValue, maximumValue);
+    //    public FullExpandedStat(float baseValue, float additionalScaling = 1f, float? minimumValue = null, float? maximumValue = null) : base(baseValue) => (AdditionalScaling, MinimumValue, MaximumValue) = (additionalScaling, minimumValue, maximumValue);
 
-        protected override float TotalValueMath()
-        {
-            float tempTotal = (BaseValue + AdditionalBaseValue * AdditionalScaling) * (1f + AdditivePercentageChange + (1f - MultipliedPercentageIncreases.Aggregate(1f, (total, next) => total * next)) - (1f - MultipliedPercentageDecreases.Aggregate(1f, (total, next) => total * next))) + AdditiveFlatNonScaledChange;
-            float tempMin = MinimumValue ?? tempTotal;
-            float tempMax = MaximumValue ?? tempTotal;
-            return
-                Mathf.Clamp(tempTotal, tempMin, tempMax);
-        }
+    //    protected override float TotalValueMath()
+    //    {
+    //        float tempTotal = (BaseValue + AdditionalBaseValue * AdditionalScaling) * (1f + AdditivePercentageChange + (1f - MultipliedPercentageIncreases.Aggregate(1f, (total, next) => total * next)) - (1f - MultipliedPercentageDecreases.Aggregate(1f, (total, next) => total * next))) + AdditiveFlatNonScaledChange;
+    //        float tempMin = MinimumValue ?? tempTotal;
+    //        float tempMax = MaximumValue ?? tempTotal;
+    //        return
+    //            Mathf.Clamp(tempTotal, tempMin, tempMax);
+    //    }
 
-        public override void ResetModifiedValues() { AdditionalBaseValue = 0f; AdditivePercentageChange = 0f; MultipliedPercentageIncreases.Clear(); MultipliedPercentageDecreases.Clear(); AdditiveFlatNonScaledChange = 0f; }
-        public void ChangeAdditionalBaseValue(float changeValue, bool undo = false) { if (!undo) AdditionalBaseValue += changeValue; else AdditionalBaseValue -= changeValue; }
+    //    public override void ResetModifiedValues() { AdditionalBaseValue = 0f; AdditivePercentageChange = 0f; MultipliedPercentageIncreases.Clear(); MultipliedPercentageDecreases.Clear(); AdditiveFlatNonScaledChange = 0f; }
+    //    public void ChangeAdditionalBaseValue(float changeValue, bool undo = false) { if (!undo) AdditionalBaseValue += changeValue; else AdditionalBaseValue -= changeValue; }
 
-        public void ChangeMultipliedPercentage(float changeValue, bool undo = false)
-        {
-            if (changeValue == 0)
-                return;
-            if (changeValue > 0)
-            {
-                if (!undo) MultipliedPercentageIncreases.Add(1f - changeValue); else MultipliedPercentageIncreases.Remove(1f - changeValue);
-            }
-            else
-            {
-                if (!undo) MultipliedPercentageDecreases.Add(1f - changeValue); else MultipliedPercentageDecreases.Remove(1f - changeValue);
-            }
-        }
+    //    public void ChangeMultipliedPercentage(float changeValue, bool undo = false)
+    //    {
+    //        if (changeValue == 0)
+    //            return;
+    //        if (changeValue > 0)
+    //        {
+    //            if (!undo) MultipliedPercentageIncreases.Add(1f - changeValue); else MultipliedPercentageIncreases.Remove(1f - changeValue);
+    //        }
+    //        else
+    //        {
+    //            if (!undo) MultipliedPercentageDecreases.Add(1f - changeValue); else MultipliedPercentageDecreases.Remove(1f - changeValue);
+    //        }
+    //    }
 
-        public void ChangeAdditivePercentage(float changeValue, bool undo = false) { if (!undo) AdditivePercentageChange += changeValue; else AdditivePercentageChange -= changeValue; }
+    //    public void ChangeAdditivePercentage(float changeValue, bool undo = false) { if (!undo) AdditivePercentageChange += changeValue; else AdditivePercentageChange -= changeValue; }
 
-        public void ChangeFlatNonScaled(float changeValue, bool undo = false) { if (!undo) AdditiveFlatNonScaledChange += changeValue; else AdditiveFlatNonScaledChange -= changeValue; }
+    //    public void ChangeFlatNonScaled(float changeValue, bool undo = false) { if (!undo) AdditiveFlatNonScaledChange += changeValue; else AdditiveFlatNonScaledChange -= changeValue; }
 
 
-        public override FullExpandedStat AddCombinedStats(params FullExpandedStat[] addStat)
-        {
+    //    public override FullExpandedStat AddCombinedStats(params FullExpandedStat[] addStat)
+    //    {
 
-            foreach (FullExpandedStat stat in addStat)
-            {
-                AdditionalBaseValue += stat.AdditionalBaseValue;
+    //        foreach (FullExpandedStat stat in addStat)
+    //        {
+    //            AdditionalBaseValue += stat.AdditionalBaseValue;
 
-                MultipliedPercentageIncreases.AddRange(stat.MultipliedPercentageIncreases);
-                MultipliedPercentageDecreases.AddRange(stat.MultipliedPercentageDecreases);
-                AdditivePercentageChange += stat.AdditivePercentageChange;
+    //            MultipliedPercentageIncreases.AddRange(stat.MultipliedPercentageIncreases);
+    //            MultipliedPercentageDecreases.AddRange(stat.MultipliedPercentageDecreases);
+    //            AdditivePercentageChange += stat.AdditivePercentageChange;
 
-                AdditiveFlatNonScaledChange += stat.AdditiveFlatNonScaledChange;
+    //            AdditiveFlatNonScaledChange += stat.AdditiveFlatNonScaledChange;
 
-            }
+    //        }
 
-        }
+    //    }
 
-        public override FullExpandedStat Copy()
-        {
-            FullExpandedStat newCombinedStat = new FullExpandedStat(BaseValue, AdditionalScaling, MinimumValue, MaximumValue);
-            newCombinedStat.AdditionalBaseValue = AdditionalBaseValue;
-            newCombinedStat.MultipliedPercentageIncreases = new List<float>(MultipliedPercentageDecreases);
-            newCombinedStat.MultipliedPercentageDecreases = new List<float>(MultipliedPercentageDecreases);
-            newCombinedStat.AdditivePercentageChange = AdditivePercentageChange;
-            newCombinedStat.AdditiveFlatNonScaledChange = AdditiveFlatNonScaledChange;
-            return newCombinedStat;
-        }
-    }
+    //    public override FullExpandedStat Copy()
+    //    {
+    //        FullExpandedStat newCombinedStat = new FullExpandedStat(BaseValue, AdditionalScaling, MinimumValue, MaximumValue);
+    //        newCombinedStat.AdditionalBaseValue = AdditionalBaseValue;
+    //        newCombinedStat.MultipliedPercentageIncreases = new List<float>(MultipliedPercentageDecreases);
+    //        newCombinedStat.MultipliedPercentageDecreases = new List<float>(MultipliedPercentageDecreases);
+    //        newCombinedStat.AdditivePercentageChange = AdditivePercentageChange;
+    //        newCombinedStat.AdditiveFlatNonScaledChange = AdditiveFlatNonScaledChange;
+    //        return newCombinedStat;
+    //    }
+    //}
 
     public partial class EffectivenessStat: ModifiableStat<EffectivenessStat>
     {
@@ -286,81 +286,10 @@ namespace BrannPack.ModifiableStats
 
 
 
-    public static class AbilityStats
+    public static partial class AbilityStats
     {
 
-        //public class StatsHolder<T>
-        //{
-        //    public T Owner;
-        //    private Dictionary<Stat, ModifiableStat> _stats = new();
-
-        //    public static event Action<T, Stat, ModifiableStat> RefreshAbilityStatVariable;
-        //    public static event Action<T, Stat, ModifiableStat, float, float> StatUpdatedWithNewTotal;
-
-        //    public StatsHolder()
-        //    {
-        //        // Initialize dictionary with all possible _stats
-        //        _stats[Stat.Chance] = new ChanceStat(0f);
-        //        _stats[Stat.Damage] = new DamageStat(0f,1f);
-        //        _stats[Stat.FireRate] = new FireRateStat(0f);
-        //        _stats[Stat.ProjectileSpeed] = new ProjectileSpeedStat(0f);
-        //        _stats[Stat.ProcChance] = new ChanceStat(0f);
-        //        _stats[Stat.CritDamage] = new DamageStat(0f, 1f);
-        //        _stats[Stat.Charges] = new ChargeStat(1f);
-        //        _stats[Stat.Cooldown] = new CooldownStat(0f);
-        //        _stats[Stat.SpamCooldown] = new CooldownStat(0f);
-        //        _stats[Stat.Range] = new RangeStat(1f,10f);
-        //        _stats[Stat.Duration] = new DurationStat(1f,10f);
-        //        _stats[Stat.Luck] = new ChanceStat(0f);
-        //        _stats[Stat.Lifesteal] = new EffectivenessStat();
-
-        //        // Hook up event listeners for all _stats
-        //        foreach (var kvp in _stats)
-        //        {
-        //            Stat statKey = kvp.Key;
-        //            kvp.Value.ChangedTotal += (newTotal, prevTotal) =>
-        //                StatUpdatedWithNewTotal?.Invoke(Owner, statKey, kvp.Value, newTotal, prevTotal);
-        //        }
-        //    }
-
-        //    public ModifiableStat GetStatByVariable(Stat statType)
-        //    {
-        //        return _stats.TryGetValue(statType, out var stat) ? stat : null;
-        //    }
-
-        //    public TStat GetStatByVariable<TStat>(Stat statType) where TStat : ModifiableStat
-        //    {
-        //        return _stats.TryGetValue(statType, out var stat) ? stat as TStat : null;
-        //    }
-
-        //    public void RecalculateByStatVariable(Stat statType)
-        //    {
-        //        if (!_stats.TryGetValue(statType, out var stat)) return;
-
-        //        stat.ResetModifiedValues();
-        //        RefreshAbilityStatVariable?.Invoke(Owner, statType, stat);
-        //        stat.CalculateTotal();
-        //    }
-
-        //    public void RecalculateAndAddStats(Stat statType, ModifiableStat otherStat)
-        //    {
-        //        if (!_stats.TryGetValue(statType, out var stat)) return;
-
-        //        stat.ResetModifiedValues();
-        //        stat.AddUnsafeCombinedStats(otherStat);
-
-        //        RefreshAbilityStatVariable?.Invoke(Owner, statType, stat);
-        //        stat.CalculateTotal();
-        //    }
-
-        //    public void RecalculateAllStats()
-        //    {
-        //        foreach (var statType in _stats.Keys)
-        //        {
-        //            RecalculateByStatVariable(statType);
-        //        }
-        //    }
-        //}
+        
 
         public class StatsHolder
         { 
@@ -1240,7 +1169,7 @@ namespace BrannPack.ModifiableStats
 
     }
 
-    public static class CharacterStats
+    public static partial class CharacterStats
     {
         public partial class MoveSpeedStat : ModifiableStat<MoveSpeedStat>
         {
@@ -1307,6 +1236,11 @@ namespace BrannPack.ModifiableStats
 
                 return newCombinedStat;
             }
+
+            public override void SetBase(MoveSpeedStat stat)
+            {
+                (BaseValue, SpeedMinimum, SoftMax, ScaleConstant) = (stat.BaseValue, stat.SpeedMinimum, stat.SoftMax, stat.ScaleConstant);
+            }
         }
         public partial class RegenStat : ModifiableStat<RegenStat>
         {
@@ -1361,6 +1295,10 @@ namespace BrannPack.ModifiableStats
                 return newCombinedStat;
             }
 
+            public override void SetBase(RegenStat stat)
+            {
+                (RegenScaling, MinimumRegen) = (stat.RegenScaling, stat.MinimumRegen);
+            }
         }
         public partial class MaxHealthStat : ModifiableStat<MaxHealthStat>
         {
@@ -1431,6 +1369,10 @@ namespace BrannPack.ModifiableStats
                 return newCombinedStat;
             }
 
+            public override void SetBase(MaxHealthStat stat)
+            {
+                (BaseValue,MaxHealthScaling,MinimumMaxHealth)=(stat.BaseValue,stat.MaxHealthScaling,stat.MinimumMaxHealth);
+            }
         }
         public abstract partial class HealthBehavior : Resource
         {
@@ -1439,6 +1381,7 @@ namespace BrannPack.ModifiableStats
             public MaxHealthStat MaxValue;
             public EffectivenessStat DamageResistance;
             public EffectivenessStat ObtainGain;
+            public virtual HealthCategories Catagory { get; protected set; } = HealthCategories.Health;
             public HealthBehavior(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null)
             {
                 (CurrentValue, MaxValue, DamageResistance) = (startingHealth, maxHealthStat, damageResistance);
@@ -1458,7 +1401,7 @@ namespace BrannPack.ModifiableStats
             public event Action<float, float, float> AfterCurrentValueChange;
             public (float amountAdded,float overAdd) AddCurrentValue(HealthChangeInfo changeInfo)
             {
-                float mult = ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness));
+                float mult = ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness);
                 float amountAdded = changeInfo.Change * mult;
                 float overAdd = Mathf.Max(0f, CurrentValue + amountAdded - MaxValue.CalculateTotal())/mult;
                 CurrentValue = MathF.Min(MaxValue.CalculateTotal(), amountAdded + CurrentValue);
@@ -1506,7 +1449,7 @@ namespace BrannPack.ModifiableStats
         {
 
 
-            public override HealthType Catagory { get; protected set; } = HealthType.Armor;
+            public override HealthCategories Catagory { get; protected set; } = HealthCategories.Armor;
             public Armor(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
@@ -1533,7 +1476,7 @@ namespace BrannPack.ModifiableStats
             public float NaturalRegenRate = 0f; //In seconds
             public float SecondsUntilNextRegenTick = 0f;
 
-            public override HealthBehavior Catagory { get; protected set; } = HealthBehavior.Shield;
+            public override HealthCategories Catagory { get; protected set; } = HealthCategories.Shield;
             public Shield(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
@@ -1547,6 +1490,11 @@ namespace BrannPack.ModifiableStats
             {
                 throw new NotImplementedException();
             }
+
+            public override float GetCurrentValue()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public partial class BarrierHealth : HealthBehavior
@@ -1555,7 +1503,7 @@ namespace BrannPack.ModifiableStats
             public float NaturalRegenRate = 0f; //In seconds
             public float SecondsUntilNextRegenTick = 0f;
 
-            public override HealthBehavior Catagory { get; protected set; } = HealthBehavior.Barrier;
+            public override HealthCategories Catagory { get; protected set; } = HealthCategories.Barrier;
             public BarrierHealth(float startingHealth, MaxHealthStat maxHealthStat, EffectivenessStat damageResistance = null) : base(startingHealth, maxHealthStat, damageResistance)
             {
             }
@@ -1566,6 +1514,11 @@ namespace BrannPack.ModifiableStats
             }
 
             protected override void MaxChanged(float newValue, float oldValue)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override float GetCurrentValue()
             {
                 throw new NotImplementedException();
             }

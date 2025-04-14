@@ -13,9 +13,9 @@ namespace BrannPack.Directors
     {
         public static StandardDirector instance { get; private set; }
 
-        public LayoutGenerator layoutGenerator;
+        //public LayoutGenerator layoutGenerator;
 
-        public GlobalSpawner Spawner;
+        //public GlobalSpawner Spawner;
 
         public float RunDuration = 0f;
 

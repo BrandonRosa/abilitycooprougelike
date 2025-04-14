@@ -34,15 +34,9 @@ namespace AbilityCoopRougelike.Items
             //{EffectTag.IsTealEnabler,1 } //Doest enable you Teal items, it IS a teal item. If it gave you teal items it would be different
         };
 
-        public void Subscribe(BaseCharacterBody character)
-        {
-            character.OnStatCalculation += ApplyStats;
-        }
 
-        private void ApplyStats(object sender, StatHookEventArgs e)
-        {
-            e.MaxHealthMultAdd += 0.03f; // 3% health boost
-        }
+            //e.MaxHealthMultAdd += 0.03f; // 3% health boost
+
     }
 
     public class EORecovery : Item<EORecovery>
@@ -66,15 +60,8 @@ namespace AbilityCoopRougelike.Items
             
         };
 
-        public void Subscribe(BaseCharacterBody character)
-        {
-            character.OnStatCalculation += ApplyStats;
-        }
+            //e.RegenMultAdd += 0.03f; // 3% base regen boost
 
-        private void ApplyStats(object sender, StatHookEventArgs e)
-        {
-            e.RegenMultAdd += 0.03f; // 3% base regen boost
-        }
     }
 
     public class EOResiliance : Item<EOResiliance>
@@ -96,15 +83,9 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public void Subscribe(BaseCharacterBody character)
-        {
-            character.OnStatCalculation += ApplyStats;
-        }
 
-        private void ApplyStats(object sender, StatHookEventArgs e)
-        {
-            e.ResistanceMultAdd.Add(.015f);
-        }
+            //e.ResistanceMultAdd.Add(.015f);
+        
     }
 
     public class EOVelocity : Item<EOVelocity>
@@ -127,15 +108,9 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public void Subscribe(BaseCharacterBody character)
-        {
-            character.OnStatCalculation += ApplyStats;
-        }
 
-        private void ApplyStats(object sender, StatHookEventArgs e)
-        {
-            e.TopSpeedMultAdd += 0.03f; // 3% base regen boost
-        }
+            //e.TopSpeedMultAdd += 0.03f; // 3% base regen boost
+        
     }
 
     public class EOInfluence : Item<EOInfluence>
@@ -159,24 +134,15 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
         {
-            // Ensure the event is only subscribed once
-            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyRangeStat;
-            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyRangeStat;
-            baseCharacter.RecalculateRange();
+
+            inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Range);
         }
 
-        private void ModifyRangeStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)
-        {
-            if (casv == Stat.Range && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
-            {
-                if (modStat is AbilityStats.RangeStat rangeStat)
-                {
-                    rangeStat.RangeFlatPercentage += 0.03f * effects.Positive;
-                }
-            }
-        }
+
+                    //rangeStat.RangeFlatPercentage += 0.03f * effects.Positive;
+
     }
 
     public class EOVigor : Item<EOVigor>
@@ -204,66 +170,38 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
-        {
-            // Ensure the event is only subscribed once
-            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyCooldownStat;
-            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyCooldownStat;
-            baseCharacter.RecalculateCooldown();
-        }
 
-        private void ModifyCooldownStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)
+
+
+        //cooldownStat.ChangeCooldownByPercent(-0.05f * effects.Positive);
+
+
+        public class EOStrength : Item<EOStrength>
         {
-            if (casv == Stat.Cooldown && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            public override ItemTier Tier { get; init; } = Tier0.instance;
+            public override ItemSubTier SubTier { get; init; } = ItemSubTier.Essences;
+            public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
+            public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
+            public override string Name { get; init; } = "Essence of Strength";
+            public override string CodeName { get; init; } = "EO_DMGE_UP";
+            public override string Description { get; init; } = "Slightly Increase Damage";
+            public override string AdvancedDescription { get; init; } = "";
+            public override bool RequiresConfirmation { get; init; } = false;
+            public override bool IsSharable { get; init; } = true;
+            public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
             {
-                if (modStat is AbilityStats.CooldownStat cooldownStat)
-                {
-                    cooldownStat.ChangeCooldownByPercent(-0.05f * effects.Positive);
-                }
-            }
-        }
-    }
-
-    public class EOStrength : Item<EOStrength>
-    {
-        public override ItemTier Tier { get; init; } = Tier0.instance;
-        public override ItemSubTier SubTier { get; init; } = ItemSubTier.Essences;
-        public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
-        public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
-        public override string Name { get; init; } = "Essence of Strength";
-        public override string CodeName { get; init; } = "EO_DMGE_UP";
-        public override string Description { get; init; } = "Slightly Increase Damage";
-        public override string AdvancedDescription { get; init; } = "";
-        public override bool RequiresConfirmation { get; init; } = false;
-        public override bool IsSharable { get; init; } = true;
-        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
-        {
             {EffectTag.IsAttack,3 },
             {EffectTag.IsAOEEnemyEnabler,1 },
             {EffectTag.IsDamageEnabler,2 },
             {EffectTag.IsHighDamageHitEnabler,1 }
 
-        };
+             };
 
-        public override void SetItemEffects(BaseCharacterBody baseCharacter, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
-        {
-            // Ensure the event is only subscribed once
-            
-            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable -= ModifyDamageStat;
-            AbilityStats.StatsHolder<BaseCharacterBody>.RefreshAbilityStatVariable += ModifyDamageStat;
-
-            baseCharacter.Stats.RecalculateDamage();
         }
 
-        private void ModifyDamageStat(BaseCharacterBody baseCharacter, Stat casv, ModifiableStat modStat)
-        {
-            if (casv == Stat.Damage && baseCharacter.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
-            {
-                if (modStat is AbilityStats.DamageStat DamageStat)
-                {
-                    DamageStat.ChangeAdditionalDamage(2.5f * effects.Positive);
-                }
-            }
-        }
+
+
+                    //DamageStat.ChangeAdditionalDamage(2.5f * effects.Positive);
+
     }
 }

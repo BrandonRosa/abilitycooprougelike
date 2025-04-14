@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿using BrannPack.InputHelpers;
+using Godot;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -31,15 +32,15 @@ namespace BrannPack.Character
             bool useUlt = Input.GetActionStrength("use_ult") > 0;
 
             if (usePrimary)
-                OwnerBody.Primary.TryUseAbility();
+                Owner.Primary.TryUseAbility(InputPressState.JustPressed);
             if (useSecondary)
-                OwnerBody.Secondary.TryUseAbility();
+                Owner.Secondary.TryUseAbility(InputPressState.JustPressed);
             if (useUtility)
-                OwnerBody.Utility.TryUseAbility();
+                Owner.Utility.TryUseAbility(InputPressState.JustPressed);
             if (useSpecial)
-                OwnerBody.Special.TryUseAbility();
+                Owner.Special.TryUseAbility(InputPressState.JustPressed);
             if (useUlt)
-                OwnerBody.Ult.TryUseAbility();
+                Owner.Ult.TryUseAbility(InputPressState.JustPressed);
 
             OwnerBody.MoveDirection = inputDirection;
         }
