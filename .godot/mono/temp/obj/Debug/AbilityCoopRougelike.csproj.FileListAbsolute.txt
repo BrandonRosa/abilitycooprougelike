@@ -15,3 +15,4 @@ D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\refint\Ab
 D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\AbilityCoopRougelike.pdb
 D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\AbilityCoopRougelike.genruntimeconfig.cache
 D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\ref\AbilityCoopRougelike.dll
+D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\AbilityCoopRougelike.sourcelink.json

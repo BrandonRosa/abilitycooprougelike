@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbilityCoopRougelike", "AbilityCoopRougelike.csproj", "{10E6B522-749F-449D-A6D2-A7FBA7095406}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbilityCoopRougelike", "AbilityCoopRougelike.csproj", "{59A4059A-0237-4C25-B077-45DFBEEE5A54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,11 +9,11 @@ Global
 	ExportRelease|Any CPU = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{10E6B522-749F-449D-A6D2-A7FBA7095406}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10E6B522-749F-449D-A6D2-A7FBA7095406}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10E6B522-749F-449D-A6D2-A7FBA7095406}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
-		{10E6B522-749F-449D-A6D2-A7FBA7095406}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
-		{10E6B522-749F-449D-A6D2-A7FBA7095406}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
-		{10E6B522-749F-449D-A6D2-A7FBA7095406}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{59A4059A-0237-4C25-B077-45DFBEEE5A54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59A4059A-0237-4C25-B077-45DFBEEE5A54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59A4059A-0237-4C25-B077-45DFBEEE5A54}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{59A4059A-0237-4C25-B077-45DFBEEE5A54}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{59A4059A-0237-4C25-B077-45DFBEEE5A54}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{59A4059A-0237-4C25-B077-45DFBEEE5A54}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
 	EndGlobalSection
 EndGlobal

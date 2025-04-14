@@ -12,6 +12,7 @@ using static BrannPack.ModifiableStats.CharacterStats;
 
 namespace BrannPack.Character
 {
+    [GlobalClass]
     public partial class CharacterMaster : Node
     {
 

@@ -1,6 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://bxgl0hup43srg"]
+[gd_scene load_steps=3 format=3 uid="uid://bxgl0hup43srg"]
 
-[ext_resource type="Script" path="res://Scripts/Enteties/BaseCharacter/BaseCharacter.cs" id="1_3r4he"]
+[ext_resource type="Script" uid="uid://c3gp6ul0xg8ph" path="res://Scripts/Modules/BaseCharacter/CharacterMaster.cs" id="1_a8jus"]
+
+[sub_resource type="PackedScene" id="PackedScene_4ld4l"]
 
 [node name="Node2D" type="Node2D"]
-script = ExtResource("1_3r4he")
+
+[node name="CharacterMaster" type="Node" parent="."]
+script = ExtResource("1_a8jus")
+BodyScene = SubResource("PackedScene_4ld4l")
+StartingMoveSpeed = 1.0
+MoveSpeedMax = 1.0
+StartingMaxHealth = 10.0
+StartingPrimary = "None"
+StartingSecondary = "None"
+StartingUtility = "None"
+StartingSpecial = "None"
+StartingUlt = "None"
+IsPlayerControlled = true
+metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
