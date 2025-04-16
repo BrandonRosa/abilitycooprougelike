@@ -75,11 +75,13 @@ namespace BrannPack.Character
         public StatsHolder<CharacterMaster> Stats;
 
         public bool IsAlive=> Body.HealthBar.CurrentValueVisible > 0f;
+        public HealthBar HealthBar => Body.HealthBar;
 
 
 
         public void Init()
         {
+            //Set Stats based off of body
             Stats = new StatsHolder<CharacterMaster>(this, StatsHolder.GetZeroStatsCopy());
             Dictionary<Stat,ModifiableStat> stats=new Dictionary<Stat,ModifiableStat>()
             {
@@ -92,17 +94,21 @@ namespace BrannPack.Character
             };
             Stats.SetAllStats(stats, false);
 
+            //Make the body share the healthbar and movespeed
             Body.HealthBar = new HealthBar(this, (MaxHealthStat)stats[Stat.MaxHealth], (MaxHealthStat)stats[Stat.MaxArmor], (MaxHealthStat)stats[Stat.MaxShield], (MaxHealthStat)stats[Stat.MaxBarrier]);
+            Body.MoveSpeed = (MoveSpeedStat)stats[Stat.MoveSpeed];
 
             Inventory = new Inventory(this);
 
+            //Set the abilities to the body's starting abilities
             Primary = new AbilitySlot(this, Body.StartingPrimary, AbilitySlotType.Primary);
             Secondary = new AbilitySlot(this, Body.StartingSecondary, AbilitySlotType.Secondary);
             Utility = new AbilitySlot(this, Body.StartingUtility, AbilitySlotType.Utility);
             Special = new AbilitySlot(this, Body.StartingSpecial, AbilitySlotType.Special);
             Ult = new AbilitySlot(this, Body.StartingUlt, AbilitySlotType.Ult);
 
-
+            Controller.OwnerBody = Body;
+            Body.Controller = Controller;
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

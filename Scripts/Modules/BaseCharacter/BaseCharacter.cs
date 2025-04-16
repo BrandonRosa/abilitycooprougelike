@@ -1,26 +1,16 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using BrannPack;
-using System.ComponentModel;
 using System.Linq;
-using BrannPack.ItemHandling;
-using System.Threading;
-using BrannPack.Tiers;
-using BrannPack.ItemHandling;
-using System.Security.Cryptography.X509Certificates;
-using BrannPack.AbilityHandling;
 using static BrannPack.ModifiableStats.CharacterStats;
 using static BrannPack.ModifiableStats.AbilityStats;
 using BrannPack.ModifiableStats;
-using System.Reflection.Metadata.Ecma335;
-using BrannPack.CooldownHandling;
-using AbilityCoopRougelike.Items;
+
 
 
 namespace BrannPack.Character
 {
-
+    [GlobalClass]
     public partial class BaseCharacterBody : CharacterBody2D
     {
         public static List<BaseCharacterBody> AllCharacters = new List<BaseCharacterBody>();
@@ -29,6 +19,12 @@ namespace BrannPack.Character
         {
             base._Ready();
             AllCharacters.Add(this);
+
+            // Hitbox outline
+            ColorRect debugBox = new ColorRect();
+            debugBox.Color = new Color(1, 0, 0, 0.5f); // Red with transparency
+            debugBox.Size = new Vector2(32, 32);
+            AddChild(debugBox);
         }
 
         public override void _ExitTree()
@@ -37,11 +33,11 @@ namespace BrannPack.Character
         }
 
         [Export] public string CharacterName;
-        [Export] public CharacterMaster CharacterMaster;
+        public CharacterMaster CharacterMaster;
 
         [Export] public float Acceleration = 1000f;  // How fast the character accelerates
         [Export] public float Deceleration = 800f;  // How fast the character decelerates when no input is given
-        [Export] public MoveSpeedStat MoveSpeed;
+        public MoveSpeedStat MoveSpeed;
 
 
         //Players are 1
@@ -76,8 +72,8 @@ namespace BrannPack.Character
 
         public StatsHolder StartingStats;
 
-        
 
+        public EntityController Controller;
         public Vector2 AttackDirection;
         public Vector2 MoveDirection;
 
@@ -129,11 +125,35 @@ namespace BrannPack.Character
 
             // Apply movement
             MoveAndSlide();
+
+            // Animate!
+            HandleAnimation(inputDirection);
+        }
+
+        private void HandleAnimation(Vector2 direction)
+        {
+            if (AnimSprite == null) return;
+
+            if (direction == Vector2.Zero)
+            {
+                AnimSprite.Play("idle");
+            }
+            else
+            {
+                AnimSprite.Play("walk");
+
+                // Optional: flip or change direction
+                if (Mathf.Abs(direction.X) > Mathf.Abs(direction.Y))
+                {
+                    AnimSprite.FlipH = direction.X < 0;
+                }
+            }
         }
 
         public override void _Process(double delta)
         {
             base._Process(delta);
+            Controller.UpdateInput();
         }
 
         public void InitializeBaseCharacterBody()
