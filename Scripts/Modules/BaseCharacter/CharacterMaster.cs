@@ -107,8 +107,11 @@ namespace BrannPack.Character
             Special = new AbilitySlot(this, Body.StartingSpecial, AbilitySlotType.Special);
             Ult = new AbilitySlot(this, Body.StartingUlt, AbilitySlotType.Ult);
 
+            EntityController entityController = IsPlayerControlled ? new LocalPlayerController() : null;
+            entityController.Owner = this;
+            entityController.OwnerBody = Body;
             Controller.OwnerBody = Body;
-            Body.Controller = Controller;
+            Body.Controller = entityController;//Controller;
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

@@ -1,21 +1,25 @@
-[gd_scene load_steps=3 format=3 uid="uid://bxgl0hup43srg"]
+[gd_scene load_steps=4 format=3 uid="uid://bxgl0hup43srg"]
 
 [ext_resource type="Script" uid="uid://c3gp6ul0xg8ph" path="res://Scripts/Modules/BaseCharacter/CharacterMaster.cs" id="1_a8jus"]
+[ext_resource type="Script" uid="uid://dtmfarcnfd41l" path="res://Scripts/Modules/BaseCharacter/BaseCharacterBody.cs" id="2_4ld4l"]
 
 [sub_resource type="PackedScene" id="PackedScene_4ld4l"]
 
 [node name="Node2D" type="Node2D"]
 
-[node name="CharacterMaster" type="Node" parent="."]
+[node name="CharacterMaster" type="Node" parent="." node_paths=PackedStringArray("Body")]
 script = ExtResource("1_a8jus")
 BodyScene = SubResource("PackedScene_4ld4l")
-StartingMoveSpeed = 1.0
-MoveSpeedMax = 1.0
-StartingMaxHealth = 10.0
-StartingPrimary = "None"
-StartingSecondary = "None"
-StartingUtility = "None"
-StartingSpecial = "None"
-StartingUlt = "None"
 IsPlayerControlled = true
+Body = NodePath("")
 metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
+
+[node name="BaseCharacterBody" type="CharacterBody2D" parent="."]
+script = ExtResource("2_4ld4l")
+CharacterName = "TestChar"
+StartingMoveSpeed = 1.0
+MoveSpeedMax = 100.0
+StartingMaxHealth = 100.0
+StartingHealthRegen = 0.5
+HealthRegenScaling = 1.0
+metadata/_custom_type_script = "uid://dtmfarcnfd41l"
