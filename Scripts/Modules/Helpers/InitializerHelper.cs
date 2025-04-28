@@ -20,6 +20,7 @@ namespace BrannPack.Helpers.Initializers
     {
         private readonly Dictionary<int, T> _byIndex = new();
         private readonly Dictionary<string, T> _byCodeName = new();
+        private readonly T _errorObject=default(T);
 
         public void Register(T obj)
         {

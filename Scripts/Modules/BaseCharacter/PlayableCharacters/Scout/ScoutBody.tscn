@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://bs6t8w6hdbnfn"]
+
+[ext_resource type="Script" uid="uid://dtmfarcnfd41l" path="res://Scripts/Modules/BaseCharacter/BaseCharacterBody.cs" id="1_pf7dv"]
+
+[node name="BaseCharacterBody" type="CharacterBody2D"]
+script = ExtResource("1_pf7dv")
+CharacterName = "Scout"
+Deceleration = 80.0
+StartingPrimary = "NONE"
+StartingSecondary = "NONE"
+StartingUtility = "NONE"
+StartingSpecial = "NONE"
+StartingUlt = "NONE"
+StartingMoveSpeed = 1.0
+MoveSpeedMax = 10.0
+metadata/_custom_type_script = "uid://dtmfarcnfd41l"

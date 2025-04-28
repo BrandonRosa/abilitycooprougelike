@@ -27,6 +27,7 @@ namespace BrannPack.Character
             if (Body == null && BodyScene != null)
             {
                 Body = BodyScene.Instantiate<BaseCharacterBody>();
+                GD.Print(Body.CharacterName);
                 AddChild(Body);
                // Body.GlobalPosition = GlobalPosition; // or set Transform, etc.
                 Body.Init(); // Pass reference to master if needed
@@ -107,11 +108,12 @@ namespace BrannPack.Character
             Special = new AbilitySlot(this, Body.StartingSpecial, AbilitySlotType.Special);
             Ult = new AbilitySlot(this, Body.StartingUlt, AbilitySlotType.Ult);
 
-            EntityController entityController = IsPlayerControlled ? new LocalPlayerController() : null;
-            entityController.Owner = this;
-            entityController.OwnerBody = Body;
+            Body.CharacterMaster = this;
+
+            Controller = IsPlayerControlled ? new LocalPlayerController() : null;
+            Controller.Owner = this;
             Controller.OwnerBody = Body;
-            Body.Controller = entityController;//Controller;
+            Body.Controller = Controller;//Controller;
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

@@ -31,6 +31,10 @@ namespace BrannPack.Character
         {
             AllCharacters.Remove(this);
         }
+        public override void _Draw()
+        {
+            DrawRect(new Rect2(-16, -16, 32, 32), new Color(1, 0, 0, 0.5f));
+        }
 
         [Export] public string CharacterName;
         public CharacterMaster CharacterMaster;
@@ -101,10 +105,11 @@ namespace BrannPack.Character
         {
             base._PhysicsProcess(delta);
 
-            float CalculatedSpeed=MoveSpeed.Total;
+            float CalculatedSpeed=MoveSpeed.CalculateTotal();
             
             // Get input vector
             Vector2 inputDirection = MoveDirection;
+            GD.Print(MoveDirection+" "+CalculatedSpeed);
             
 
             // Normalize the direction to ensure consistent speed in all directions
@@ -113,6 +118,7 @@ namespace BrannPack.Character
 
             // Calculate target velocity based on input
             Vector2 targetVelocity = inputDirection * CalculatedSpeed;
+            GD.Print(targetVelocity);
 
             // Gradual acceleration: Lerp towards target velocity
             Velocity = Velocity.Lerp( targetVelocity, Acceleration * (float)delta);
@@ -153,7 +159,8 @@ namespace BrannPack.Character
         public override void _Process(double delta)
         {
             base._Process(delta);
-            Controller.UpdateInput();
+            if (CharacterMaster?.Controller != null)
+                CharacterMaster.Controller.UpdateInput();
         }
 
         public void InitializeBaseCharacterBody()
