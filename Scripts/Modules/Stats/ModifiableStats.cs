@@ -1174,8 +1174,8 @@ namespace BrannPack.ModifiableStats
         public partial class MoveSpeedStat : ModifiableStat<MoveSpeedStat>
         {
             public float SpeedMinimum = 1f;
-            public float SoftMax = 100f;
-            public float ScaleConstant = 1.8f;
+            public float SoftMax = 15f;
+            public float ScaleConstant = 1.2f;
 
             public float SpeedFlatPercentage = 0f;
             public List<float> SlowResistPercentages = new List<float>();
@@ -1187,8 +1187,8 @@ namespace BrannPack.ModifiableStats
             {
                 float slowResist = SlowResistPercentages.Aggregate(1f, (total, next) => total * next);
                 float slow = SlowPercentages.Aggregate(1f, (total, next) => total * next);
-                float totalUnmodChange = BaseValue * (1f + SpeedFlatPercentage - Mathf.Clamp(((1 - slow) * slowResist), 0f, 1f));
-                return Mathf.Max(SpeedMinimum, SoftMax - (SoftMax - BaseValue) * Mathf.Exp(-ScaleConstant * totalUnmodChange / SoftMax));
+                float totalUnmodChange = BaseValue * (SpeedFlatPercentage - Mathf.Clamp(((1 - slow) * slowResist), 0f, 1f));
+                return Mathf.Max(SpeedMinimum, SoftMax - (SoftMax - BaseValue) * Mathf.Exp(-ScaleConstant * totalUnmodChange / (SoftMax)));
             }
 
             public override void ResetModifiedValues() { SpeedFlatPercentage = 0f; SlowPercentages.Clear(); }

@@ -39,8 +39,8 @@ namespace BrannPack.Character
         [Export] public string CharacterName;
         public CharacterMaster CharacterMaster;
 
-        [Export] public float Acceleration = 1000f;  // How fast the character accelerates
-        [Export] public float Deceleration = 800f;  // How fast the character decelerates when no input is given
+        [Export] public float Acceleration = 100f;  // How fast the character accelerates
+        [Export] public float Deceleration = 80f;  // How fast the character decelerates when no input is given
         public MoveSpeedStat MoveSpeed;
 
 
@@ -119,14 +119,16 @@ namespace BrannPack.Character
             // Calculate target velocity based on input
             Vector2 targetVelocity = inputDirection * CalculatedSpeed;
             GD.Print(targetVelocity);
+            GD.Print(Acceleration+ " " + Deceleration);
 
-            // Gradual acceleration: Lerp towards target velocity
-            Velocity = Velocity.Lerp( targetVelocity, Acceleration * (float)delta);
+            float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
+            Velocity = Velocity.Lerp(targetVelocity*100f, t);
 
             // Gradual deceleration when no input is given
             if (inputDirection == Vector2.Zero)
             {
-                Velocity = Velocity.Lerp(Vector2.Zero, Deceleration * (float)delta);
+                t = 1f - Mathf.Exp(-Deceleration * (float)delta);
+                Velocity = Velocity.Lerp(Vector2.Zero, t);
             }
 
             // Apply movement
