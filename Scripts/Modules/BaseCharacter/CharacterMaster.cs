@@ -2,6 +2,7 @@
 using BrannPack.CooldownHandling;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
+using BrannPack.UI;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -114,6 +115,10 @@ namespace BrannPack.Character
             Controller.Owner = this;
             Controller.OwnerBody = Body;
             Body.Controller = Controller;//Controller;
+
+            //Set floating healthbar
+            FloatingHealthBar HB = new FloatingHealthBar();
+            Body.AddChild(HB);
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

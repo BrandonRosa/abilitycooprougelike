@@ -13,12 +13,12 @@ namespace BrannPack.UI
     public partial class FloatingHealthBar : Control
     {
         private Dictionary<(HealthType healthType, bool isOverHealth), ColorRect> healthSegments = new();
-        private CharacterMaster owner;
+        private BaseCharacterBody ownerBody => (Owner is BaseCharacterBody bcb) ? bcb : null;
+        private CharacterMaster owner=>ownerBody?.CharacterMaster;
         private float maxWidth = 100f; // Max width of the health bar
 
         public override void _Ready()
         {
-            owner = GetParent<CharacterMaster>();
             InitializeHealthBar();
         }
 
