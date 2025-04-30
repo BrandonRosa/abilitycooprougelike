@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "D:\\Documents\\GodoGames\\abilitycooprougelike\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\ui\\floatinghealthbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\ui\\floatinghealthbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\basecharacter\\basecharacterbody.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\basecharacter\\basecharacterbody.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\basecharacter\\charactermaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\basecharacter\\charactermaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\stats\\modifiablestats.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -12,10 +20,6 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\bjbra\\AppData\\Local\\Temp\\VSGeneratedDocuments\\1f28d6d3-0967-0be2-a81d-03007d92af44\\BrannPack.ModifiableStats.CharacterStats.MoveSpeedStat_ScriptMethods.generated.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\basecharacter\\charactermaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\basecharacter\\charactermaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\basecharacter\\entitycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -36,10 +40,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\basecharacter\\enemies\\npc_melee_swarmer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\basecharacter\\enemies\\npc_melee_swarmer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|d:\\documents\\godogames\\abilitycooprougelike\\scripts\\modules\\ui\\floatinghealthbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{59A4059A-0237-4C25-B077-45DFBEEE5A54}|AbilityCoopRougelike.csproj|solutionrelative:scripts\\modules\\ui\\floatinghealthbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -49,36 +49,35 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "ModifiableStats.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\Stats\\ModifiableStats.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\Stats\\ModifiableStats.cs",
               "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\Stats\\ModifiableStats.cs",
               "RelativeToolTip": "Scripts\\Modules\\Stats\\ModifiableStats.cs",
-              "ViewState": "AQIAAIUEAAAAAAAAAAAEwKUEAAA2AAAA",
+              "ViewState": "AQIAAN0FAAAAAAAAAAAjwPIFAABEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-29T02:49:50.244Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "BrannPack.ModifiableStats.CharacterStats.MoveSpeedStat_ScriptMethods.generated.cs [generated]",
+              "DocumentIndex": 4,
+              "Title": "BrannPack.ModifiableStats.CharacterStats.MoveSpeedStat_ScriptMethods.generated.cs",
               "DocumentMoniker": "C:\\Users\\bjbra\\AppData\\Local\\Temp\\VSGeneratedDocuments\\1f28d6d3-0967-0be2-a81d-03007d92af44\\BrannPack.ModifiableStats.CharacterStats.MoveSpeedStat_ScriptMethods.generated.cs",
               "ToolTip": "BrannPack.ModifiableStats.CharacterStats.MoveSpeedStat_ScriptMethods.generated.cs [generated by Godot.SourceGenerators.ScriptMethodsGenerator]",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAOAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "OverriddenToolTip": "BrannPack.ModifiableStats.CharacterStats.MoveSpeedStat_ScriptMethods.generated.cs [generated by Godot.SourceGenerators.ScriptMethodsGenerator]",
-              "WhenOpened": "2025-04-29T02:49:48.621Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-29T02:49:48.621Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "InitializerHelper.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\Helpers\\InitializerHelper.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\Helpers\\InitializerHelper.cs",
@@ -90,7 +89,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Ability.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\Ability\\Ability.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\Ability\\Ability.cs",
@@ -102,7 +101,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "EntityController.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\EntityController.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\BaseCharacter\\EntityController.cs",
@@ -114,7 +113,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "PC_Scout.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\PlayableCharacters\\PC_Scout.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\BaseCharacter\\PlayableCharacters\\PC_Scout.cs",
@@ -126,7 +125,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "NPC_Melee_Swarmer.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\Enemies\\NPC_Melee_Swarmer.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\BaseCharacter\\Enemies\\NPC_Melee_Swarmer.cs",
@@ -138,40 +137,42 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 0,
               "Title": "FloatingHealthbar.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\UI\\FloatingHealthbar.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\UI\\FloatingHealthbar.cs",
               "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\UI\\FloatingHealthbar.cs",
               "RelativeToolTip": "Scripts\\Modules\\UI\\FloatingHealthbar.cs",
-              "ViewState": "AQIAACEAAAAAAAAAAAAqwDAAAABWAAAA",
+              "ViewState": "AQIAACAAAAAAAAAAAAAIwD0AAAAnAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-14T02:41:45.001Z"
+              "WhenOpened": "2025-04-14T02:41:45.001Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "BaseCharacterBody.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\BaseCharacterBody.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\BaseCharacter\\BaseCharacterBody.cs",
               "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\BaseCharacterBody.cs",
               "RelativeToolTip": "Scripts\\Modules\\BaseCharacter\\BaseCharacterBody.cs",
-              "ViewState": "AQIAAFEAAAAAAAAAAAAowHkAAAA3AAAA",
+              "ViewState": "AQIAAF0AAAAAAAAAAAAMwHoAAAAOAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-14T02:33:41.743Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "CharacterMaster.cs",
               "DocumentMoniker": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\CharacterMaster.cs",
               "RelativeDocumentMoniker": "Scripts\\Modules\\BaseCharacter\\CharacterMaster.cs",
               "ToolTip": "D:\\Documents\\GodoGames\\abilitycooprougelike\\Scripts\\Modules\\BaseCharacter\\CharacterMaster.cs",
               "RelativeToolTip": "Scripts\\Modules\\BaseCharacter\\CharacterMaster.cs",
-              "ViewState": "AQIAAEIAAAAAAAAAAAAowGMAAAAaAAAA",
+              "ViewState": "AQIAADgAAAAAAAAAAAAewE8AAAAZAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-14T02:33:02.265Z"
+              "WhenOpened": "2025-04-14T02:33:02.265Z",
+              "EditorCaption": ""
             }
           ]
         }

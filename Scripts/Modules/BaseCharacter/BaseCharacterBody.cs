@@ -5,6 +5,7 @@ using System.Linq;
 using static BrannPack.ModifiableStats.CharacterStats;
 using static BrannPack.ModifiableStats.AbilityStats;
 using BrannPack.ModifiableStats;
+using BrannPack.UI;
 
 
 
@@ -162,7 +163,11 @@ namespace BrannPack.Character
         {
             base._Process(delta);
             if (CharacterMaster?.Controller != null)
+            {
                 CharacterMaster.Controller.UpdateInput();
+                HealthBar.UpdateUIHealthInfo();
+                GetChild<FloatingHealthBar>(1).UpdateHealthBar();
+            }
         }
 
         public void InitializeBaseCharacterBody()
@@ -185,7 +190,7 @@ namespace BrannPack.Character
         public CharacterMaster Master;
 
         public Dictionary<HealthType, HealthBehavior> HealthList = new Dictionary<HealthType, HealthBehavior> { };
-        public List<(HealthType type, float startPosition, float width, bool isOverHealth)> UIInfo;
+        public List<(HealthType type, float startPosition, float width, bool isOverHealth)> UIInfo=new();
 
         public float HealthNumerator;
         public float HealthDenominator;

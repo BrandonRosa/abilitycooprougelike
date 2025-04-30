@@ -119,6 +119,7 @@ namespace BrannPack.Character
             //Set floating healthbar
             FloatingHealthBar HB = new FloatingHealthBar();
             Body.AddChild(HB);
+            HB.Owner = Body;
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

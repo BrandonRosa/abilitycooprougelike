@@ -12,6 +12,6 @@ StartingSecondary = "NONE"
 StartingUtility = "NONE"
 StartingSpecial = "NONE"
 StartingUlt = "NONE"
-StartingMoveSpeed = 15.0
+StartingMoveSpeed = 1.0
 MoveSpeedMax = 15.0
 metadata/_custom_type_script = "uid://dtmfarcnfd41l"

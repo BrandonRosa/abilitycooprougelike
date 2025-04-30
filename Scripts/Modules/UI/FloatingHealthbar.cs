@@ -24,7 +24,7 @@ namespace BrannPack.UI
 
         private void InitializeHealthBar()
         {
-            owner.HealthBar.UIHealthUpdated += UpdateHealthBar;
+           // owner.HealthBar.UIHealthUpdated += UpdateHealthBar;
 
             CreateHealthSegment((HealthType.Health, false), new Color(0f, 0.8f, 0f));
             //CreateHealthSegment("CelledHealth", new Color(0.5f, 1f, 0.5f));
@@ -46,16 +46,21 @@ namespace BrannPack.UI
             healthSegments[key] = segment;
             if (isHollow)
             {
-                segment.Material = new ShaderMaterial { Shader = (Shader)GD.Load("res://shaders/hollow_border.shader") };
+                //segment.Material = new ShaderMaterial { Shader = (Shader)GD.Load("res://shaders/hollow_border.shader") };
             }
         }
 
 
-        private void UpdateHealthBar()
+        public void UpdateHealthBar()
         {
+            if(owner?.HealthBar?.UIInfo == null)
+                return;
             foreach (var var in owner.HealthBar.UIInfo)
             {
-                ArrangeSegment((var.type, var.isOverHealth), var.startPosition * maxWidth / owner.HealthBar.CurrentMaxVisible, var.width * maxWidth / owner.HealthBar.CurrentMaxVisible);
+                float startx = var.startPosition * maxWidth / owner.HealthBar.CurrentMaxVisible;
+                float width = var.width * maxWidth / owner.HealthBar.CurrentMaxVisible;
+                if (width>0 && startx>0)
+                ArrangeSegment((var.type, var.isOverHealth), startx ,width );
             }
         }
 
@@ -65,7 +70,7 @@ namespace BrannPack.UI
             {
 
                 segment.Position = new Vector2(startX, 0);
-
+                GD.Print(width, startX, segment.Position, segment.Size, segment.Visible);
                 segment.Size = new Vector2(width, 10);
                 segment.Visible = width > 0;
 

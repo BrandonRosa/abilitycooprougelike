@@ -1466,7 +1466,7 @@ namespace BrannPack.ModifiableStats
 
             public override float GetCurrentValue()
             {
-                throw new NotImplementedException();
+                return Math.Clamp(CurrentValue, 0f, MaxValue.Total);
             }
         }
 
@@ -1493,7 +1493,7 @@ namespace BrannPack.ModifiableStats
 
             public override float GetCurrentValue()
             {
-                throw new NotImplementedException();
+                return Math.Clamp(CurrentValue, 0f, MaxValue.Total);
             }
         }
 
@@ -1520,7 +1520,7 @@ namespace BrannPack.ModifiableStats
 
             public override float GetCurrentValue()
             {
-                throw new NotImplementedException();
+                return Math.Clamp(CurrentValue, 0f, MaxValue.Total);
             }
         }
 
