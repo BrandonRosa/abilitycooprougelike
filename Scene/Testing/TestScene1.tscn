@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bxgl0hup43srg"]
+[gd_scene load_steps=4 format=3 uid="uid://bxgl0hup43srg"]
 
 [ext_resource type="Script" uid="uid://c3gp6ul0xg8ph" path="res://Scripts/Modules/BaseCharacter/CharacterMaster.cs" id="1_a8jus"]
 [ext_resource type="PackedScene" uid="uid://bs6t8w6hdbnfn" path="res://Scripts/Modules/BaseCharacter/PlayableCharacters/Scout/ScoutBody.tscn" id="2_0ww7j"]
+[ext_resource type="Script" uid="uid://y0urs486kcan" path="res://Scripts/Modules/Console/DevConsole.cs" id="3_0ww7j"]
 
 [node name="Node2D" type="Node2D"]
 
@@ -10,3 +11,7 @@ script = ExtResource("1_a8jus")
 BodyScene = ExtResource("2_0ww7j")
 IsPlayerControlled = true
 metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
+
+[node name="DevConsole" type="Node" parent="."]
+script = ExtResource("3_0ww7j")
+metadata/_custom_type_script = "uid://y0urs486kcan"

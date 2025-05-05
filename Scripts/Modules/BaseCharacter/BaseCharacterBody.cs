@@ -9,6 +9,7 @@ using BrannPack.UI;
 
 
 
+
 namespace BrannPack.Character
 {
     [GlobalClass]
@@ -105,12 +106,10 @@ namespace BrannPack.Character
         public override void _PhysicsProcess(double delta)
         {
             base._PhysicsProcess(delta);
+            float CalculatedSpeed=MoveSpeed!=null? MoveSpeed.CalculateTotal():0f;
 
-            float CalculatedSpeed=MoveSpeed.CalculateTotal();
-            
             // Get input vector
             Vector2 inputDirection = MoveDirection;
-            GD.Print(MoveDirection+" "+CalculatedSpeed);
             
 
             // Normalize the direction to ensure consistent speed in all directions
@@ -119,8 +118,6 @@ namespace BrannPack.Character
 
             // Calculate target velocity based on input
             Vector2 targetVelocity = inputDirection * CalculatedSpeed;
-            GD.Print(targetVelocity);
-            GD.Print(Acceleration+ " " + Deceleration);
 
             float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
             Velocity = Velocity.Lerp(targetVelocity*100f, t);
@@ -204,7 +201,7 @@ namespace BrannPack.Character
         public HealthBar(CharacterMaster master, MaxHealthStat healthMax, MaxHealthStat armorMax, MaxHealthStat shieldMax, MaxHealthStat barrierMax)
         {
             Master = master;
-            Health health = new Health(0f, healthMax);
+            Health health = new Health(healthMax.CalculateTotal(), healthMax);
             AddHealthType(health, HealthType.Health);
 
             Armor armor = new Armor(0f, armorMax);
@@ -254,6 +251,9 @@ namespace BrannPack.Character
                 float overValue = behavior.GetOverValue();
                 float currentValue = behavior.GetCurrentValue();
 
+                if(currentValue+overValue<=0)
+                    continue;
+
                 HealthNumerator += behavior.CurrentValue;
 
                 switch (type)
@@ -263,7 +263,6 @@ namespace BrannPack.Character
                         CurrentValueVisible += currentValue;
                         CurrentMaxVisible += behavior.MaxValue.Total;
                         temp.Add((type, currentHbarPosition, currentValue, false));
-
                         currentHbarPosition += currentValue;
                         break;
                     case HealthType.Armor:
@@ -292,7 +291,8 @@ namespace BrannPack.Character
                         break;
 
                 }
-
+                GD.Print(type, HealthNumerator);
+                
             }
             UIInfo = temp;
             UIHealthUpdated?.Invoke();
@@ -322,12 +322,11 @@ namespace BrannPack.Character
                 totalDamageTaken += result.change;
                 if (result.change == 0f)
                     damageTakenByType.Add((type, result.change));
-
+                 
                 leftoverDamage = result.leftOverChange;
                 if (leftoverDamage <= 0f)
                     break;
             }
-
             AfterLoseHealth?.Invoke(this, damageInfo, damageTakenByType.ToArray(), totalDamageTaken, leftoverDamage);
             UpdateUIHealthInfo();
             return totalDamageTaken;
@@ -343,10 +342,12 @@ namespace BrannPack.Character
 
 
             (float, float) result = (0f, 0f);
-            if (changeInfo.Change > 0)
+            if (changeInfo.Change < 0)
                 result = HealthList[changeInfo.HealthType].TakeDamage(changeInfo);
             else
                 result = HealthList[changeInfo.HealthType].AddCurrentValue(changeInfo);
+
+            GD.Print(changeInfo.HealthType, result.Item1, result.Item2);
 
             AfterHealthChange?.Invoke(this, changeInfo);
 

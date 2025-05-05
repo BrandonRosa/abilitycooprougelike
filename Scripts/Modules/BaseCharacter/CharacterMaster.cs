@@ -1,5 +1,6 @@
 ﻿using BrannPack.AbilityHandling;
 using BrannPack.CooldownHandling;
+using BrannPack.DevConsole;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using BrannPack.UI;
@@ -28,7 +29,6 @@ namespace BrannPack.Character
             if (Body == null && BodyScene != null)
             {
                 Body = BodyScene.Instantiate<BaseCharacterBody>();
-                GD.Print(Body.CharacterName);
                 AddChild(Body);
                // Body.GlobalPosition = GlobalPosition; // or set Transform, etc.
                 Body.Init(); // Pass reference to master if needed

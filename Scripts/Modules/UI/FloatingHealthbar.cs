@@ -19,11 +19,25 @@ namespace BrannPack.UI
 
         public override void _Ready()
         {
+
             InitializeHealthBar();
+            SetAnchorsPreset(Control.LayoutPreset.TopLeft); // No stretch
+            Position = Vector2.Zero;
+            Size = new Vector2(100, 20);
+            CustomMinimumSize = Size;
+        }
+        public override void _Process(double delta)
+        {
+            if (ownerBody != null)
+            {
+                // Adjust the Y offset to float above the character's head
+                GlobalPosition = ownerBody.GlobalPosition + new Vector2(0, -40);
+            }
         }
 
         private void InitializeHealthBar()
         {
+            CreateBackground();
            // owner.HealthBar.UIHealthUpdated += UpdateHealthBar;
 
             CreateHealthSegment((HealthType.Health, false), new Color(0f, 0.8f, 0f));
@@ -50,16 +64,25 @@ namespace BrannPack.UI
             }
         }
 
+        private void CreateBackground()
+        {
+            var segment = new ColorRect();
+            segment.Color =new Color(0,0,0);
+            AddChild(segment);
+
+        }
+
 
         public void UpdateHealthBar()
         {
             if(owner?.HealthBar?.UIInfo == null)
                 return;
+            
             foreach (var var in owner.HealthBar.UIInfo)
             {
                 float startx = var.startPosition * maxWidth / owner.HealthBar.CurrentMaxVisible;
                 float width = var.width * maxWidth / owner.HealthBar.CurrentMaxVisible;
-                if (width>0 && startx>0)
+                if (width>0 && startx>=0)
                 ArrangeSegment((var.type, var.isOverHealth), startx ,width );
             }
         }
@@ -70,7 +93,6 @@ namespace BrannPack.UI
             {
 
                 segment.Position = new Vector2(startX, 0);
-                GD.Print(width, startX, segment.Position, segment.Size, segment.Visible);
                 segment.Size = new Vector2(width, 10);
                 segment.Visible = width > 0;
 

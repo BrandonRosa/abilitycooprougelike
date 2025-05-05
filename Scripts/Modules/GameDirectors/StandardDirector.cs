@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace BrannPack.Directors
 {
-    public class StandardDirector
+    [GlobalClass]
+    public partial class StandardDirector : Node2D
     {
         public static StandardDirector instance { get; private set; }
 
@@ -36,6 +37,11 @@ namespace BrannPack.Directors
         public void SpawnEnemies() { }
 
         public void SpawnRoomEnemies() { }
+
+        public override void _Ready()
+        {
+            
+        }
 
 
     }

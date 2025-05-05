@@ -1391,17 +1391,18 @@ namespace BrannPack.ModifiableStats
             //public static int DamagePriority { get; set; }   //Damage goes from HighPriority to Low Priority
             public (float damageTaken, float overDamage) TakeDamage(HealthChangeInfo changeInfo)
             {
-                float mult = (1 - DamageResistance.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness));
+                float mult = DamageResistance!=null?(1 - DamageResistance.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness)):1f;
                 float damageTaken =changeInfo.Change * mult;
                 float overDamage = -Mathf.Min(0f, CurrentValue + damageTaken)/mult;
-                CurrentValue = Mathf.Max(0f, CurrentValue - damageTaken);
+                
+                CurrentValue = Mathf.Max(0f, CurrentValue + damageTaken);
                 return (damageTaken,overDamage);
             }
 
             public event Action<float, float, float> AfterCurrentValueChange;
             public (float amountAdded,float overAdd) AddCurrentValue(HealthChangeInfo changeInfo)
             {
-                float mult = ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness);
+                float mult = ObtainGain!=null? ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness):0;
                 float amountAdded = changeInfo.Change * mult;
                 float overAdd = Mathf.Max(0f, CurrentValue + amountAdded - MaxValue.CalculateTotal())/mult;
                 CurrentValue = MathF.Min(MaxValue.CalculateTotal(), amountAdded + CurrentValue);
@@ -1456,12 +1457,12 @@ namespace BrannPack.ModifiableStats
 
             public override void NaturalCurrentChange()// Do natural regen code here..
             {
-                throw new NotImplementedException();
+                
             }
 
             protected override void MaxChanged(float newValue, float oldValue)
             {
-                throw new NotImplementedException();
+                
             }
 
             public override float GetCurrentValue()
@@ -1483,12 +1484,12 @@ namespace BrannPack.ModifiableStats
 
             public override void NaturalCurrentChange()// Do natural regen code here..
             {
-                throw new NotImplementedException();
+                
             }
 
             protected override void MaxChanged(float newValue, float oldValue)
             {
-                throw new NotImplementedException();
+                
             }
 
             public override float GetCurrentValue()
@@ -1510,12 +1511,12 @@ namespace BrannPack.ModifiableStats
 
             public override void NaturalCurrentChange()// Do natural regen code here..
             {
-                throw new NotImplementedException();
+                
             }
 
             protected override void MaxChanged(float newValue, float oldValue)
             {
-                throw new NotImplementedException();
+                
             }
 
             public override float GetCurrentValue()

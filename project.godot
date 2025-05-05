@@ -15,9 +15,17 @@ run/main_scene="res://Scene/Testing/TestScene1.tscn"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+LimboConsole="*res://addons/limbo_console/limbo_console.gd"
+
 [dotnet]
 
 project/assembly_name="AbilityCoopRougelike"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/limbo_console/plugin.cfg")
 
 [input]
 
@@ -60,4 +68,9 @@ use_special={
 use_ult={
 "deadzone": 0.2,
 "events": []
+}
+limbo_console_toggle={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":96,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
 }

@@ -36,6 +36,22 @@
             "related": ".xml"
           }
         }
+      },
+      "LimboConsole.Sharp/0.0.1-beta-006": {
+        "type": "package",
+        "dependencies": {
+          "GodotSharp": "[4.4.0, 4.5.0)"
+        },
+        "compile": {
+          "lib/net8.0/Limbo.Console.Sharp.dll": {
+            "related": ".runtimeconfig.json;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Limbo.Console.Sharp.dll": {
+            "related": ".runtimeconfig.json;.xml"
+          }
+        }
       }
     }
   },
@@ -78,13 +94,30 @@
         "lib/net8.0/GodotSharpEditor.dll",
         "lib/net8.0/GodotSharpEditor.xml"
       ]
+    },
+    "LimboConsole.Sharp/0.0.1-beta-006": {
+      "sha512": "4fattz891QwbhyqknRPEZKxVMfNSm06yGVM1SUFyiuDAHf1sp8bImaWkNTfvDHlB3oDtmht+tB6p4Rge43MnwQ==",
+      "type": "package",
+      "path": "limboconsole.sharp/0.0.1-beta-006",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "CHANGELOG.md",
+        "README.md",
+        "lib/net8.0/Limbo.Console.Sharp.dll",
+        "lib/net8.0/Limbo.Console.Sharp.runtimeconfig.json",
+        "lib/net8.0/Limbo.Console.Sharp.xml",
+        "limboconsole.sharp.0.0.1-beta-006.nupkg.sha512",
+        "limboconsole.sharp.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "Godot.SourceGenerators >= 4.4.1",
       "GodotSharp >= 4.4.1",
-      "GodotSharpEditor >= 4.4.1"
+      "GodotSharpEditor >= 4.4.1",
+      "LimboConsole.Sharp >= 0.0.1-beta-006"
     ]
   },
   "packageFolders": {
@@ -149,6 +182,10 @@
           "GodotSharpEditor": {
             "target": "Package",
             "version": "[4.4.1, )"
+          },
+          "LimboConsole.Sharp": {
+            "target": "Package",
+            "version": "[0.0.1-beta-006, )"
           }
         },
         "imports": [

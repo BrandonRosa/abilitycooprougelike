@@ -10,7 +10,8 @@
         "dependencies": {
           "Godot.SourceGenerators": "4.4.1",
           "GodotSharp": "4.4.1",
-          "GodotSharpEditor": "4.4.1"
+          "GodotSharpEditor": "4.4.1",
+          "LimboConsole.Sharp": "0.0.1-beta-006"
         },
         "runtime": {
           "AbilityCoopRougelike.dll": {}
@@ -33,6 +34,17 @@
           "lib/net8.0/GodotSharpEditor.dll": {
             "assemblyVersion": "4.4.1.0",
             "fileVersion": "4.4.1.0"
+          }
+        }
+      },
+      "LimboConsole.Sharp/0.0.1-beta-006": {
+        "dependencies": {
+          "GodotSharp": "4.4.1"
+        },
+        "runtime": {
+          "lib/net8.0/Limbo.Console.Sharp.dll": {
+            "assemblyVersion": "0.0.1.0",
+            "fileVersion": "0.0.1.0"
           }
         }
       }
@@ -64,6 +76,13 @@
       "sha512": "sha512-cc3nA24r/sjW8KxrNqfSQk4CQMQYcg/kYk5935R88IhGBdRuTH4miaBXPlzR/td5GR8i1oGtCMWyW8axpQ0DxA==",
       "path": "godotsharpeditor/4.4.1",
       "hashPath": "godotsharpeditor.4.4.1.nupkg.sha512"
+    },
+    "LimboConsole.Sharp/0.0.1-beta-006": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-4fattz891QwbhyqknRPEZKxVMfNSm06yGVM1SUFyiuDAHf1sp8bImaWkNTfvDHlB3oDtmht+tB6p4Rge43MnwQ==",
+      "path": "limboconsole.sharp/0.0.1-beta-006",
+      "hashPath": "limboconsole.sharp.0.0.1-beta-006.nupkg.sha512"
     }
   }
 }

@@ -3,4 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="LimboConsole.Sharp" Version="0.0.1-beta-006" />
+  </ItemGroup>
 </Project>

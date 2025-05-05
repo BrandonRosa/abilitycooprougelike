@@ -16,3 +16,4 @@ D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\AbilityCo
 D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\AbilityCoopRougelike.genruntimeconfig.cache
 D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\ref\AbilityCoopRougelike.dll
 D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\obj\Debug\AbilityCoopRougelike.sourcelink.json
+D:\Documents\GodoGames\abilitycooprougelike\.godot\mono\temp\bin\Debug\Limbo.Console.Sharp.dll
