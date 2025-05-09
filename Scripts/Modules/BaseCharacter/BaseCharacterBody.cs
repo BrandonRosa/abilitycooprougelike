@@ -362,6 +362,11 @@ namespace BrannPack.Character
 
         public static event Action<HealthBar, HealthBehavior, float, float> AfterMaxHealthChange;
 
+        public HealthBehavior GetHealthBehavior(HealthType healthType)
+        {
+            return HealthList[healthType];
+        }
+
     }
 
 
@@ -425,6 +430,7 @@ namespace BrannPack.Character
         float HealingAmount;
         EffectivenessStat AdditionalHealingEfficiency = null;
         HealthCategories Catagory = HealthCategories.Health;
+        HealthType HealthType = default;
 
         public HealingInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
             float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCategories catagory = HealthCategories.Health)

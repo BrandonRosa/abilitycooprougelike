@@ -68,6 +68,12 @@ namespace BrannPack.ModifiableStats
         public abstract void SetUnsafeBase(ModifiableStat stat);
 
         public abstract void AddUnsafeCombinedStats(params ModifiableStat[] addStat);
+
+        public virtual float SetBaseValue(float baseValue)
+        {
+            BaseValue = baseValue;
+            return baseValue;
+        }
     }
     public abstract partial class ModifiableStat<T>: ModifiableStat where T:ModifiableStat<T>
     {
