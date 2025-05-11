@@ -104,7 +104,7 @@ namespace BrannPack.DevConsole
                             stat = ModifiableStats.Stat.MaxBarrier;
                             break;
                     }
-                    GD.Print("ADDED");
+                    GD.Print("ADDED",stat);
                     master.Stats.RecalculateByStatVariable(stat);
                     if (heal)
                     {

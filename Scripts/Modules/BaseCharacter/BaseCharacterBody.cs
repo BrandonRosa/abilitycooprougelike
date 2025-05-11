@@ -251,8 +251,8 @@ namespace BrannPack.Character
                 float overValue = behavior.GetOverValue();
                 float currentValue = behavior.GetCurrentValue();
 
-                if(currentValue+overValue<=0)
-                    continue;
+                //if(currentValue+overValue<=0)
+                //    continue;
 
                 HealthNumerator += behavior.CurrentValue;
 
@@ -291,7 +291,7 @@ namespace BrannPack.Character
                         break;
 
                 }
-                GD.Print(type, HealthNumerator);
+                GD.Print(type, currentValue,"+",overValue,"/",behavior.MaxValue.Total);
                 
             }
             UIInfo = temp;
@@ -337,7 +337,7 @@ namespace BrannPack.Character
         {
             BeforeHealthChange?.Invoke(this, changeInfo);
             if (changeInfo.Change == 0)
-                return (0f, changeInfo.Change);
+                return (0f, 0f);
 
 
 
@@ -355,9 +355,37 @@ namespace BrannPack.Character
 
         }
 
+        public static event Action<HealthBar, HealingInfo> BeforeHealing;
+        public static event Action<HealthBar, HealingInfo, (HealthType, float)[], float, float> AfterHealing;
         public float Heal(HealingInfo healingInfo, EventChain eventChain)
         {
-            return 0;
+            BeforeHealing?.Invoke(this, healingInfo);
+
+            float healingAmount = healingInfo.HealingAmount;
+            float leftoverHealing = healingAmount;
+            float totalHealingDone = 0f;
+            HealthChangeInfo changeInfo = new HealthChangeInfo(healingInfo.Source, healingInfo.Destination, healingInfo.Key,  healingInfo.HealingAmount, HealthType.Health, null);
+
+            List<(HealthType, float)> healingAmountByType = new List<(HealthType, float)>();
+            foreach (var type in HealthTypeOrder)
+            {
+                if (HealthTypeInfo[type].Category != healingInfo.Catagory)
+                    continue;
+                changeInfo.Change = leftoverHealing;
+                changeInfo.HealthType = type;
+                var result = ChangeHealth(changeInfo);
+                GD.Print("Result", result.change,result.leftOverChange);
+                totalHealingDone += result.change;
+                if (result.change != 0f)
+                    healingAmountByType.Add((type, result.change));
+
+                leftoverHealing = result.leftOverChange;
+                if (leftoverHealing <= 0f)
+                    break;
+            }
+            AfterHealing?.Invoke(this, healingInfo, healingAmountByType.ToArray(), totalHealingDone, leftoverHealing);
+            UpdateUIHealthInfo();
+            return totalHealingDone;
         }
 
         public static event Action<HealthBar, HealthBehavior, float, float> AfterMaxHealthChange;
@@ -427,10 +455,10 @@ namespace BrannPack.Character
 
     public class HealingInfo : EventInfo
     {
-        float HealingAmount;
-        EffectivenessStat AdditionalHealingEfficiency = null;
-        HealthCategories Catagory = HealthCategories.Health;
-        HealthType HealthType = default;
+        public float HealingAmount;
+        public EffectivenessStat AdditionalHealingEfficiency = null;
+        public HealthCategories Catagory = HealthCategories.Health;
+        public HealthType HealthType = default;
 
         public HealingInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
             float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCategories catagory = HealthCategories.Health)

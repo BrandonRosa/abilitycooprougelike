@@ -1408,7 +1408,7 @@ namespace BrannPack.ModifiableStats
             public event Action<float, float, float> AfterCurrentValueChange;
             public (float amountAdded,float overAdd) AddCurrentValue(HealthChangeInfo changeInfo)
             {
-                float mult = ObtainGain!=null? ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness):0;
+                float mult = ObtainGain!=null? ObtainGain.GetCombinedTotal(changeInfo.AdditionalChangeEffectiveness):1f;
                 float amountAdded = changeInfo.Change * mult;
                 float overAdd = Mathf.Max(0f, CurrentValue + amountAdded - MaxValue.CalculateTotal())/mult;
                 CurrentValue = MathF.Min(MaxValue.CalculateTotal(), amountAdded + CurrentValue);
@@ -1423,6 +1423,10 @@ namespace BrannPack.ModifiableStats
 
             public float GetOverValue()
             {
+                if(MaxValue.FollowingMaxHealth.Count==0)
+                {
+                    return 0f;
+                }
                 return MathF.Max(0, CurrentValue-MaxValue.FollowingMaxHealth.Sum(maxhealth => maxhealth.CalculateTotal()));
             }
         }

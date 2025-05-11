@@ -82,7 +82,7 @@ namespace BrannPack.UI
             {
                 float startx = var.startPosition * maxWidth / owner.HealthBar.CurrentMaxVisible;
                 float width = var.width * maxWidth / owner.HealthBar.CurrentMaxVisible;
-                if (width>0 && startx>=0)
+ 
                 ArrangeSegment((var.type, var.isOverHealth), startx ,width );
             }
         }
