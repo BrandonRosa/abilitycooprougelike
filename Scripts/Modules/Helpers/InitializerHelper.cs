@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BrannPack.AbilityHandling;
+using BrannPack.Character.Playable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +8,32 @@ using System.Threading.Tasks;
 
 namespace BrannPack.Helpers.Initializers
 {
-    class InitializerHelper
+    public static class InitializerHelper
     {
+        public static Action BeforeRegisterAll;
+        public static Action AfterRegisterAll;
+
+        public static Action BeforeRegisterAbilities;
+        public static Action AfterRegisterAbilities;
+
+        public static void RegisterAll()
+        {
+            BeforeRegisterAll?.Invoke();
+
+            RegisterAbilities();
+
+            AfterRegisterAll?.Invoke();
+        }
+
+        public static void RegisterAbilities()
+        {
+            BeforeRegisterAbilities?.Invoke();
+
+            Ability _ = new EmptyAbility();
+            _ = new ScoutShotGun();
+
+            AfterRegisterAbilities?.Invoke();
+        }
 
     }
 
