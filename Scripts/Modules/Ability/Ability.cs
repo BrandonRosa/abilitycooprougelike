@@ -35,10 +35,11 @@ namespace BrannPack.AbilityHandling
         {
             Owner = owner;
             AbilityInstance = Ability.AbilityRegistry.Get(abilityCodeName);
+            GD.Print("IS ABILITYNULL ",AbilityInstance == null);
             SlotType = slotType;
         }
 
-        public void Initialize()
+        public void SetAbilityStats()
         {
             var abilityDefaultStats = AbilityInstance.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
             ThisAbilityStats = abilityDefaultStats.ToGlobalStatsHolder<AbilitySlot>(this);
@@ -108,7 +109,7 @@ namespace BrannPack.AbilityHandling
     public abstract class Ability : IIndexable
     {
         protected static int NextIndex = 0;
-        public static Registry<Ability> AbilityRegistry = new Registry<Ability>();
+        public static Registry<Ability> AbilityRegistry = new Registry<Ability>(EmptyAbility.instance);
         public int Index { get; protected set; } = -1;
 
         public void SetIndex() { if (Index != -1) Index = NextIndex++; }

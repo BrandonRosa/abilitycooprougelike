@@ -61,6 +61,7 @@ namespace BrannPack.Character
         [Export] private float HealthScale;
         [Export] private float MoveSpeedScale;
         [Export] private float SizeScale;
+        [Export] private float MeleeDistance;
 
         [Export] public float StartingMoveSpeed;
         [Export] public float MoveSpeedMax;

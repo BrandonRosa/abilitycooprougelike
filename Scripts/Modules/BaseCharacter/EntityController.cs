@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace BrannPack.Character
 {
-    public abstract partial class EntityController: GodotObject
+    public abstract partial class EntityController: Node
     {
         public BaseCharacterBody OwnerBody;
-        public CharacterMaster Owner;
+        public CharacterMaster OwnerMaster;
 
         public abstract void UpdateInput();
 
@@ -32,22 +32,73 @@ namespace BrannPack.Character
             bool useUlt = Input.GetActionStrength("use_ult") > 0;
 
             if (usePrimary)
-                Owner.Primary.TryUseAbility(InputPressState.JustPressed);
+                OwnerMaster.Primary.TryUseAbility(InputPressState.JustPressed);
             if (useSecondary)
-                Owner.Secondary.TryUseAbility(InputPressState.JustPressed);
+                OwnerMaster.Secondary.TryUseAbility(InputPressState.JustPressed);
             if (useUtility)
-                Owner.Utility.TryUseAbility(InputPressState.JustPressed);
+                OwnerMaster.Utility.TryUseAbility(InputPressState.JustPressed);
             if (useSpecial)
-                Owner.Special.TryUseAbility(InputPressState.JustPressed);
+                OwnerMaster.Special.TryUseAbility(InputPressState.JustPressed);
             if (useUlt)
-                Owner.Ult.TryUseAbility(InputPressState.JustPressed);
+                OwnerMaster.Ult.TryUseAbility(InputPressState.JustPressed);
 
             OwnerBody.MoveDirection = inputDirection;
         }
     }
 
-    public abstract partial class AIController:EntityController
+    public partial class AIController:EntityController
     {
-        public abstract void ObtainTarget();
+        public NavigationAgent2D NavigationAgent2D;
+        public Node LimboHSM;
+        public float AggroRange = 10f;
+        public void ObtainTarget()
+        {
+
+        }
+
+        public bool TryUsePrimary()
+        {
+            return OwnerMaster.Primary.TryUseAbility(InputPressState.JustPressed);
+        }
+
+        public bool TryUseSecondary()
+        {
+            return OwnerMaster.Secondary.TryUseAbility(InputPressState.JustPressed);
+        }
+
+        public bool TryUseUtility()
+        {
+            return OwnerMaster.Utility.TryUseAbility(InputPressState.JustPressed);
+        }
+
+        public bool TryUseSpecial()
+        {
+            return OwnerMaster.Special.TryUseAbility(InputPressState.JustPressed);
+        }
+
+        public bool TryUseUlt()
+        {
+            return OwnerMaster.Ult.TryUseAbility(InputPressState.JustPressed);
+        }
+
+        public bool TryUseEquipment()
+        {
+            return OwnerMaster.Equipment.TryUseAbility(InputPressState.JustPressed);
+        }
+
+        public void MoveInNavDirection()
+        {
+            OwnerBody.MoveDirection = (NavigationAgent2D.GetNextPathPosition() - OwnerBody.GlobalPosition).Normalized();
+        }
+
+        public override void UpdateInput()
+        {
+            //AI logic to determine movement and ability usage
+            //For now, just move towards the player
+            if (LimboHSM != null)
+            {
+                
+            }
+        }
     }
 }

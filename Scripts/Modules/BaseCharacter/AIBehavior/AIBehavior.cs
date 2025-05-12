@@ -38,7 +38,7 @@ namespace BrannPack.AIBehavior
                 return;
             }
 
-            //float distanceToTarget = (currentTarget.GlobalPosition - Owner.GlobalPosition).Length();
+            //float distanceToTarget = (currentTarget.GlobalPosition - OwnerMaster.GlobalPosition).Length();
             //selectedAbility = GetUsableAbility(distanceToTarget);
             //UpdateState(selectedAbility, distanceToTarget);
             ActBasedOnState();
@@ -65,7 +65,7 @@ namespace BrannPack.AIBehavior
                     break;
                 case AIState.Attack:
                     //if (selectedAbility != null)
-                        //Owner.TryUseAbility(selectedAbility);
+                        //OwnerMaster.TryUseAbility(selectedAbility);
                     break;
                 default:
                     break;
@@ -93,7 +93,7 @@ namespace BrannPack.AIBehavior
     //    public BaseCharacterBody GetTarget(EnemyAI self, List<BaseCharacterBody> potentialTargets)
     //    {
     //        return potentialTargets
-    //            .OrderBy(t => (t.GlobalPosition - self.Owner.Body.GlobalPosition).LengthSquared())
+    //            .OrderBy(t => (t.GlobalPosition - self.OwnerMaster.Body.GlobalPosition).LengthSquared())
     //            .FirstOrDefault();
     //    }
     //}

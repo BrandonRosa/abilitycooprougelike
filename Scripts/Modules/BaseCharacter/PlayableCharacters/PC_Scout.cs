@@ -28,8 +28,8 @@ namespace BrannPack.Character.Playable
         protected ChargeStat Charges = new ChargeStat(2f);
 
         public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; }
-        public override string Name { get; protected set; }
-        public override string CodeName { get; protected set; }
+        public override string Name { get; protected set; } = "Shotgun";
+        public override string CodeName { get; protected set; } = "Scout_Shotgun";
         public override string Description { get; protected set; }
         public override string AdvancedDescription { get; protected set; }
 

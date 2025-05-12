@@ -8,6 +8,7 @@ namespace BrannPack.Helpers.Initializers
 {
     class InitializerHelper
     {
+
     }
 
     public interface IIndexable
@@ -22,11 +23,23 @@ namespace BrannPack.Helpers.Initializers
         private readonly Dictionary<string, T> _byCodeName = new();
         private readonly T _errorObject=default(T);
 
+        public Registry()
+        {
+            _byIndex = new Dictionary<int, T>();
+            _byCodeName = new Dictionary<string, T>();
+        }
+
+        public Registry(T ErrorObject):base()
+        {
+            _errorObject = ErrorObject;
+        }
+
         public void Register(T obj)
         {
             _byIndex[obj.Index] = obj;
             _byCodeName[obj.CodeName] = obj;
         }
+
 
         public T Get(int index)
         {

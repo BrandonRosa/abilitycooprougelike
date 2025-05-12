@@ -42,8 +42,8 @@ namespace BrannPack.Character
             AllMasters.Remove(this);
         }
 
-
-        [Export] public EntityController Controller;
+        //Keyboard is -1. Other controllers are 0,1,2,3
+        [Export] public int ControllerID;
 
         
 
@@ -55,8 +55,10 @@ namespace BrannPack.Character
         public HashSet<CharacterTeam> CanDamageTeams;
 
         [Export] public BaseCharacterBody Body;
+        [Export] public Marker2D SpawnPoint;
 
         private Dictionary<(ItemStackFilter, Stat), ModifiableStat> ItemStatModifiers;
+        public EntityController Controller;
 
         public Inventory Inventory;
         public bool UsingInventory;
@@ -104,15 +106,20 @@ namespace BrannPack.Character
 
             //Set the abilities to the body's starting abilities
             Primary = new AbilitySlot(this, Body.StartingPrimary, AbilitySlotType.Primary);
+            Primary.SetAbilityStats();
             Secondary = new AbilitySlot(this, Body.StartingSecondary, AbilitySlotType.Secondary);
+            Secondary.SetAbilityStats();
             Utility = new AbilitySlot(this, Body.StartingUtility, AbilitySlotType.Utility);
+            Utility.SetAbilityStats();
             Special = new AbilitySlot(this, Body.StartingSpecial, AbilitySlotType.Special);
+            Special.SetAbilityStats();
             Ult = new AbilitySlot(this, Body.StartingUlt, AbilitySlotType.Ult);
+            Ult.SetAbilityStats();
 
             Body.CharacterMaster = this;
 
-            Controller = IsPlayerControlled ? new LocalPlayerController() : null;
-            Controller.Owner = this;
+            Controller = IsPlayerControlled ? new LocalPlayerController() : new AIController();
+            Controller.OwnerMaster = this;
             Controller.OwnerBody = Body;
             Body.Controller = Controller;//Controller;
 
@@ -120,6 +127,11 @@ namespace BrannPack.Character
             FloatingHealthBar HB = new FloatingHealthBar();
             Body.AddChild(HB);
             HB.Owner = Body;
+
+            if(SpawnPoint != null)
+            {
+                Body.GlobalPosition = SpawnPoint.GlobalPosition;
+            }
         }
 
         public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;

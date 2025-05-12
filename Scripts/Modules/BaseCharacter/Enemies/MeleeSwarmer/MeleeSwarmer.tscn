@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://chhuno1soud41"]
+
+[ext_resource type="Script" uid="uid://dtmfarcnfd41l" path="res://Scripts/Modules/BaseCharacter/BaseCharacterBody.cs" id="1_7auw7"]
+
+[node name="BaseCharacterBody" type="CharacterBody2D"]
+script = ExtResource("1_7auw7")
+CharacterName = "MeleeSwarmer"
+Acceleration = 10.0
+Deceleration = 0.001
+StartingPrimary = "NONE"
+StartingSecondary = "NONE"
+StartingUtility = "NONE"
+StartingSpecial = "NONE"
+StartingUlt = "NONE"
+HealthScale = 1.0
+StartingMoveSpeed = 1.0
+MoveSpeedMax = 15.0
+StartingMaxHealth = 100.0
+metadata/_custom_type_script = "uid://dtmfarcnfd41l"
