@@ -1,6 +1,6 @@
 is_global = true
 build_property.GodotDisabledSourceGenerators = 
-build_property.GodotProjectDir = D:\DOCUMENTS\GODOGAMES\ABILITYCOOPROUGELIKE\
+build_property.GodotProjectDir = D:\Documents\GodoGames\abilitycooprougelike\
 build_property.GodotProjectDirBase64 = 
 build_property.GodotSourceGenerators = 
 build_property.IsGodotToolsProject = 
@@ -13,6 +13,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = AbilityCoopRougelike
-build_property.ProjectDir = D:\DOCUMENTS\GODOGAMES\ABILITYCOOPROUGELIKE\
+build_property.ProjectDir = D:\Documents\GodoGames\abilitycooprougelike\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
