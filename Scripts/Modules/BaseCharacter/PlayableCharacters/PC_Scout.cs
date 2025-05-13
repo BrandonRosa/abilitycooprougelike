@@ -21,13 +21,22 @@ namespace BrannPack.Character.Playable
     public class ScoutShotGun : Ability<ScoutShotGun>
     {
         private float BlastWidth = 15;
-        protected RangeStat BlastRange = new RangeStat(1.2f, 8f, .5f);
-        protected DamageStat Damage = new DamageStat(30, .9f);
-        protected CooldownStat Cooldown = new CooldownStat(14f);
-        protected CooldownStat SpamCooldown = new CooldownStat(.1f);
-        protected ChargeStat Charges = new ChargeStat(2f);
+        protected static RangeStat BlastRange = new RangeStat(1.2f, 8f, .5f);
+        protected static DamageStat Damage = new DamageStat(30, .9f);
+        protected static CooldownStat Cooldown = new CooldownStat(14f);
+        protected static CooldownStat SpamCooldown = new CooldownStat(.1f);
+        protected static ChargeStat Charges = new ChargeStat(2f);
 
-        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; }
+        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
+            {
+                { Stat.Range, BlastRange },
+                { Stat.Damage, Damage },
+                { Stat.Cooldown, Cooldown },
+                { Stat.Charges, Charges },
+                {Stat.SpamCooldown, SpamCooldown },
+            },
+           new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>()) {
+        };
         public override string Name { get; protected set; } = "Shotgun";
         public override string CodeName { get; protected set; } = "Scout_Shotgun";
         public override string Description { get; protected set; }
@@ -41,6 +50,7 @@ namespace BrannPack.Character.Playable
 
         public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, EventChain eventChain = null)
         {
+            GD.Print("SHOTGUN");
             float range=BlastRange.GetCombinedTotal(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
             float damage = Damage.GetCombinedTotal(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
             List<BaseCharacterBody> charactersInBlast=AttackHelper.GetCharactersInShotgunBlast(master.Body, master.Body.GetGlobalTransform(), master.Body.AttackDirection.Angle(), BlastWidth, range, 5);

@@ -104,12 +104,13 @@ namespace BrannPack.AbilityHandling
             instance = this as T;
             instance.SetIndex();
             Ability.AbilityRegistry.Register(instance);
+            GD.Print("INSTANCED", instance.Name);
         }
     }
     public abstract class Ability : IIndexable
     {
         protected static int NextIndex = 0;
-        public static Registry<Ability> AbilityRegistry = new Registry<Ability>(EmptyAbility.instance);
+        public static Registry<Ability> AbilityRegistry = new Registry<Ability>();
         public int Index { get; protected set; } = -1;
 
         public void SetIndex() { if (Index != -1) Index = NextIndex++; }
@@ -138,7 +139,7 @@ namespace BrannPack.AbilityHandling
 
     public class EmptyAbility : Ability<EmptyAbility>
     {
-        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>(),new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>());
+        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>() { { Stat.Cooldown,new CooldownStat(.1f)} },new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>());
         public override string Name { get; protected set; } = "None";
         public override string CodeName { get; protected set; } = "NONE";
         public override string Description { get; protected set; } = "";

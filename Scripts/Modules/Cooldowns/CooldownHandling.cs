@@ -133,7 +133,7 @@ namespace BrannPack.CooldownHandling
         public ModifiableStats.AbilityStats.ChargeStat TrackedMaxCharges;
         public ModifiableStats.AbilityStats.CooldownStat TrackedCooldown;
 
-        public ChargedCooldown(ModifiableStats.AbilityStats.CooldownStat cooldownStat, ModifiableStats.AbilityStats.ChargeStat chargeStat, Action<Cooldown> onComplete = null) : base(cooldownStat.CalculateTotal(), false, onComplete)
+        public ChargedCooldown(ModifiableStats.AbilityStats.CooldownStat cooldownStat, ModifiableStats.AbilityStats.ChargeStat chargeStat, Action<Cooldown> onComplete = null) : base(cooldownStat?.CalculateTotal() ?? .1f, false, onComplete)
         {
             TrackedMaxCharges = chargeStat;
             TrackedCooldown = cooldownStat;
