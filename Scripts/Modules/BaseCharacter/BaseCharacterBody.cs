@@ -56,6 +56,7 @@ namespace BrannPack.Character
         [Export] public string StartingUtility;
         [Export] public string StartingSpecial;
         [Export] public string StartingUlt;
+        [Export] public string StartingEquipment;
 
         [Export] private float AbilityScale;
         [Export] private float HealthScale;

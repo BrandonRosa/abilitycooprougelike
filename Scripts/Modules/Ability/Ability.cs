@@ -122,6 +122,8 @@ namespace BrannPack.AbilityHandling
 
         public abstract string AdvancedDescription { get; protected set; }
 
+        public virtual Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/none.png");
+
         private bool CanCharge;
         private bool IsInfiniteUse;
         private bool IsMultiPrompt;
@@ -208,7 +210,7 @@ namespace BrannPack.AbilityHandling
 
     public enum AbilitySlotType
     {
-        Primary,Secondary,Utility,Special,Ult
+        Primary,Secondary,Utility,Special,Ult, Equipment
     }
 
     public enum AbilityStat

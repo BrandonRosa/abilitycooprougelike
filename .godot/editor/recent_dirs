@@ -1,3 +1,5 @@
+res://Assets/PermanentAssets/UI
+res://Assets/PlaceholderAssets/AbilityIcons
 res://Scripts/Modules/Helpers
 res://Scripts/Modules/BaseCharacter/Enemies/MeleeSwarmer
 res://Scripts/Modules/BaseCharacter/PlayableCharacters/Scout

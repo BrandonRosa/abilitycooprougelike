@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AbilityCoopRougelike.Scripts.Modules.Helpers
+namespace BrannPack.Helpers
 {
     using BrannPack.Helpers.Initializers;
     using Godot;

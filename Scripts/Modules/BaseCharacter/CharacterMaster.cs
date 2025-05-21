@@ -49,7 +49,7 @@ namespace BrannPack.Character
 
         [Export] public string[] StartingItems;
 
-        [Export] private bool IsPlayerControlled;
+        [Export] public bool IsPlayerControlled;
         [Export] public CharacterTeam Team;
         //[Export] public CharacterTeam[] InitialCanDamageTeams;
         public HashSet<CharacterTeam> CanDamageTeams;
@@ -115,6 +115,8 @@ namespace BrannPack.Character
             Special.SetAbilityStats();
             Ult = new AbilitySlot(this, Body.StartingUlt, AbilitySlotType.Ult);
             Ult.SetAbilityStats();
+            Equipment = new AbilitySlot(this, Body.StartingEquipment, AbilitySlotType.Equipment);
+            Equipment.SetAbilityStats();
 
             Body.CharacterMaster = this;
 

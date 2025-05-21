@@ -1,3 +1,9 @@
+Control
+UIManager
+Container
+HBoxContainer
+BigAbilityIcon
+FixedPlayerInfoBar
 LimboState
 LimboHSM
 Marker2D

@@ -1,0 +1,94 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3fkbbth4d1o2"]
+
+[ext_resource type="Script" uid="uid://cuchtabrfx8rg" path="res://Scripts/Modules/UI/FixedPlayerInfoBar.cs" id="1_e7eo5"]
+[ext_resource type="Script" uid="uid://djugjasmlylh0" path="res://Scripts/Modules/UI/BigAbilityIcon.cs" id="2_b2780"]
+
+[node name="HBoxContainer" type="HBoxContainer"]
+clip_contents = true
+anchors_preset = -1
+anchor_right = 0.998
+anchor_bottom = 1.007
+offset_top = 513.0
+offset_right = 2.30396
+offset_bottom = -4.53607
+alignment = 1
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 2
+
+[node name="FixedPlayerInfoBar" type="Control" parent="Control" node_paths=PackedStringArray("AbilityIcons")]
+auto_translate_mode = 2
+layout_mode = 2
+anchors_preset = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -133.0
+offset_right = 190.0
+offset_bottom = 1.0
+script = ExtResource("1_e7eo5")
+AbilityIcons = [NodePath("AbilityIcon0"), NodePath("AbilityIcon1"), NodePath("AbilityIcon2"), NodePath("AbilityIcon3"), NodePath("AbilityIcon4"), NodePath("AbilityIcon5")]
+metadata/_custom_type_script = "uid://cuchtabrfx8rg"
+
+[node name="AbilityIcon0" type="Control" parent="Control/FixedPlayerInfoBar"]
+layout_mode = 1
+anchor_left = -0.079
+anchor_top = -0.048
+anchor_right = -0.079
+anchor_bottom = -0.048
+offset_left = 30.02
+offset_top = 5.968
+offset_right = 70.02
+offset_bottom = 45.968
+script = ExtResource("2_b2780")
+metadata/_custom_type_script = "uid://djugjasmlylh0"
+
+[node name="AbilityIcon1" type="Control" parent="Control/FixedPlayerInfoBar"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 63.0
+offset_top = -4.0
+offset_right = 103.0
+offset_bottom = 36.0
+script = ExtResource("2_b2780")
+metadata/_custom_type_script = "uid://djugjasmlylh0"
+
+[node name="AbilityIcon2" type="Control" parent="Control/FixedPlayerInfoBar"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 127.0
+offset_top = -3.0
+offset_right = 167.0
+offset_bottom = 37.0
+script = ExtResource("2_b2780")
+metadata/_custom_type_script = "uid://djugjasmlylh0"
+
+[node name="AbilityIcon3" type="Control" parent="Control/FixedPlayerInfoBar"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 215.0
+offset_top = -6.0
+offset_right = 255.0
+offset_bottom = 34.0
+script = ExtResource("2_b2780")
+metadata/_custom_type_script = "uid://djugjasmlylh0"
+
+[node name="AbilityIcon4" type="Control" parent="Control/FixedPlayerInfoBar"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 279.0
+offset_top = -4.0
+offset_right = 319.0
+offset_bottom = 36.0
+script = ExtResource("2_b2780")
+metadata/_custom_type_script = "uid://djugjasmlylh0"
+
+[node name="AbilityIcon5" type="Control" parent="Control/FixedPlayerInfoBar"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 343.0
+offset_top = -3.0
+offset_right = 383.0
+offset_bottom = 37.0
+script = ExtResource("2_b2780")
+metadata/_custom_type_script = "uid://djugjasmlylh0"

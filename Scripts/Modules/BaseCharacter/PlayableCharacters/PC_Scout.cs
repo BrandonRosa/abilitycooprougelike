@@ -41,6 +41,7 @@ namespace BrannPack.Character.Playable
         public override string CodeName { get; protected set; } = "Scout_Shotgun";
         public override string Description { get; protected set; }
         public override string AdvancedDescription { get; protected set; }
+        public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
 
         //public AbilityUpgrade SSG_U1_Cooldown=
         public override BaseCharacterBody UpdateTarget()

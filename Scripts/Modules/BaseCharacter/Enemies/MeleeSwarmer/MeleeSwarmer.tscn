@@ -12,6 +12,7 @@ StartingSecondary = "NONE"
 StartingUtility = "NONE"
 StartingSpecial = "NONE"
 StartingUlt = "NONE"
+StartingEquipment = "NONE"
 HealthScale = 1.0
 StartingMoveSpeed = 1.0
 MoveSpeedMax = 15.0
