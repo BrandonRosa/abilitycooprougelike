@@ -35,7 +35,6 @@ namespace BrannPack.AbilityHandling
         {
             Owner = owner;
             AbilityInstance = Ability.AbilityRegistry.Get(abilityCodeName);
-            GD.Print("IS ABILITYNULL ",AbilityInstance == null);
             SlotType = slotType;
         }
 
@@ -47,6 +46,7 @@ namespace BrannPack.AbilityHandling
             var cooldown = ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown);
             var charges = ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges);
             CCooldown = new ChargedCooldown(cooldown, charges);
+            Owner.Body.CooldownHandler.AddCooldown((-1, -1, (int)SlotType), CCooldown);
             
         }
 

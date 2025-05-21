@@ -10,7 +10,7 @@ using System.Timers;
 
 namespace BrannPack.CooldownHandling
 {
-    public class CooldownHandler
+    public partial class CooldownHandler: Node
     {
         // Second int: Index of the item/ability/status effect (from IIndexable).
         // Third int: Cooldown instance (for multiple cooldowns per item).
@@ -39,9 +39,29 @@ namespace BrannPack.CooldownHandling
             return cooldown;
         }
 
+        public Cooldown AddCooldown((int indexType, int sourceIndex, int cooldownSource) key, Cooldown cooldown)
+        {
+            if (!Cooldowns.TryGetValue(key, out var existingCooldown))
+            {
+                Cooldowns[key] = cooldown;
+                return cooldown;
+            }
+            else
+            {
+                existingCooldown.Duration += cooldown.Duration;
+                //if(cooldown.CompletedCooldown)
+                return existingCooldown;
+            }
+        }
+
         public void SetCooldown((int indexType, int sourceIndex, int cooldownSource) key, float duration, bool removeFromHandlerOnCompletion = false)
         {  
                 Cooldowns[key] = new Cooldown(duration, removeFromHandlerOnCompletion);
+        }
+
+        public void SetCooldown((int indexType, int sourceIndex, int cooldownSource) key, Cooldown cooldown)
+        {
+            Cooldowns[key] = cooldown;
         }
 
         /// <summary>
@@ -84,6 +104,12 @@ namespace BrannPack.CooldownHandling
 
             foreach (var key in toRemove)
                 Cooldowns.Remove(key);
+        }
+
+        public override void _Process(double delta)
+        {
+            base._Process(delta);
+            UpdateCooldowns((float)delta);
         }
     }
 
@@ -161,13 +187,14 @@ namespace BrannPack.CooldownHandling
             base.Update(deltaTime);
             if (IsExpired)
                 CurrentCharges++;
-            if (PartialCharges >= TrackedMaxCharges.CalculateTotal())
+            if (PartialCharges >= (TrackedMaxCharges?.CalculateTotal()??1))
             {
                 IsPaused = true;
             }
             else
             {
-                Reset();
+                
+                //Reset();
             }
         }
 

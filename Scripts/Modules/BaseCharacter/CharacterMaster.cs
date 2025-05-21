@@ -126,9 +126,9 @@ namespace BrannPack.Character
             Body.Controller = Controller;//Controller;
 
             //Set floating healthbar
-            FloatingHealthBar HB = new FloatingHealthBar();
-            Body.AddChild(HB);
-            HB.Owner = Body;
+            //FloatingHealthBar HB = new FloatingHealthBar();
+            //Body.AddChild(HB);
+            //HB.Owner = Body;
 
             if(SpawnPoint != null)
             {

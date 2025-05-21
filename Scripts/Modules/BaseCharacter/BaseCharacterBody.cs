@@ -6,6 +6,7 @@ using static BrannPack.ModifiableStats.CharacterStats;
 using static BrannPack.ModifiableStats.AbilityStats;
 using BrannPack.ModifiableStats;
 using BrannPack.UI;
+using BrannPack.CooldownHandling;
 
 
 
@@ -78,6 +79,47 @@ namespace BrannPack.Character
 
         [Export] public AnimatedSprite2D AnimSprite;
 
+        private CooldownHandler _cooldownHandler;
+
+        public CooldownHandler CooldownHandler 
+        { 
+            get
+            {
+                if (_cooldownHandler == null)
+                {
+                    _cooldownHandler = new CooldownHandler();
+                    this.AddChild(_cooldownHandler);
+                }
+                return _cooldownHandler;
+            }
+
+            set
+            {
+                _cooldownHandler = value;
+            }
+        }
+
+        private FloatingHealthBar _floatingHealthbar;
+
+        public FloatingHealthBar FloatingHealthBar
+        {
+            get
+            {
+                if (_floatingHealthbar == null)
+                {
+                    _floatingHealthbar = new FloatingHealthBar();
+                    
+                    this.AddChild(_floatingHealthbar);
+                    _floatingHealthbar.Owner = this;
+                }
+                return _floatingHealthbar;
+            }
+            set
+            {
+                _floatingHealthbar = value;
+            }
+        }
+
         public StatsHolder StartingStats;
 
 
@@ -104,6 +146,11 @@ namespace BrannPack.Character
         public void Move(Vector2 direction)
         {
 
+        }
+
+        public void AddCooldown((int indexType,int souceIndex,int cooldownSource) key,Cooldown cooldown)
+        {
+            CooldownHandler.AddCooldown(key,cooldown);
         }
         public override void _PhysicsProcess(double delta)
         {
@@ -165,7 +212,7 @@ namespace BrannPack.Character
             {
                 CharacterMaster.Controller.UpdateInput();
                 HealthBar.UpdateUIHealthInfo();
-                GetChild<FloatingHealthBar>(1).UpdateHealthBar();
+               FloatingHealthBar.UpdateHealthBar();
             }
         }
 
