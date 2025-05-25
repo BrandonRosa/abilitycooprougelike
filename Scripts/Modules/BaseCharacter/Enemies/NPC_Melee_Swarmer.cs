@@ -46,7 +46,7 @@ namespace BrannPack.Character.NonPlayable
             return null;
         }
 
-        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, EventChain eventChain = default)
+        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo=null, EventChain eventChain=null)
         {
             //an attack that takes 1/FireRate second to wind up (Add a cooldown to the character) and start the attack animation fot the character
             // Once that cooldown is completed, create a Collison box/capsule (with width X(left-right) and length(Front-back) of Y) directly infront of the front facing direction of the character master.
@@ -63,7 +63,7 @@ namespace BrannPack.Character.NonPlayable
 
             AttackInfo attackInfo = new AttackInfo(master, null, (1, instance.Index, 0), false, stats);
 
-            master.BeforeAttack(attackInfo, eventChain);
+            master.BeforeAttack(attackInfo, null);
             float damage = stats.GetStatByVariable<DamageStat>(Stat.Damage)?.CalculateTotal() ?? 10f;
             float critChance = stats.GetStatByVariable<ChanceStat>(Stat.CritChance)?.CalculateTotal() ?? 0f;
             float goodLuck = stats.GetStatByVariable<ChanceStat>(Stat.Luck)?.CalculateTotal() ?? 0f;

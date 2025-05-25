@@ -53,7 +53,7 @@ namespace BrannPack.DevConsole
                 {
                     if (additionalHealth.TryGetValue((master, healthType.Value), out float additional))
                     {
-                        GD.Print("TEST");
+                        
                         ((MaxHealthStat)modstat).AdditionalMaxHealth+= additional;
                         ((MaxHealthStat)modstat).CalculateTotal();
                     }
@@ -104,12 +104,12 @@ namespace BrannPack.DevConsole
                             stat = ModifiableStats.Stat.MaxBarrier;
                             break;
                     }
-                    GD.Print("ADDED",stat);
+                    
                     master.Stats.RecalculateByStatVariable(stat);
                     if (heal)
                     {
                         Enum.TryParse(healthTypeString, out HealthCategories hc);
-                        GD.Print(hc,master.Stats.GetStatByVariable<MaxHealthStat>(stat).BaseValue);
+                        
                         master.HealthBar.Heal(new HealingInfo(master,master,(-1,1,1),amount,null,hc),null);
                     }
 

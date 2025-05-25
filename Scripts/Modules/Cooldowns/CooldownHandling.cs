@@ -184,17 +184,21 @@ namespace BrannPack.CooldownHandling
 
         public override void Update(float deltaTime)
         {
+
             base.Update(deltaTime);
-            if (IsExpired)
-                CurrentCharges++;
-            if (PartialCharges >= (TrackedMaxCharges?.CalculateTotal()??1))
-            {
-                IsPaused = true;
-            }
-            else
+            if (IsExpired && !IsPaused)
             {
                 
-                //Reset();
+                if (PartialCharges >= (TrackedMaxCharges?.CalculateTotal() ?? 1))
+                {
+                    CurrentCharges++;
+                    IsPaused = true;
+                }
+                else
+                {
+                    CurrentCharges++;
+                    Reset();
+                }
             }
         }
 
@@ -203,6 +207,7 @@ namespace BrannPack.CooldownHandling
             if (CurrentCharges <= 0f)
                 return false;
             CurrentCharges--;
+            IsPaused = false;
             
             return true;
         }
