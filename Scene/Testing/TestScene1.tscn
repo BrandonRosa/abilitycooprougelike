@@ -32,9 +32,20 @@ metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
 [node name="Marker2D" type="Marker2D" parent="Swarmer"]
 position = Vector2(804, 326)
 
+[node name="Swarmer2" type="Node" parent="." node_paths=PackedStringArray("SpawnPoint")]
+script = ExtResource("1_a8jus")
+BodyScene = ExtResource("4_o3401")
+Team = 1
+SpawnPoint = NodePath("Marker2D")
+metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
+
+[node name="Marker2D" type="Marker2D" parent="Swarmer2"]
+position = Vector2(804, 383)
+scale = Vector2(1, 1.32)
+
 [node name="UIManager" type="Node" parent="."]
 script = ExtResource("5_rhc0e")
 metadata/_custom_type_script = "uid://ds4d8yqhwk8kh"
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(573, 321)
+position = Vector2(575, 324)

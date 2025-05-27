@@ -1,4 +1,5 @@
-﻿using BrannPack.Character;
+using BrannPack.Character;
+using BrannPack.Debugging;
 using Godot;
 using Godot.Collections;
 using System;
@@ -12,166 +13,182 @@ using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.Helpers.Attacks
 {
-    public static class AttackHelper
-    {
-        public static List<BaseCharacterBody> GetCharactersInHitscan(BaseCharacterBody characterBody, Vector2 pointA, Vector2 pointB , int maxHit=int.MaxValue,bool respectTerrain = true)
-        {
-            List<BaseCharacterBody> hitCharacters = new List<BaseCharacterBody>();
+	public static class AttackHelper
+	{
+		public static List<BaseCharacterBody> GetCharactersInHitscan(BaseCharacterBody characterBody, Vector2 pointA, Vector2 pointB , int maxHit=int.MaxValue,bool respectTerrain = true)
+		{
+			List<BaseCharacterBody> hitCharacters = new List<BaseCharacterBody>();
 
-            // Create the raycast
-            var spaceState = characterBody.GetWorld2D().DirectSpaceState;
-            var query = new PhysicsRayQueryParameters2D
-            {
-                // Set the ray start and end points
-                From = pointA,
-                To = pointB,
-                Exclude = { characterBody.GetRid() },
-                // Optionally, filter what should be checked (e.g., Ignore terrain layers if respectTerrain is true)
-                CollisionMask = respectTerrain ? ~(1u << 0) : 0xFFFFFFFF// 0 assumes terrain is on layer 0 (you can modify based on your setup)
-            };
+			// Create the raycast
+			var spaceState = characterBody.GetWorld2D().DirectSpaceState;
+			var query = new PhysicsRayQueryParameters2D
+			{
+				// Set the ray start and end points
+				From = pointA,
+				To = pointB,
+				Exclude = { characterBody.GetRid() },
+				// Optionally, filter what should be checked (e.g., Ignore terrain layers if respectTerrain is true)
+				CollisionMask = respectTerrain ? ~(1u << 0) : 0xFFFFFFFF// 0 assumes terrain is on layer 0 (you can modify based on your setup)
+			};
 
-            // Perform the raycast
-            Dictionary result = spaceState.IntersectRay(query);
+			// Perform the raycast
+			Dictionary result = spaceState.IntersectRay(query);
 
-            // Check if the ray hits a valid object
-            for (int i=0; result.Count>0 && i<maxHit;i++)
-            {
-                // Check if the hit object is a BaseCharacter
-                if (result["collider"].Obj is BaseCharacterBody character)
-                {
-                    hitCharacters.Add(character);
-                    query.Exclude.Add(character.GetRid());
-                }
+			// Check if the ray hits a valid object
+			for (int i=0; result.Count>0 && i<maxHit;i++)
+			{
+				// Check if the hit object is a BaseCharacter
+				if (result["collider"].Obj is BaseCharacterBody character)
+				{
+					hitCharacters.Add(character);
+					query.Exclude.Add(character.GetRid());
+				}
 
-                // If respecting terrain, stop when it hits terrain
-                if (result["collider"].Obj is StaticBody2D)
-                {
-                    break; // Stop when hitting terrain
-                }
+				// If respecting terrain, stop when it hits terrain
+				if (result["collider"].Obj is StaticBody2D)
+				{
+					break; // Stop when hitting terrain
+				}
 
-                // Proceed to the next collision point
-                result = spaceState.IntersectRay(query);
-            }
+				// Proceed to the next collision point
+				result = spaceState.IntersectRay(query);
+			}
 
-            return hitCharacters;
-        }
+			return hitCharacters;
+		}
 
-        public static List<BaseCharacterBody> GetCharactersInShotgunBlast(
-            BaseCharacterBody characterBody, Transform2D origin, float facingAngle,
-            float sweepRadius, float sweepDepth, int checks, bool respectTerrain = true)
-        {
-            HashSet<BaseCharacterBody> hitCharacters = new HashSet<BaseCharacterBody>();
-            var spaceState = characterBody.GetWorld2D().DirectSpaceState;
+		public static List<BaseCharacterBody> GetCharactersInShotgunBlast(
+			BaseCharacterBody characterBody, Transform2D origin, float facingAngle,
+			float sweepRadius, float sweepDepth, int checks, bool respectTerrain = true, bool debug=true)
+		{
+			HashSet<BaseCharacterBody> hitCharacters = new HashSet<BaseCharacterBody>();
+			var spaceState = characterBody.GetWorld2D().DirectSpaceState;
 
-            float stepAngle = sweepRadius / (checks - 1); // Step size for each iteration
+			float stepAngle = sweepRadius / (checks - 1); // Step size for each iteration
 
-            // Create the raycast
-            var query = new PhysicsRayQueryParameters2D
-            {
-                // Set the ray start and end points
-                From = origin.Origin,
-                To = Vector2.Zero,
-                Exclude = { characterBody.GetRid() },
-                // Optionally, filter what should be checked (e.g., Ignore terrain layers if respectTerrain is true)
-                CollisionMask = respectTerrain ? ~(1u << 0) : 0xFFFFFFFF// 0 assumes terrain is on layer 0 (you can modify based on your setup)
-            };
+			// Create the raycast
+			var query = new PhysicsRayQueryParameters2D
+			{
+				// Set the ray start and end points
+				From = origin.Origin,
+				To = Vector2.Zero,
+				
+			};
 
-            for (int i = 0; i < checks; i++)
-            {
-                float currentAngle = facingAngle - (sweepRadius / 2) + stepAngle * i; // Calculate angle
-                Vector2 direction = new Vector2(1, 0).Rotated(Mathf.DegToRad(currentAngle)); // Rotate the unit vector
-                Vector2 pointB = query.From + direction * sweepDepth; // End position based on depth
+			for (int i = 0; i < checks; i++)
+			{
+				float currentAngle = facingAngle - (sweepRadius / 2) + stepAngle * i; // Calculate angle
+				Vector2 direction = characterBody.AimDirection.Rotated(Mathf.DegToRad(currentAngle)); // Rotate the unit vector
+				Vector2 pointB = query.From + direction * sweepDepth; // End position based on depth
+				GD.Print(origin.Origin + " " + pointB);
+				// Perform raycast
 
-                // Perform raycast
+				query = new PhysicsRayQueryParameters2D
+				{
+					// Set the ray start and end points
+					From = origin.Origin,
+					To = pointB,
 
-                query.To = pointB;
+				};
 
-                var result = spaceState.IntersectRay(query);
+				var result = spaceState.IntersectRay(query);
 
-                // Process hits
-                if (result.Count > 0)
-                {
-                    if (result["collider"].Obj is BaseCharacterBody charBody) // Avoid self-hit
-                    {
-                        hitCharacters.Add(charBody);
-                    }
+				if (debug)
+				{
+					// Draw the line for 0.5s using debug draw
+					var DBL = new DebugLine();
+					DBL.Initialize(origin.Origin, pointB, Colors.Red, 2, .5f);
+					characterBody.GetTree().Root.AddChild(DBL); // Absolute root of the scene tree
 
-                    // Stop at terrain if enabled
-                    if (result["collider"].Obj is StaticBody2D)
-                    {
-                        continue; // Skip further processing if terrain blocks the ray
-                    }
-                }
-            }
+				}
 
-            return hitCharacters.ToList();
-        }
+				// Process hits
+				if (result.Count>0)
+				{
+					GD.Print("COUNT " + result.Count);
+					if (result["collider"].Obj is BaseCharacterBody charBody) // Avoid self-hit
+					{
+						hitCharacters.Add(charBody);
+						GD.Print("ADDED");
+					}
 
-        public static List<BaseCharacterBody> GetCharactersInRotatedBox(BaseCharacterBody characterBody, Vector2 center, float width, float length, float rotationAngle)
-        {
-            PhysicsDirectSpaceState2D spaceState = characterBody.GetWorld2D().DirectSpaceState;
+					// Stop at terrain if enabled
+					if (result["collider"].Obj is StaticBody2D)
+					{
+						GD.Print("STOPPED");
+						continue; // Skip further processing if terrain blocks the ray
+					}
+				}
+			}
 
-            RectangleShape2D hitbox = new RectangleShape2D();
+			return hitCharacters.ToList();
+		}
 
-            hitbox.Size = new Vector2(width / 2, length / 2); // Half-size
+		public static List<BaseCharacterBody> GetCharactersInRotatedBox(BaseCharacterBody characterBody, Vector2 center, float width, float length, float rotationAngle)
+		{
+			PhysicsDirectSpaceState2D spaceState = characterBody.GetWorld2D().DirectSpaceState;
+
+			RectangleShape2D hitbox = new RectangleShape2D();
+
+			hitbox.Size = new Vector2(width / 2, length / 2); // Half-size
 
 
-            PhysicsShapeQueryParameters2D query = new()
-            {
-                Transform = new Transform2D(rotationAngle, center), // Apply rotation
-                Shape = hitbox,
-                CollideWithBodies = true,
-                CollideWithAreas = false
-            };
+			PhysicsShapeQueryParameters2D query = new()
+			{
+				Transform = new Transform2D(rotationAngle, center), // Apply rotation
+				Shape = hitbox,
+				CollideWithBodies = true,
+				CollideWithAreas = false
+			};
 
-            var results = spaceState.IntersectShape(query);
+			var results = spaceState.IntersectShape(query);
 
-            List<BaseCharacterBody> hitTargets = new();
-            foreach (var result in results)
-            {
-                if (result["collider"].Obj is BaseCharacterBody charBody)
-                {
-                   hitTargets.Add(charBody);
-                }
-            }
+			List<BaseCharacterBody> hitTargets = new();
+			foreach (var result in results)
+			{
+				if (result["collider"].Obj is BaseCharacterBody charBody)
+				{
+				   hitTargets.Add(charBody);
+				}
+			}
 
-            return hitTargets;
-        }
+			return hitTargets;
+		}
 
-        public static (bool IsSuccess, int SuccessfulRolls, int LuckUsed, int BadLuckUsed) RollWithProcAndLucks(float chance,float procChance, float luck, float badLuck)
-        {
-            int rerolls = (int)Mathf.Floor(luck) +(Roll(luck% 1f)?1:0);
-            int badReroll = (int)Mathf.Floor(badLuck) + (Roll(badLuck % 1f) ? 1 : 0);
-            int successRolls = (int)Mathf.Floor(chance* procChance);
-            float percent = (chance* procChance)%1f;
+		public static (bool IsSuccess, int SuccessfulRolls, int LuckUsed, int BadLuckUsed) RollWithProcAndLucks(float chance,float procChance, float luck, float badLuck)
+		{
+			int rerolls = (int)Mathf.Floor(luck) +(Roll(luck% 1f)?1:0);
+			int badReroll = (int)Mathf.Floor(badLuck) + (Roll(badLuck % 1f) ? 1 : 0);
+			int successRolls = (int)Mathf.Floor(chance* procChance);
+			float percent = (chance* procChance)%1f;
 
-            bool success = false;
-            var rglbl = RollGoodLuckBadLuck(percent,rerolls,badReroll);
-            successRolls += (rglbl.Success ? 1 : 0);
-            if (successRolls> 0)
-                success = true;
-            return (success, successRolls,rerolls-rglbl.GoodLuckLeft,badReroll-rglbl.BadLuckLeft);
-        }
-        private static (bool Success,int GoodLuckLeft, int BadLuckLeft) RollGoodLuckBadLuck(float chance, int goodLuckLeft, int badLuckLeft)
-        {
-            if (Roll(chance))
-            {
-                if (0 < badLuckLeft)
-                    return RollGoodLuckBadLuck(chance, goodLuckLeft, badLuckLeft - 1);
-                else
-                    return (true, goodLuckLeft, badLuckLeft);
-            }
-            else
-            {
-                if (0 < goodLuckLeft)
-                    return RollGoodLuckBadLuck(chance, goodLuckLeft - 1, badLuckLeft);
-                else
-                    return (false, goodLuckLeft, badLuckLeft);
-            }
-        }
-        private static bool Roll(float chance)
-        {
-            return GD.Randf() < chance; // GD.Randf() generates a float between 0 and 1
-        }
-    }
+			bool success = false;
+			var rglbl = RollGoodLuckBadLuck(percent,rerolls,badReroll);
+			successRolls += (rglbl.Success ? 1 : 0);
+			if (successRolls> 0)
+				success = true;
+			return (success, successRolls,rerolls-rglbl.GoodLuckLeft,badReroll-rglbl.BadLuckLeft);
+		}
+		private static (bool Success,int GoodLuckLeft, int BadLuckLeft) RollGoodLuckBadLuck(float chance, int goodLuckLeft, int badLuckLeft)
+		{
+			if (Roll(chance))
+			{
+				if (0 < badLuckLeft)
+					return RollGoodLuckBadLuck(chance, goodLuckLeft, badLuckLeft - 1);
+				else
+					return (true, goodLuckLeft, badLuckLeft);
+			}
+			else
+			{
+				if (0 < goodLuckLeft)
+					return RollGoodLuckBadLuck(chance, goodLuckLeft - 1, badLuckLeft);
+				else
+					return (false, goodLuckLeft, badLuckLeft);
+			}
+		}
+		private static bool Roll(float chance)
+		{
+			return GD.Randf() < chance; // GD.Randf() generates a float between 0 and 1
+		}
+	}
 }

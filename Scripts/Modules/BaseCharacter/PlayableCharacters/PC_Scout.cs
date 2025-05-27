@@ -19,12 +19,44 @@ namespace BrannPack.Character.Playable
 		//public static PackedScene Prefab { get; set; } = (PackedScene)ResourceLoader.Load("res://path_to_prefab.tscn");
 	}
 
-	public class ScoutShotGun : Ability<ScoutShotGun>
+	public class DualPistols: Ability<DualPistols>
+	{
+		protected static RangeStat BulletRange = new RangeStat(400f, 600f, 250f);
+		protected static DamageStat Damage = new DamageStat(1f, .5f);
+		protected static FireRateStat FireRate = new FireRateStat(2.75f);
+
+		public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
+		{
+			{ Stat.Range, BulletRange},
+			{Stat.Damage, Damage },
+			{Stat.FireRate, FireRate }
+		},
+			new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
+		{ };
+
+        public override string Name { get; protected set; } = "Dual Pistols";
+        public override string CodeName { get; protected set; } = "Scout_Pistols";
+        public override string Description { get; protected set; }
+        public override string AdvancedDescription { get; protected set; }
+        public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
+
+        //public AbilityUpgrade SSG_U1_Cooldown=
+        public override BaseCharacterBody UpdateTarget()
+        {
+            return null;
+        }
+
+		public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo = null, EventChain eventChain = null)
+		{
+		}
+    }
+
+    public class ScoutShotGun : Ability<ScoutShotGun>
 	{
 		private float BlastWidth = 15;
-		protected static RangeStat BlastRange = new RangeStat(1.2f, 8f, .5f);
+		protected static RangeStat BlastRange = new RangeStat(50f, 500f, .5f);
 		protected static DamageStat Damage = new DamageStat(30, .9f);
-		protected static CooldownStat Cooldown = new CooldownStat(14f);
+		protected static CooldownStat Cooldown = new CooldownStat(8f);
 		protected static CooldownStat SpamCooldown = new CooldownStat(.1f);
 		protected static ChargeStat Charges = new ChargeStat(2f);
 
@@ -58,11 +90,12 @@ namespace BrannPack.Character.Playable
 			var slot_range = abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range);
 			float range=slot_range!=null? BlastRange.GetCombinedTotal(slot_range):BlastRange.CalculateTotal();
 			float damage = Damage.GetCombinedTotal(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
-			GD.Print(range, damage);
-			List<BaseCharacterBody> charactersInBlast=AttackHelper.GetCharactersInShotgunBlast(master.Body, master.Body.GetGlobalTransform(), master.Body.AimDirection.Angle(), BlastWidth, range, 5);
+			GD.Print(range, damage," to"+master.Body.AimDirection);
+			List<BaseCharacterBody> charactersInBlast=AttackHelper.GetCharactersInShotgunBlast(master.Body, master.Body.GetGlobalTransform(), master.Body.AimDirection.Angle(), BlastWidth, range, 8);
 			foreach(BaseCharacterBody characterBody in charactersInBlast)
 			{
-				if (master.CanDamageTeams.Contains(characterBody.CharacterMaster.Team))
+				GD.Print(characterBody.CharacterName);
+				if (true)//master.CanDamageTeams.Contains(characterBody.CharacterMaster.Team))
 				{
 					DamageInfo info = new DamageInfo(master,characterBody.CharacterMaster,(1,this.Index,0),damage,false);
 					master.DealDamage(characterBody.CharacterMaster, info,null);

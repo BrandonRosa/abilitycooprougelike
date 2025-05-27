@@ -38,6 +38,7 @@ namespace BrannPack.Character
 				
 				Vector2 mouseWorld = GetViewport().GetCamera2D().GetGlobalMousePosition();
 				aimDirection = (mouseWorld - OwnerBody.GlobalPosition).Normalized();
+				GD.Print("AIM" + aimDirection);
 			}
 			else
 			{
@@ -73,10 +74,10 @@ namespace BrannPack.Character
 			//if (Input.Device != OwnerMaster.ControllerID)
 			//    return;
 			Vector2 aimDirection = OwnerBody.AimDirection;
-			if (GetViewport() != null)
+			if (OwnerBody.GetViewport() != null)
 			{
 
-				Vector2 mouseWorld = GetViewport().GetCamera2D().GetGlobalMousePosition();
+				Vector2 mouseWorld = OwnerBody.GetViewport().GetCamera2D().GetGlobalMousePosition();
 				aimDirection = (mouseWorld - OwnerBody.GlobalPosition).Normalized();
 			}
 			else
