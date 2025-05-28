@@ -34,24 +34,24 @@ namespace BrannPack.Character.Playable
 			new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
 		{ };
 
-        public override string Name { get; protected set; } = "Dual Pistols";
-        public override string CodeName { get; protected set; } = "Scout_Pistols";
-        public override string Description { get; protected set; }
-        public override string AdvancedDescription { get; protected set; }
-        public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
+		public override string Name { get; protected set; } = "Dual Pistols";
+		public override string CodeName { get; protected set; } = "Scout_Pistols";
+		public override string Description { get; protected set; }
+		public override string AdvancedDescription { get; protected set; }
+		public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
 
-        //public AbilityUpgrade SSG_U1_Cooldown=
-        public override BaseCharacterBody UpdateTarget()
-        {
-            return null;
-        }
+		//public AbilityUpgrade SSG_U1_Cooldown=
+		public override BaseCharacterBody UpdateTarget()
+		{
+			return null;
+		}
 
 		public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo = null, EventChain eventChain = null)
 		{
 		}
-    }
+	}
 
-    public class ScoutShotGun : Ability<ScoutShotGun>
+	public class ScoutShotGun : Ability<ScoutShotGun>
 	{
 		private float BlastWidth = 15;
 		protected static RangeStat BlastRange = new RangeStat(50f, 500f, .5f);

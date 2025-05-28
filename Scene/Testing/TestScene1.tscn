@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://chhuno1soud41" path="res://Scripts/Modules/BaseCharacter/Enemies/MeleeSwarmer/MeleeSwarmer.tscn" id="4_o3401"]
 [ext_resource type="Script" uid="uid://ds4d8yqhwk8kh" path="res://Scripts/Modules/UI/UIManager.cs" id="5_rhc0e"]
 
-[node name="Node2D" type="Node2D"]
+[node name="Root" type="Node2D"]
 
 [node name="CharacterMaster" type="Node" parent="." node_paths=PackedStringArray("SpawnPoint")]
 script = ExtResource("1_a8jus")
@@ -49,3 +49,33 @@ metadata/_custom_type_script = "uid://ds4d8yqhwk8kh"
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(575, 324)
+
+[node name="World" type="Node" parent="."]
+
+[node name="Stage" type="Node" parent="World"]
+
+[node name="Playables" type="Node" parent="World"]
+
+[node name="NPCs" type="Node" parent="World"]
+
+[node name="Projectiles" type="Node" parent="World"]
+
+[node name="Interactables" type="Node" parent="World"]
+
+[node name="VFX" type="Node" parent="World"]
+
+[node name="OtherEntities" type="Node" parent="World"]
+
+[node name="UI" type="Node" parent="."]
+
+[node name="HUD" type="Node" parent="UI"]
+
+[node name="PauseMenu" type="Node" parent="UI"]
+
+[node name="FloatingUI" type="Node" parent="UI"]
+
+[node name="Managers" type="Node" parent="."]
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="Directors" type="Node" parent="."]

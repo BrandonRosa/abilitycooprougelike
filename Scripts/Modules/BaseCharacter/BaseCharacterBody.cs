@@ -9,6 +9,8 @@ using BrannPack.UI;
 using BrannPack.CooldownHandling;
 using BrannPack.InputHelpers;
 using System.Security.Cryptography.X509Certificates;
+using BrannPack.Helpers.RecourcePool;
+using BrannPack.Helpers.Initializers;
 
 
 
@@ -16,7 +18,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace BrannPack.Character
 {
 	[GlobalClass]
-	public partial class BaseCharacterBody : CharacterBody2D
+	public partial class BaseCharacterBody : CharacterBody2D, IPoolable
 	{
 		public static List<BaseCharacterBody> AllCharacters = new List<BaseCharacterBody>();
 
@@ -122,6 +124,18 @@ namespace BrannPack.Character
 			}
 		}
 
+		public bool IsInUse { get; set; } = false;
+
+		public virtual void OnActivate()
+		{
+			IsInUse = true;
+		}
+
+		public virtual void OnDeactivate()
+		{
+			IsInUse = false;
+		}
+
 		public StatsHolder StartingStats;
 
 
@@ -223,12 +237,10 @@ namespace BrannPack.Character
 
 		}
 
-
-		
-
-		 
-
-
+		public void SetPool(PoolManager pool, string poolKey)
+		{
+			throw new NotImplementedException();
+		}
 	}
 	public enum CharacterTeam { Player, Enemy }
 
