@@ -129,5 +129,22 @@ namespace BrannPack.Helpers.RecourcePool
 
 
     }
+    public enum SpawnType { Body,Projectile,Pickup,FX,Interractable,Other}
+    [GlobalClass]
+    public partial class SpawnPoolDetails:Resource
+    {
+        [Export] public PackedScene SpawnScene;
+        [Export] public string CodeName;
+        [Export] public string Name;
+        [Export] public SpawnType SpawnType;
+
+        [Export] public bool ShouldPool = true;
+        [Export] public int InitialPoolSize = 8;
+
+        [Export] public string Description;
+        [Export] public string Lore;
+        [Export] public Texture2D Icon;
+
+    }
 
 }
