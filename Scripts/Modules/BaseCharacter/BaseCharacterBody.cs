@@ -11,6 +11,7 @@ using BrannPack.InputHelpers;
 using System.Security.Cryptography.X509Certificates;
 using BrannPack.Helpers.RecourcePool;
 using BrannPack.Helpers.Initializers;
+using BrannPack.AbilityHandling;
 
 
 
@@ -243,8 +244,25 @@ namespace BrannPack.Character
 		}
 	}
 	public enum CharacterTeam { Player, Enemy }
+    [GlobalClass]
+    public partial class BodyPrefabInfo : Resource, IIndexable
+    {
+        protected static int NextIndex = 0;
+        public static Registry<BodyPrefabInfo> BodyPrefabRegistry = new Registry<BodyPrefabInfo>();
 
-	public partial class HealthBar : GodotObject
+        public int Index { get; protected set; } = -1;
+
+        public void SetIndex() { if (Index != -1) Index = NextIndex++; }
+		[Export] public string Name;
+		[Export] public string CodeName;
+		[Export] public PackedScene BodyScene;
+        [Export] public string Description { get; set; } = "";
+        [Export] public Texture2D Icon { get; set; }
+
+        string IIndexable.CodeName => CodeName;
+    }
+
+    public partial class HealthBar : GodotObject
 	{
 
 		public CharacterMaster Master;

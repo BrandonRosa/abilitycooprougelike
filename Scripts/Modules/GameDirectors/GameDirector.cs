@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿using BrannPack.Helpers.RecourcePool;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace BrannPack.GameDirectrs
         }
 
         public readonly GameState gameState;
+
+        public PoolManager PoolManager;
         public override void _Ready()
         {
             base._Ready();

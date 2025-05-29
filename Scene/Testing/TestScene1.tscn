@@ -8,44 +8,9 @@
 
 [node name="Root" type="Node2D"]
 
-[node name="CharacterMaster" type="Node" parent="." node_paths=PackedStringArray("SpawnPoint")]
-script = ExtResource("1_a8jus")
-BodyScene = ExtResource("2_0ww7j")
-IsPlayerControlled = true
-SpawnPoint = NodePath("Marker2D")
-metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
-
-[node name="Marker2D" type="Marker2D" parent="CharacterMaster"]
-position = Vector2(211, 303)
-
 [node name="DevConsole" type="Node" parent="."]
 script = ExtResource("3_0ww7j")
 metadata/_custom_type_script = "uid://y0urs486kcan"
-
-[node name="Swarmer" type="Node" parent="." node_paths=PackedStringArray("SpawnPoint")]
-script = ExtResource("1_a8jus")
-BodyScene = ExtResource("4_o3401")
-Team = 1
-SpawnPoint = NodePath("Marker2D")
-metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
-
-[node name="Marker2D" type="Marker2D" parent="Swarmer"]
-position = Vector2(804, 326)
-
-[node name="Swarmer2" type="Node" parent="." node_paths=PackedStringArray("SpawnPoint")]
-script = ExtResource("1_a8jus")
-BodyScene = ExtResource("4_o3401")
-Team = 1
-SpawnPoint = NodePath("Marker2D")
-metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
-
-[node name="Marker2D" type="Marker2D" parent="Swarmer2"]
-position = Vector2(804, 383)
-scale = Vector2(1, 1.32)
-
-[node name="UIManager" type="Node" parent="."]
-script = ExtResource("5_rhc0e")
-metadata/_custom_type_script = "uid://ds4d8yqhwk8kh"
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(575, 324)
@@ -56,7 +21,38 @@ position = Vector2(575, 324)
 
 [node name="Playables" type="Node" parent="World"]
 
+[node name="CharacterMaster" type="Node" parent="World/Playables" node_paths=PackedStringArray("SpawnPoint")]
+script = ExtResource("1_a8jus")
+BodyScene = ExtResource("2_0ww7j")
+IsPlayerControlled = true
+SpawnPoint = NodePath("Marker2D")
+metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
+
+[node name="Marker2D" type="Marker2D" parent="World/Playables/CharacterMaster"]
+position = Vector2(211, 303)
+
 [node name="NPCs" type="Node" parent="World"]
+
+[node name="Swarmer" type="Node" parent="World/NPCs" node_paths=PackedStringArray("SpawnPoint")]
+script = ExtResource("1_a8jus")
+BodyScene = ExtResource("4_o3401")
+Team = 1
+SpawnPoint = NodePath("Marker2D")
+metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
+
+[node name="Marker2D" type="Marker2D" parent="World/NPCs/Swarmer"]
+position = Vector2(804, 326)
+
+[node name="Swarmer2" type="Node" parent="World/NPCs" node_paths=PackedStringArray("SpawnPoint")]
+script = ExtResource("1_a8jus")
+BodyScene = ExtResource("4_o3401")
+Team = 1
+SpawnPoint = NodePath("Marker2D")
+metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
+
+[node name="Marker2D" type="Marker2D" parent="World/NPCs/Swarmer2"]
+position = Vector2(804, 383)
+scale = Vector2(1, 1.32)
 
 [node name="Projectiles" type="Node" parent="World"]
 
@@ -75,6 +71,10 @@ position = Vector2(575, 324)
 [node name="FloatingUI" type="Node" parent="UI"]
 
 [node name="Managers" type="Node" parent="."]
+
+[node name="UIManager" type="Node" parent="Managers"]
+script = ExtResource("5_rhc0e")
+metadata/_custom_type_script = "uid://ds4d8yqhwk8kh"
 
 [node name="Audio" type="Node" parent="."]
 

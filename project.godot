@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 LimboConsole="*res://addons/limbo_console/limbo_console.gd"
 StartupLoader="*res://Scripts/Modules/Helpers/StartupLoader.cs"
+GameDirector="*res://Scripts/Modules/GameDirectors/GameDirector.cs"
 
 [dotnet]
 

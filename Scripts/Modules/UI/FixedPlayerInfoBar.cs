@@ -18,6 +18,11 @@ namespace BrannPack.UI
 
         public override void _Ready()
         {
+            if(CharacterMaster == null)
+            {
+                GD.PrintErr("CharacterMaster is not set for FixedPlayerInfoBar. Please assign a CharacterMaster instance.");
+                return;
+            }
             for (int i = 0; i < AbilityIcons.Length; i++)
             {
                 AbilityIcons[i] = GetNode<BigAbilityIcon>($"AbilityIcon{i}");
