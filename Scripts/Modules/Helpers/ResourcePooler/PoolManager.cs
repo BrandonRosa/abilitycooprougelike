@@ -19,7 +19,7 @@ namespace BrannPack.Helpers.RecourcePool
 
         private Node _inactiveHolder;
 
-        public static Node PoolManagerNode;
+        public static PoolManager PoolManagerNode;
         public static Node PlayableNode;
         public static Node NPCNode;
         public static Node ProjectilesNode;
