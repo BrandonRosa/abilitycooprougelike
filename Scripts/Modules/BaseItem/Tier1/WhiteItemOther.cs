@@ -4,6 +4,7 @@ using BrannPack.CooldownHandling;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using BrannPack.Tiers;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,9 +57,11 @@ namespace BrannPack.Items
 
         private void HighDamageHit(CharacterMaster source, CharacterMaster victim, DamageInfo damageInfo, EventChain eventChain)
         {
-            if (source.UsingInventory && damageInfo.Damage > requiredDamage && !source.Cooldowns.IsOnCooldown((0, instance.Index, 10))
+            GD.Print("TestHit:", damageInfo.Damage);
+            if (source.UsingInventory && damageInfo.Damage > requiredDamage && !source.Body.CooldownHandler.IsOnCooldown((0, instance.Index, 10))
                 && source.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
+                GD.Print("BANG");
                 //Prep For BeforeAttack
                 StatsHolder attackstat = new StatsHolder();
                 DamageStat instDamage = damage.Copy();
@@ -76,10 +79,10 @@ namespace BrannPack.Items
                 source.BeforeAttack(attackInfo, eventChain);
 
                 float cooldownDuration = instCooldown.CalculateTotal();
-                source.Cooldowns.AddCooldown((0, instance.Index, 10), cooldownDuration);
+                source.Body.CooldownHandler.AddCooldown((0, instance.Index, 10), cooldownDuration);
 
                 damageInfo.Damage += instDamage.CalculateTotal();
-                eventChain.TryAddEventInfo(attackInfo);
+                eventChain?.TryAddEventInfo(attackInfo);
 
                 float addedArmor = initialArmor + (effects.Positive - 1f) * armorPerStack;
 

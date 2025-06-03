@@ -54,7 +54,7 @@ namespace BrannPack.Projectile
 
         public bool SetToDestroy { get; set; }
         public ProjectileInfo ProjectileInfo { get; set; }
-        public void Move();
+        public void Move(double delta);
         public void Initialize(ProjectileInfo projectileInfo);
         public void Collide(Node node);
         public void Destroy();
@@ -62,22 +62,42 @@ namespace BrannPack.Projectile
 
         
     }
+    [GlobalClass]
     public partial class BaseProjectile : Node2D, IProjectile
     {
+        public static CollisionShape2D GetFirstCollisionShape2D(Node node)
+        {
+            if (node == null)
+                return null;
+
+            foreach (Node child in node.GetChildren())
+            {
+                if (child is CollisionShape2D shape)
+                    return shape;
+
+                // Optional: search deeper if needed
+                var nested = GetFirstCollisionShape2D(child);
+                if (nested != null)
+                    return nested;
+            }
+
+            return null;
+        }
         public static void SimpleEstimatedBounce(IProjectile proj,Node col)
         {
-            var collisionShape = col.GetChild<CollisionShape2D>(0);
+            var collisionShape = GetFirstCollisionShape2D(col);
             if (collisionShape != null)
             {
-                Vector2 collisionNormal = EstimateNormalFromShape(proj.ProjectileInfo.Position,collisionShape);
-                proj.ProjectileInfo.Direction.Bounce(collisionNormal).Normalized();
+
+                Vector2 collisionNormal = EstimateNormalFromShape((proj as Node2D).GlobalPosition,collisionShape);
+                proj.ProjectileInfo.Direction=proj.ProjectileInfo.Direction.Bounce(collisionNormal).Normalized();
             }
             else
             {
                 proj.ProjectileInfo.Direction *= -1;
             }
             proj.ProjectileInfo.CollisionsLeft--;
-            if (proj.ProjectileInfo.CollisionsLeft <= 0)
+            if (proj.ProjectileInfo.CollisionsLeft < 0)
                 proj.SetToDestroy = true;
         }
         public static Vector2 EstimateNormalFromShape(Vector2 orig,CollisionShape2D shape)
@@ -106,7 +126,9 @@ namespace BrannPack.Projectile
         public void Initialize(ProjectileInfo projectileInfo)
         {
             ProjectileInfo= projectileInfo;
+            GD.Print(projectileInfo.ProjectileName);
             GlobalPosition = projectileInfo.Position;
+            SetToDestroy = false;
             IProjectile.InvokeGlobalFired(this);
         }
 
@@ -128,21 +150,34 @@ namespace BrannPack.Projectile
             else if (body is BaseCharacterBody character && ProjectileInfo.Source.CanDamageTeams.Contains(character.CharacterMaster.Team))
             {
                 OnBodyCollision?.Invoke(this, body);
+                ProjectileInfo.Destination = character.CharacterMaster;
                 ProjectileInfo.Source.DealDamage(character.CharacterMaster, ProjectileInfo, null);
+                switch (ProjectileInfo.BodyCollideBehavior)
+                {
+                    case ProjectileCollideBehavior.Destroy: SetToDestroy = true; break;
+                    case ProjectileCollideBehavior.Bounce: SimpleEstimatedBounce(this, body); GD.Print("BOUNCE"); break;//bounce code here;
+                }
             }
             else
                 OnOtherCollision?.Invoke(this, body);
 
-            if (SetToDestroy == true)
-            {
-                Destroy();
-            }
+            
         }
 
         public virtual void Destroy()
         {
             IProjectile.InvokeGlobalDestroyed(this);
+            SetToDestroy = false;
             PoolManager.PoolManagerNode.Return(ProjectileInfo.ProjectileName, this);
+        }
+
+        public override void _Process(double delta)
+        {
+            base._Process(delta);
+            if (SetToDestroy == true)
+            {
+                Destroy();
+            }
         }
 
 
@@ -153,7 +188,7 @@ namespace BrannPack.Projectile
             ProjectileInfo.Duration -= (float)delta;
             if (ProjectileInfo.Duration <= 0f)
             {
-                Destroy();
+                SetToDestroy = true;
             }
             Move(delta);
             
@@ -164,14 +199,14 @@ namespace BrannPack.Projectile
             OnMove?.Invoke(this);
             if (ProjectileInfo.Direction != Vector2.Zero)
             {
-                GlobalPosition += ProjectileInfo.Direction.Normalized() * ProjectileInfo.Speed * (float)delta;
+                var movevect = ProjectileInfo.Direction.Normalized() * ProjectileInfo.Speed * (float)delta;
+                GlobalPosition += movevect;
+                ProjectileInfo.Range -= movevect.Length();
+                if (ProjectileInfo.Range <= 0)
+                    SetToDestroy = true;
             }
 
         }
 
-        public void Move()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -6,6 +6,7 @@ using static BrannPack.ItemHandling.ItemCatalog;
 using BrannPack.Tiers;
 using BrannPack.Character;
 using BrannPack.Helpers.Initializers;
+using BrannPack.AbilityHandling;
 
 
 namespace BrannPack.ItemHandling
@@ -19,12 +20,15 @@ namespace BrannPack.ItemHandling
             if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
             instance = this as T;
             instance.SetIndex();
+            instance.Init();
+            Item.ItemRegistry.Register(instance);
         }
     }
 
     public abstract class Item:IIndexable
     {
         protected static int NextIndex = 0;
+        public static Registry<Item> ItemRegistry = new Registry<Item>();
         public int Index { get; protected set; } = -1;
 
         public void SetIndex() { if(Index!=-1)Index = NextIndex++; }
@@ -101,6 +105,45 @@ namespace BrannPack.ItemHandling
 
         public virtual void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true) { }
 
+    }
+    public class ErrorItem : Item<ErrorItem>
+    {
+        public override ItemTier Tier { get; init; } = Tier0.instance;
+        public override ItemSubTier SubTier { get; init; } = null;
+        public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
+        public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
+        public override string Name { get; init; } = "ERROR ITEM";
+        public override string CodeName { get; init; } = "ERROR_ITEM";
+        public override string Description { get; init; } = "ERROR";
+        public override string AdvancedDescription { get; init; } = "ERROR";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = false;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new();
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override void Init()
+        {
+            base.Init();
+        }
+
+        public override void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
+        {
+            base.SetItemEffects(inventory, changes, totalItems, IsAdded);
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 
     public struct ItemEffectModifier

@@ -27,12 +27,6 @@ namespace BrannPack.Character
 		{
 			base._Ready();
 			AllCharacters.Add(this);
-
-			// Hitbox outline
-			ColorRect debugBox = new ColorRect();
-			debugBox.Color = new Color(1, 0, 0, 0.5f); // Red with transparency
-			debugBox.Size = new Vector2(32, 32);
-			AddChild(debugBox);
 		}
 
 		public override void _ExitTree()
@@ -288,6 +282,7 @@ namespace BrannPack.Character
 			Armor armor = new Armor(0f, armorMax);
 			armor.MaxValue.AddFollowingMaxHealth(health.MaxValue);
 			AddHealthType(armor, HealthType.Armor);
+			GD.Print(armor.GetCurrentValue());
 
 			Shield shield = new Shield(0f, shieldMax);
 			AddHealthType(shield, HealthType.Shield);
@@ -350,7 +345,10 @@ namespace BrannPack.Character
 
 						CurrentValueVisible += overValue;
 						CurrentMaxVisible += overValue;
-						temp.Add((type, currentHbarPosition - behavior.CurrentValue, currentHbarPosition, false));
+
+						//regular armor
+						temp.Add((type, currentHbarPosition - behavior.CurrentValue, behavior.CurrentValue, false));
+						//overarmor
 						temp.Add((type, currentHbarPosition, overValue, true));
 						currentHbarPosition += overValue;
 						break;

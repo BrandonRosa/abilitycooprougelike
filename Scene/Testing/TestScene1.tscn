@@ -24,7 +24,9 @@ position = Vector2(575, 324)
 [node name="CharacterMaster" type="Node" parent="World/Playables" node_paths=PackedStringArray("SpawnPoint")]
 script = ExtResource("1_a8jus")
 BodyScene = ExtResource("2_0ww7j")
+StartingItems = PackedStringArray("FLAT_DMG_UP_W_ARMR_B4_HIGH_DMG_ATK")
 IsPlayerControlled = true
+InitialCanDamageTeams = Array[int]([1])
 SpawnPoint = NodePath("Marker2D")
 metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
 
@@ -37,6 +39,7 @@ position = Vector2(211, 303)
 script = ExtResource("1_a8jus")
 BodyScene = ExtResource("4_o3401")
 Team = 1
+InitialCanDamageTeams = Array[int]([0])
 SpawnPoint = NodePath("Marker2D")
 metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
 
@@ -47,6 +50,7 @@ position = Vector2(804, 326)
 script = ExtResource("1_a8jus")
 BodyScene = ExtResource("4_o3401")
 Team = 1
+InitialCanDamageTeams = Array[int]([0])
 SpawnPoint = NodePath("Marker2D")
 metadata/_custom_type_script = "uid://c3gp6ul0xg8ph"
 

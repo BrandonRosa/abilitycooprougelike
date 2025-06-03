@@ -44,7 +44,7 @@ namespace BrannPack.UI
             //CreateHealthSegment("CelledHealth", new Color(0.5f, 1f, 0.5f));
             //CreateHealthSegment("CursedHealth", new Color(0f, 0f, 0f, 0f), true);
             CreateHealthSegment((HealthType.Armor, true), new Color(0.6f, 0.6f, 0.6f));
-            CreateHealthSegment((HealthType.Armor, false), new Color(0.3f, 0.3f, 0.3f), true);
+            CreateHealthSegment((HealthType.Armor, false), new Color(0.6f, 0.6f, 0.6f), true);
             CreateHealthSegment((HealthType.Shield, false), new Color(0f, 0.3f, 0.8f));
             //CreateHealthSegment("CelledShield", new Color(0.3f, 0.5f, 1f));
             //CreateHealthSegment("Guard", new Color(0f, 0.9f, 1f));

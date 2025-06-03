@@ -1,5 +1,7 @@
 ﻿using BrannPack.AbilityHandling;
 using BrannPack.Character.Playable;
+using BrannPack.ItemHandling;
+using BrannPack.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +18,15 @@ namespace BrannPack.Helpers.Initializers
         public static Action BeforeRegisterAbilities;
         public static Action AfterRegisterAbilities;
 
+        public static Action BeforeRegisterItems;
+        public static Action AfterRegisterItems;
+
         public static void RegisterAll()
         {
             BeforeRegisterAll?.Invoke();
 
             RegisterAbilities();
+            RegisterItems();
 
             AfterRegisterAll?.Invoke();
         }
@@ -31,8 +37,19 @@ namespace BrannPack.Helpers.Initializers
 
             Ability _ = new EmptyAbility();
             _ = new ScoutShotGun();
+            _ = new DualPistols();
 
             AfterRegisterAbilities?.Invoke();
+        }
+
+        public static void RegisterItems()
+        {
+            BeforeRegisterItems?.Invoke();
+
+            Item _ = new ErrorItem();
+            _ = new OnHighDamage_DealMoreAndArmor();
+
+            AfterRegisterItems?.Invoke();
         }
 
     }

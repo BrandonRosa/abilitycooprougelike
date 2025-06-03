@@ -1,6 +1,7 @@
 using BrannPack.AbilityHandling;
 using BrannPack.CooldownHandling;
 using BrannPack.DevConsole;
+using BrannPack.Helpers.Initializers;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using BrannPack.UI;
@@ -51,9 +52,9 @@ namespace BrannPack.Character
 
 		[Export] public bool IsPlayerControlled;
 		[Export] public CharacterTeam Team;
-		//[Export] public CharacterTeam[] InitialCanDamageTeams;
+		[Export] public Godot.Collections.Array<CharacterTeam> InitialCanDamageTeams { get; set; }
 
-		public HashSet<CharacterTeam> CanDamageTeams;
+		public HashSet<CharacterTeam> CanDamageTeams { get => InitialCanDamageTeams.ToHashSet<CharacterTeam>(); }
 
 		[Export] public BaseCharacterBody Body;
 		[Export] public Marker2D SpawnPoint;
@@ -62,7 +63,7 @@ namespace BrannPack.Character
 		public EntityController Controller;
 
 		public Inventory Inventory;
-		public bool UsingInventory;
+		public bool UsingInventory=false;
 		private List<BaseCharacterBody> Minions;
 		private List<BaseCharacterBody> Familiars;
 
@@ -104,6 +105,15 @@ namespace BrannPack.Character
 			Body.MoveSpeed = (MoveSpeedStat)stats[Stat.MoveSpeed];
 
 			Inventory = new Inventory(this);
+
+			foreach(string item in StartingItems??Array.Empty<string>())
+			{
+				var itemclass = Item.ItemRegistry.Get(item);
+				Inventory.TryAddItemToInventory(itemclass);
+				UsingInventory = true;
+			}
+			if (IsPlayerControlled)
+				UsingInventory = true;
 
 			//Set the abilities to the body's starting abilities
 			Primary = new AbilitySlot(this, Body.StartingPrimary, AbilitySlotType.Primary);

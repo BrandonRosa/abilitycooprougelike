@@ -11,6 +11,7 @@ using BrannPack.Character;
 using System.Runtime.CompilerServices;
 using static BrannPack.ModifiableStats.AbilityStats;
 using static BrannPack.Character.BaseCharacterBody;
+using Godot;
 
 namespace BrannPack.ItemHandling
 {
@@ -162,6 +163,7 @@ namespace BrannPack.ItemHandling
         {
             if (IsItemAllowed(inventoryItemStack))
             {
+                GD.Print("INPART");
                 if (!ItemsInPartition.ContainsKey(inventoryItemStack.Item))
                 {
                     ItemsInPartition.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });

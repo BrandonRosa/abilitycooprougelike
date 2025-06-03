@@ -43,8 +43,8 @@ namespace BrannPack.AbilityHandling
 			var abilityDefaultStats = AbilityInstance.Stats.CopyAndGetStatsByCriterea(CurrentUpgrades);
 			ThisAbilityStats = abilityDefaultStats.ToGlobalStatsHolder<AbilitySlot>(this);
 
-			var cooldown = ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown);
-			var charges = ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges);
+			var cooldown = ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown)??StatsHolder.ZeroStatHoler.GetStatByVariable<CooldownStat>(Stat.Cooldown);
+			var charges = ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges) ?? StatsHolder.ZeroStatHoler.GetStatByVariable<ChargeStat>(Stat.Charges);
 			CCooldown = new ChargedCooldown(cooldown, charges);
 			Owner.Body.CooldownHandler.AddCooldown((-1, -1, (int)SlotType), CCooldown);
 			

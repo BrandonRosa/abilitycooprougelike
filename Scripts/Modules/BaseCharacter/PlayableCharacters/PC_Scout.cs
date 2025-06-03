@@ -1,11 +1,14 @@
 using BrannPack.AbilityHandling;
 using BrannPack.Helpers.Attacks;
+using BrannPack.Helpers.RecourcePool;
 using BrannPack.InputHelpers;
 using BrannPack.ModifiableStats;
+using BrannPack.Projectile;
 using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.ModifiableStats.AbilityStats;
@@ -22,8 +25,8 @@ namespace BrannPack.Character.Playable
 	public class DualPistols: Ability<DualPistols>
 	{
 		protected static RangeStat BulletRange = new RangeStat(400f, 600f, 250f);
-		protected static DamageStat Damage = new DamageStat(1f, .5f);
-		protected static FireRateStat FireRate = new FireRateStat(2.75f);
+		protected static DamageStat Damage = new DamageStat(3f, .5f);
+		protected static FireRateStat FireRate = new FireRateStat(3.5f);
 
 		public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
 		{
@@ -48,14 +51,23 @@ namespace BrannPack.Character.Playable
 
 		public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo = null, EventChain eventChain = null)
 		{
+			if (master.Body.CooldownHandler.IsOnCooldown((1, this.Index, 0)))
+				return;
+			var bullet=PoolManager.PoolManagerNode.Spawn<BaseProjectile>("BasicEnemyBullet", PoolManager.ProjectilesNode);
+			var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
+			var rangestat = BulletRange.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
+			var fireratestat = FireRate.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<FireRateStat>(Stat.FireRate));
+			bullet.Initialize(new ProjectileInfo(master, null, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "BasicEnemyBullet", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: float.MaxValue, range: rangestat.CalculateTotal(),speed:1500f));
+			float cooldown=1f / (fireratestat.CalculateTotal());
+			master.Body.CooldownHandler.AddCooldown((1, this.Index, 0), cooldown);
 		}
 	}
 
 	public class ScoutShotGun : Ability<ScoutShotGun>
 	{
 		private float BlastWidth = 15;
-		protected static RangeStat BlastRange = new RangeStat(50f, 500f, .5f);
-		protected static DamageStat Damage = new DamageStat(30, .9f);
+		protected static RangeStat BlastRange = new RangeStat(100f, 500f, .5f);
+		protected static DamageStat Damage = new DamageStat(60, .9f);
 		protected static CooldownStat Cooldown = new CooldownStat(8f);
 		protected static CooldownStat SpamCooldown = new CooldownStat(.1f);
 		protected static ChargeStat Charges = new ChargeStat(2f);
