@@ -9,16 +9,17 @@ using System.Threading.Tasks;
 
 namespace BrannPack.AIBehavior
 {
+    public enum AIState
+    {
+        Idle,
+        Chase,
+        Attack,
+        Flee,
+        Patrol
+    }
     public partial class EnemyAI : Node
     {
-        private enum AIState
-        {
-            Idle,
-            Chase,
-            Attack,
-            Flee,
-            Patrol
-        }
+        
 
         public CharacterMaster Master;
         //public ITargetSelector TargetSelector = new NearestTargetSelector(); // Default

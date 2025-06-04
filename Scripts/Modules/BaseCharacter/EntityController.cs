@@ -109,16 +109,107 @@ namespace BrannPack.Character
 			OwnerBody.AimDirection = aimDirection;
 		}
 	}
-
-	public partial class AIController:EntityController
+    public enum AIState
+    {
+        Idle,
+        Chase,
+        Attack,
+        Flee,
+        Patrol,
+		Assist
+    }
+    public partial class EnemyAIController:EntityController
 	{
+		public static Vector2? GlobalSwarmLocation;
+
+		public float EnemyProximityRadius;
+		public float GossipRadius;
+		public float LOSRadius;
+		public bool IsLeader;
+
 		public NavigationAgent2D NavigationAgent2D;
-		public Node LimboHSM;
-		public float AggroRange = 10f;
+		public BaseCharacterBody AcquiredTarget;
+		public Vector2? FinalMoveLocation;
+		public EnemyAIController ClosestLeadingLeader;
+		public bool HasLOSThisFrame = false;
+		public (Vector2 location, float duration)? AccurateLocationInfo;
+		public (Vector2 location, float duration)? EstimatedLocationInfo;
+		public (Vector2 location, float duration)? OverrideLocationInfo;
 		public void ObtainTarget()
 		{
+			List<BaseCharacterBody> AlliesInProximity;
+			List<BaseCharacterBody> AlliesInGossipRange;
+			List<BaseCharacterBody> TargetsInProximity;
+			List<BaseCharacterBody> TargetsInLOSRange;
+			bool isTargetInLOS = false;
+			//Check To See if target is still valid
+			if (AcquiredTarget != null && !TargetsInProximity.Contains(AcquiredTarget) && !TargetsInLOSRange.Contains(AcquiredTarget))
+			{
+				AcquiredTarget = null;
+			}
+			else if (IsTargetInLOS())
+			{
+				isTargetInLOS = true;
+                //set AccurateLocation to target Location
+            }
+			else if(/*Check if target is in proximity*/)
+			{
+				//Set estimated location to target location with offset
+			}
+			else if (/*get first target in TargetsInLOSRange that are in LOS*/ true)
+			{
+				//set new target and set isTargetInLOS to true
+				//set AccurateLocation to target Location
+			}
+			else if (TargetsInProximity.Count > 0)
+			{
+				//pick a random target
+				//Get target location and randomize it a bit to make it a guess
+			}
 
+			if(AcquiredTarget!=null && IsLeader)
+			{
+				//Get all allies within gossip range and if they dont have a valid leader, set this as the leader
+			}
+
+				Vector2? updatedFinalMove = null;
+			if (OverrideLocationInfo != null)
+			{
+				//Go to override Location
+				updatedFinalMove = OverrideLocationInfo?.location;
+
+			}
+			else if (AccurateLocationInfo!=null)
+			{
+                //set final move to accurate location
+                
+                //Update accuratelocation for nearby allies within gossip radius that have the same target
+
+            }
+			else if(ClosestLeadingLeader!=null /*also check if CLL has the same target or if this has no target*/)
+			{
+				//if ClosestLeadingLeader (CLL) has AccurateLocationInfo, copy it. else if it has Estimated copy it
+			}
+			else if(GlobalSwarmLocation!=null)
+			{
+				//if ther ii a global swarm location, go there
+			}
+			else if (EstimatedLocationInfo != null)
+			{
+				// Go to estimated location
+			}
+
+			if (IsLeader && FinalMoveLocation != null)
+			{
+				//Update ClosestLeadingLeader for all allies in proximity
+			}
+
+			// if final location hasnt been set, set the AIState to Patrol for 1.5s and set a random location
+			//if target is in any of the abilities range, set to attack if character can
+			//if there is a location in mind set to chase and move there.
 		}
+
+
 
 		public bool TryUsePrimary()
 		{
@@ -157,12 +248,7 @@ namespace BrannPack.Character
 
 		public override void UpdateInput()
 		{
-			//AI logic to determine movement and ability usage
-			//For now, just move towards the player
-			if (LimboHSM != null)
-			{
-				
-			}
+
 		}
 	}
 }
