@@ -12,8 +12,17 @@ using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.AbilityHandling
 {
-	
-	public class AbilitySlot
+    public struct AIAbilityHint
+    {
+        public (float Min, float Max)? UseRangeOverrideBounds;   // If set, overrides the activation range
+        public (float Min, float Max)? RangeUseMultiplierBounds; // Multiply actual ability range for looser AI use
+        public (float Min, float Max)? HealthPercentBounds;      // Only use when AI HP is above this
+
+        public bool RequiresLOS;             // If true, Only uses the ability when target is in LOS
+        public bool IsPanicButton;           // Use when AI is panicking or fleeing
+    }
+
+    public class AbilitySlot
 	{
 		public CharacterMaster Owner;
 
@@ -124,6 +133,8 @@ namespace BrannPack.AbilityHandling
 		public abstract string AdvancedDescription { get; protected set; }
 
 		public virtual Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/none.png");
+
+		public virtual AIAbilityHint AbilityHint { get; set; } = new AIAbilityHint { };
 
 		private bool CanCharge;
 		private bool IsInfiniteUse;

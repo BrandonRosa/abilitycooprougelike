@@ -1,3 +1,4 @@
+using BrannPack.AbilityHandling;
 using BrannPack.InputHelpers;
 using Godot;
 using System;
@@ -121,6 +122,19 @@ namespace BrannPack.Character
     public partial class EnemyAIController:EntityController
 	{
 		public static Vector2? GlobalSwarmLocation;
+		public static bool WouldAIUseAbility(EnemyAIController controller,AbilitySlot abilitySlot,float targetDistance,float currentHealthPercent,bool hasLOS)
+		{
+			var ability = abilitySlot.AbilityInstance;
+			var hint = ability.AbilityHint;
+
+			return ((hasLOS || !hint.RequiresLOS) 
+				&& abilitySlot.IsUsable 
+				&& (!hint.IsPanicButton || controller.AIState == AIState.Flee) 
+				&& (hint.UseRangeOverrideBounds!=null?
+					(hint.UseRangeOverrideBounds?.Min<=targetDistance && hint.UseRangeOverrideBounds?.Max >= targetDistance) 
+					:(hint.RangeUseMultiplierBounds!=null?(hint.RangeUseMultiplierBounds?.Min<=targetDistance && hint.RangeUseMultiplierBounds?.Max>=targetDistance):true))
+				&& (hint.HealthPercentBounds==null || (hint.HealthPercentBounds?.Min<= currentHealthPercent && hint.HealthPercentBounds?.Max>= currentHealthPercent)));
+		}
 
 		public float EnemyProximityRadius;
 		public float GossipRadius;
@@ -135,6 +149,7 @@ namespace BrannPack.Character
 		public (Vector2 location, float duration)? AccurateLocationInfo;
 		public (Vector2 location, float duration)? EstimatedLocationInfo;
 		public (Vector2 location, float duration)? OverrideLocationInfo;
+		public AIState AIState;
 		public void ObtainTarget()
 		{
 			List<BaseCharacterBody> AlliesInProximity;
@@ -209,7 +224,18 @@ namespace BrannPack.Character
 			//if there is a location in mind set to chase and move there.
 		}
 
+		public void TryUseAbilities()
+		{
+            float targetDistance = 0;
+            float currentHealthPercent = 1f;
+            bool hasLOS = true;
 
+            foreach (AbilitySlot abilitySlot in new List<AbilitySlot>{OwnerMaster.Primary,OwnerMaster.Secondary,OwnerMaster.Utility,OwnerMaster.Special,OwnerMaster.Ult,OwnerMaster.Equipment})
+			{
+				if (WouldAIUseAbility(this, abilitySlot, targetDistance, currentHealthPercent, hasLOS))
+					abilitySlot.TryUseAbility(InputPressState.JustPressed);
+			}
+		}
 
 		public bool TryUsePrimary()
 		{
