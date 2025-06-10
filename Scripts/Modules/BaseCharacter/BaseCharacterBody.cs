@@ -527,9 +527,9 @@ namespace BrannPack.Character
 
 		public StatsHolder Stats;
 		public AttackInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
-			bool isCrit, StatsHolder stats=null,Vector2 directionFrom=default, Vector2 directionTo= default)
+			bool isCrit, StatsHolder stats=null,Vector2 origin=default, Vector2 directionTo= default)
 			: base(source, destination, key) =>
-			(IsCrit, Stats,Origin, DirectionTo) = (isCrit, stats,directionFrom,directionTo);
+			(IsCrit, Stats,Origin, DirectionTo) = (isCrit, stats,origin,directionTo);
 	}
 
 	public class HealingInfo : EventInfo
@@ -558,9 +558,11 @@ namespace BrannPack.Character
 	public class AbilityUseInfo: EventInfo
 	{
 		public InputPressState PressState;
-		public AbilityUseInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
-			InputPressState pressState)
-			: base(source, destination, key) => (PressState) = (pressState);
+        public Vector2? Origin;
+        public Vector2? DirectionTo;
+        public AbilityUseInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
+			InputPressState pressState, Vector2? origin = null, Vector2? directionTo = null)
+			: base(source, destination, key) => (PressState,Origin,DirectionTo) = (pressState,origin,directionTo);
 	}
 
 	

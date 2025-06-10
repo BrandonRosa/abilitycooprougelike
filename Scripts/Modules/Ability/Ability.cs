@@ -20,6 +20,7 @@ namespace BrannPack.AbilityHandling
 
         public bool RequiresLOS;             // If true, Only uses the ability when target is in LOS
         public bool IsPanicButton;           // Use when AI is panicking or fleeing
+		public bool ContinueWindupIfTargetLost;
     }
 
     public class AbilitySlot
@@ -33,7 +34,12 @@ namespace BrannPack.AbilityHandling
 		public AbilityStats.StatsHolder<AbilitySlot> ThisAbilityStats;
 
 		public ChargedCooldown CCooldown;
+		public Windup Windup;
 		public float CurrentCharges=> CCooldown.CurrentCharges;
+
+		public Vector2? WindupAttackDirection;
+		public Vector2? WindupAttackLocation;
+		public Windup StoredWindup;
 
 		public bool IsUsable=>CurrentCharges>0;
 
@@ -56,10 +62,25 @@ namespace BrannPack.AbilityHandling
 			var charges = ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges) ?? StatsHolder.ZeroStatHoler.GetStatByVariable<ChargeStat>(Stat.Charges);
 			CCooldown = new ChargedCooldown(cooldown, charges);
 			Owner.Body.CooldownHandler.AddCooldown((-1, -1, (int)SlotType), CCooldown);
-			
+
+			var fireRate = ThisAbilityStats.GetStatByVariable<FireRateStat>(Stat.FireRate);
+			if(fireRate!=null)
+                fireRate.ChangedTotal += UpdateWindupDuration;
 		}
 
-		public void SetAbilityUpgrade(AbilityUpgrade abilityUpgrade,bool enabled)
+
+        public void ResetWindup(float buffer)
+        {
+            Windup = new Windup(duration, buffer);
+            master.Cooldowns.SetCooldown((1, this.Index, 0), Windup);
+        }
+
+		private void UpdateWindupDuration(float oldvalue,float newvalue)
+		{
+			Windup.Duration = newvalue;
+		}
+
+        public void SetAbilityUpgrade(AbilityUpgrade abilityUpgrade,bool enabled)
 		{
 			if (enabled)
 			{

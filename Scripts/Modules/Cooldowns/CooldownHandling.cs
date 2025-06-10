@@ -79,13 +79,22 @@ namespace BrannPack.CooldownHandling
         /// <summary>
         /// Gets the remaining cooldown time.
         /// </summary>
-        public float GetRemainingCooldown((int indexType, int sourceIndex, int cooldownSource) key, int cooldownInstance)
+        public float GetRemainingCooldown((int indexType, int sourceIndex, int cooldownSource) key)
         {
             if (Cooldowns.TryGetValue(key, out var cooldown))
             {
                     return cooldown.RemainingTime;
             }
             return 0f;
+        }
+
+        public Cooldown GetCooldown((int indexType, int sourceIndex, int cooldownSource) key)
+        {
+            if (Cooldowns.TryGetValue(key, out var cooldown))
+            {
+                return cooldown;
+            }
+            return null;
         }
 
         /// <summary>
@@ -219,5 +228,15 @@ namespace BrannPack.CooldownHandling
             elapsedTime = maxCharges % 1f * Duration;
             IsPaused = true;
         }
+    }
+
+    public class Windup : Cooldown
+    {
+        public float BufferTime;
+
+        public override bool IsExpired => elapsedTime >= Duration+BufferTime;
+        public virtual bool IsWindupComplete => elapsedTime >= Duration;
+        public Windup(float duration, float bufferTime, bool removeFromHandlerOnCompletion = true, Action<Cooldown> onComplete = null) 
+                : base(duration, removeFromHandlerOnCompletion, onComplete) => (BufferTime) = (bufferTime);
     }
 }
