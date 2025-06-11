@@ -54,6 +54,14 @@ namespace BrannPack.CooldownHandling
             }
         }
 
+        public Cooldown RemoveCooldown((int indexType, int sourceIndex, int cooldownSource) key, bool triggerCompletion)
+        {
+            Cooldowns.Remove(key, out Cooldown ans);
+            if (triggerCompletion)
+                ans.ForceInvokeCompletion();
+            return ans;
+        }
+
         public void SetCooldown((int indexType, int sourceIndex, int cooldownSource) key, float duration, bool removeFromHandlerOnCompletion = false)
         {  
                 Cooldowns[key] = new Cooldown(duration, removeFromHandlerOnCompletion);
@@ -131,15 +139,19 @@ namespace BrannPack.CooldownHandling
         public bool IsPaused = false;
 
         public bool RemoveFromHandlerOnCompletion;
+        public bool ResetAndPauseOnCompletion;
 
-        public Cooldown(float duration, bool removeFromHandlerOnCompletion = true, Action<Cooldown> onComplete = null)
+        public Cooldown(float duration, bool removeFromHandlerOnCompletion = true, Action<Cooldown> onComplete = null, bool resetAndPauseOnCompletion = false)
         {
             Duration = duration;
             elapsedTime = 0f;
             RemoveFromHandlerOnCompletion = removeFromHandlerOnCompletion;
+            ResetAndPauseOnCompletion = resetAndPauseOnCompletion;
 
             if (onComplete != null)
                 CompletedCooldown += onComplete;
+            
+
         }
 
         public event Action<Cooldown> CompletedCooldown;
@@ -151,14 +163,23 @@ namespace BrannPack.CooldownHandling
         {
             if(!IsExpired && !IsPaused)
                 elapsedTime += deltaTime;
-                if (IsExpired)
-                    CompletedCooldown?.Invoke(this);
+            if (IsExpired)
+            {
+                CompletedCooldown?.Invoke(this);
+                if(!RemoveFromHandlerOnCompletion)
+                {
+                    Reset();
+                    IsPaused = true;
+                }
+            }
         }
 
         public virtual void Reset()
         {
             elapsedTime = 0f;
         }
+
+        public void ForceInvokeCompletion() { CompletedCooldown?.Invoke(this); }
     }
 
     public class ChargedCooldown : Cooldown
@@ -236,7 +257,7 @@ namespace BrannPack.CooldownHandling
 
         public override bool IsExpired => elapsedTime >= Duration+BufferTime;
         public virtual bool IsWindupComplete => elapsedTime >= Duration;
-        public Windup(float duration, float bufferTime, bool removeFromHandlerOnCompletion = true, Action<Cooldown> onComplete = null) 
-                : base(duration, removeFromHandlerOnCompletion, onComplete) => (BufferTime) = (bufferTime);
+        public Windup(float duration, float bufferTime, bool removeFromHandlerOnCompletion = true, bool resetAndPauseOnCompletion=true,Action<Cooldown> onComplete = null) 
+                : base(duration, removeFromHandlerOnCompletion, onComplete,resetAndPauseOnCompletion) => (BufferTime) = (bufferTime);
     }
 }

@@ -51,17 +51,22 @@ namespace BrannPack.Character.NonPlayable
 
         public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo=null, EventChain eventChain=null)
         {
-            if (abilityUseInfo.PressState != InputPressState.Pressing || !master.Cooldowns.IsOnCooldown((1,this.Index,0)))
-                ResetWindup();
+            var windup = abilitySlot.Windup;
+            if (windup.IsPaused)
+                windup.IsPaused = false;
             if (abilitySlot.WindupAttackDirection == null)
                 if (abilityUseInfo.DirectionTo != null)
                     abilitySlot.WindupAttackDirection = abilityUseInfo.DirectionTo;
                 else
                     return;
-            var windup = master.Cooldowns.GetCooldown((1, this.Index, 0));
-            if (windup != null)
-                if (((Windup)windup).IsWindupComplete)
-                    DoAttack();
+
+            if (((Windup)windup).IsWindupComplete)
+                DoAttack();
+
+        }
+
+        private void DoAttack()
+        {
 
         }
 

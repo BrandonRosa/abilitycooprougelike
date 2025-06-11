@@ -61,19 +61,21 @@ namespace BrannPack.AbilityHandling
 			var cooldown = ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown)??StatsHolder.ZeroStatHoler.GetStatByVariable<CooldownStat>(Stat.Cooldown);
 			var charges = ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges) ?? StatsHolder.ZeroStatHoler.GetStatByVariable<ChargeStat>(Stat.Charges);
 			CCooldown = new ChargedCooldown(cooldown, charges);
-			Owner.Body.CooldownHandler.AddCooldown((-1, -1, (int)SlotType), CCooldown);
+			Owner.Body.CooldownHandler.AddCooldown((-1, (int)SlotType,1 ), CCooldown);
 
 			var fireRate = ThisAbilityStats.GetStatByVariable<FireRateStat>(Stat.FireRate);
-			if(fireRate!=null)
-                fireRate.ChangedTotal += UpdateWindupDuration;
+			if (fireRate != null)
+			{
+				Windup = new Windup(1f / fireRate.CalculateTotal(), Mathf.Clamp(1f / fireRate.CalculateTotal() * .1f, .01f, .65f), false,true);
+				Owner.Body.CooldownHandler.AddCooldown((-1, (int)SlotType, 2), Windup);
+				fireRate.ChangedTotal += UpdateWindupDuration;
+			}
+			else
+			{
+				Owner.Body.CooldownHandler.RemoveCooldown((-1, (int)SlotType, 2), false);
+			}
 		}
 
-
-        public void ResetWindup(float buffer)
-        {
-            Windup = new Windup(duration, buffer);
-            master.Cooldowns.SetCooldown((1, this.Index, 0), Windup);
-        }
 
 		private void UpdateWindupDuration(float oldvalue,float newvalue)
 		{
