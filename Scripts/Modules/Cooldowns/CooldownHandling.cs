@@ -57,7 +57,7 @@ namespace BrannPack.CooldownHandling
         public Cooldown RemoveCooldown((int indexType, int sourceIndex, int cooldownSource) key, bool triggerCompletion)
         {
             Cooldowns.Remove(key, out Cooldown ans);
-            if (triggerCompletion)
+            if (ans!=null && triggerCompletion)
                 ans.ForceInvokeCompletion();
             return ans;
         }
@@ -166,7 +166,7 @@ namespace BrannPack.CooldownHandling
             if (IsExpired)
             {
                 CompletedCooldown?.Invoke(this);
-                if(!RemoveFromHandlerOnCompletion)
+                if(!RemoveFromHandlerOnCompletion && ResetAndPauseOnCompletion)
                 {
                     Reset();
                     IsPaused = true;

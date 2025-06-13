@@ -1,5 +1,6 @@
 using BrannPack.Character;
 using BrannPack.Debugging;
+using BrannPack.GameDirectrs;
 using Godot;
 using Godot.Collections;
 using System;
@@ -124,38 +125,74 @@ namespace BrannPack.Helpers.Attacks
 			return hitCharacters.ToList();
 		}
 
-		public static List<BaseCharacterBody> GetCharactersInRotatedBox(BaseCharacterBody characterBody, Vector2 center, float width, float length, float rotationAngle)
-		{
-			PhysicsDirectSpaceState2D spaceState = characterBody.GetWorld2D().DirectSpaceState;
+        public static List<BaseCharacterBody> GetCollisionsInBoxArea(
+        Transform2D originTransform,float rotation,
+        float width,
+        float height,
+		PhysicsDirectSpaceState2D spaceState,
+        bool isAnchoredOnEdge = false,
+        uint collisionMask = uint.MaxValue,
+		bool debug=true
+    )
+        {
+            
 
-			RectangleShape2D hitbox = new RectangleShape2D();
+            // Build the box shape
+            RectangleShape2D box = new RectangleShape2D
+            {
+                Size = new Vector2(width, height)
+            };
 
-			hitbox.Size = new Vector2(width / 2, length / 2); // Half-size
+            // Handle rotation
 
+            // Calculate box transform
+            Vector2 position = originTransform.Origin;
 
-			PhysicsShapeQueryParameters2D query = new()
+            if (isAnchoredOnEdge)
+            {
+                // Push the box forward by half height in its local up direction
+                Vector2 forward = new Vector2(0, 1).Rotated(rotation-(float)Math.PI/2f);
+                position += forward * (height / 2f);
+            }
+
+            Transform2D boxTransform = new Transform2D(rotation, position);
+
+            // Build the query
+            PhysicsShapeQueryParameters2D query = new PhysicsShapeQueryParameters2D
+            {
+                Shape = box,
+                Transform = boxTransform,
+                CollisionMask = collisionMask,
+                CollideWithAreas = false,
+                CollideWithBodies = true
+            };
+
+            // Get results
+            var results = spaceState.IntersectShape(query);
+
+			if(debug)
 			{
-				Transform = new Transform2D(rotationAngle, center), // Apply rotation
-				Shape = hitbox,
-				CollideWithBodies = true,
-				CollideWithAreas = false
-			};
+                // Draw the line for 0.5s using debug draw
+                var DBR = new DebugRect();
+                DBR.Initialize(new Transform2D(rotation,position), box.Size, Colors.Red, 2);
+                GameDirector.instance.GetTree().Root.AddChild(DBR); // Absolute root of the scene tree
+            }
 
-			var results = spaceState.IntersectShape(query);
+            // Filter results and cast to PhysicsBody2D
+            List<BaseCharacterBody> hitBodies = new();
 
-			List<BaseCharacterBody> hitTargets = new();
-			foreach (var result in results)
-			{
-				if (result["collider"].Obj is BaseCharacterBody charBody)
-				{
-				   hitTargets.Add(charBody);
-				}
-			}
+            foreach (var result in results)
+            {
+                if (result["collider"].Obj is BaseCharacterBody charBody)
+                {
+                    hitBodies.Add(charBody);
+                }
+            }
 
-			return hitTargets;
-		}
+            return hitBodies;
+        }
 
-		public static (bool IsSuccess, int SuccessfulRolls, int LuckUsed, int BadLuckUsed) RollWithProcAndLucks(float chance,float procChance, float luck, float badLuck)
+        public static (bool IsSuccess, int SuccessfulRolls, int LuckUsed, int BadLuckUsed) RollWithProcAndLucks(float chance,float procChance, float luck, float badLuck)
 		{
 			int rerolls = (int)Mathf.Floor(luck) +(Roll(luck% 1f)?1:0);
 			int badReroll = (int)Mathf.Floor(badLuck) + (Roll(badLuck % 1f) ? 1 : 0);

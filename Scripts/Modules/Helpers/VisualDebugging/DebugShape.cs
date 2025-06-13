@@ -57,4 +57,41 @@ namespace BrannPack.Debugging
             QueueRedraw(); // important to trigger initial draw
         }
     }
+
+    [GlobalClass]
+    public partial class DebugRect : DebugShape
+    {
+        public Vector2 Size { get; set; } = Vector2.One;
+        public float LineWidth { get; set; } = 2f;
+
+        public bool IsHollow = true;
+
+        public override void _Ready()
+        {
+            SetProcess(true); // ensure _Process is running
+        }
+
+        public void Initialize(Transform2D transform, Vector2 size, Color color, float lineWidth = 2f, float duration = 0.5f, bool isHollow=true)
+        {
+            Transform = transform;
+            Size = size;
+            BaseColor = color;
+            LineWidth = lineWidth;
+            Duration = duration;
+            IsHollow = isHollow;
+
+            QueueRedraw(); // trigger drawing
+        }
+
+        public override void _Draw()
+        {
+            Rect2 rect = new Rect2(-Size/2f, Size);
+            if(IsHollow)
+                DrawRect(rect, BaseColor, IsHollow, LineWidth);
+            else
+                DrawRect(rect, BaseColor, IsHollow);
+        }
+
+    }
+
 }

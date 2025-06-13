@@ -10,6 +10,7 @@ namespace BrannPack.GameDirectrs
 {
 	public partial class GameDirector:Node
 	{
+		public static GameDirector instance;
 		public enum GameState
 		{
 			Loading,Main,InStandardHub,InStandardRun,DevTest
@@ -21,6 +22,7 @@ namespace BrannPack.GameDirectrs
 		public override async void _Ready()
 		{
 			base._Ready();
+			instance = this;
 			await ToSignal(GetTree(), "process_frame");
 			switch (gameState)
 			{

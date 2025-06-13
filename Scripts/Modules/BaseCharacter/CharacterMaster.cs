@@ -131,7 +131,7 @@ namespace BrannPack.Character
 
 			Body.CharacterMaster = this;
 
-			Controller = IsPlayerControlled ? new LocalPlayerController() : new AIController();
+			Controller = IsPlayerControlled ? new LocalPlayerController() : new EnemyAIController();
 			Controller.OwnerMaster = this;
 			Controller.OwnerBody = Body;
 			Body.Controller = Controller;//Controller;

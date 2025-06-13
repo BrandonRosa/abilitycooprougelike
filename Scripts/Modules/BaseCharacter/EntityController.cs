@@ -154,24 +154,24 @@ namespace BrannPack.Character
 		{
 			List<BaseCharacterBody> AlliesInProximity;
 			List<BaseCharacterBody> AlliesInGossipRange;
-			List<BaseCharacterBody> TargetsInProximity;
-			List<BaseCharacterBody> TargetsInLOSRange;
+			List<BaseCharacterBody> TargetsInProximity=new();
+			List<BaseCharacterBody> TargetsInLOSRange=new();
 			bool isTargetInLOS = false;
 			//Check To See if target is still valid
 			if (AcquiredTarget != null && !TargetsInProximity.Contains(AcquiredTarget) && !TargetsInLOSRange.Contains(AcquiredTarget))
 			{
 				AcquiredTarget = null;
 			}
-			else if (IsTargetInLOS())
-			{
-				isTargetInLOS = true;
-                //set AccurateLocation to target Location
-            }
-			else if(/*Check if target is in proximity*/)
+			//else if (IsTargetInLOS())
+			//{
+			//	isTargetInLOS = true;
+   //             //set AccurateLocation to target Location
+   //         }
+			else if(/*Check if target is in proximity*/false)
 			{
 				//Set estimated location to target location with offset
 			}
-			else if (/*get first target in TargetsInLOSRange that are in LOS*/ true)
+			else if (/*get first target in TargetsInLOSRange that are in LOS*/ false)
 			{
 				//set new target and set isTargetInLOS to true
 				//set AccurateLocation to target Location
@@ -233,7 +233,7 @@ namespace BrannPack.Character
             foreach (AbilitySlot abilitySlot in new List<AbilitySlot>{OwnerMaster.Primary,OwnerMaster.Secondary,OwnerMaster.Utility,OwnerMaster.Special,OwnerMaster.Ult,OwnerMaster.Equipment})
 			{
 				if (WouldAIUseAbility(this, abilitySlot, targetDistance, currentHealthPercent, hasLOS))
-					abilitySlot.TryUseAbility(InputPressState.JustPressed);
+					abilitySlot.TryUseAbility(InputPressState.Pressing);
 			}
 		}
 
@@ -274,7 +274,7 @@ namespace BrannPack.Character
 
 		public override void UpdateInput()
 		{
-
+			TryUseAbilities();
 		}
 	}
 }

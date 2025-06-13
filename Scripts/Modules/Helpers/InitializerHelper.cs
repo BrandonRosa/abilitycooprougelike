@@ -1,4 +1,5 @@
 ﻿using BrannPack.AbilityHandling;
+using BrannPack.Character.NonPlayable;
 using BrannPack.Character.Playable;
 using BrannPack.ItemHandling;
 using BrannPack.Items;
@@ -38,6 +39,7 @@ namespace BrannPack.Helpers.Initializers
             Ability _ = new EmptyAbility();
             _ = new ScoutShotGun();
             _ = new DualPistols();
+            _ = new SwarmerSmash();
 
             AfterRegisterAbilities?.Invoke();
         }
