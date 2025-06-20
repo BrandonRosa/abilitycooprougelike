@@ -121,4 +121,46 @@ namespace BrannPack.Character.Playable
 
 	}
 
+	public class ScoutGrappleHook : Ability<ScoutGrappleHook>
+	{
+        protected static RangeStat Range = new RangeStat(1000f, 3000f, 500f);
+        protected static DamageStat Damage = new DamageStat(0, 0f);
+        protected static CooldownStat Cooldown = new CooldownStat(8f);
+        protected static CooldownStat SpamCooldown = new CooldownStat(2f);
+        protected static ChargeStat Charges = new ChargeStat(2f);
+
+        public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
+            {
+                { Stat.Range, Range },
+                { Stat.Damage, Damage },
+                { Stat.Cooldown, Cooldown },
+                { Stat.Charges, Charges },
+                {Stat.SpamCooldown, SpamCooldown },
+            },
+           new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
+        {
+        };
+        public override string Name { get; protected set; } = "Grapple Hook";
+        public override string CodeName { get; protected set; } = "Scout_Grapple";
+        public override string Description { get; protected set; }
+        public override string AdvancedDescription { get; protected set; }
+        public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
+
+        //public AbilityUpgrade SSG_U1_Cooldown=
+        public override BaseCharacterBody UpdateTarget()
+        {
+            return null;
+        }
+    }
+
+	public partial class GrappleProj : BaseProjectile
+	{
+
+	}
+
+	public partial class ReelProj:BaseProjectile
+	{
+
+	}
+
 }
