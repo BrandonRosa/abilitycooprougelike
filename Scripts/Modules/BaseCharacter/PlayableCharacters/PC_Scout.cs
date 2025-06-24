@@ -151,16 +151,47 @@ namespace BrannPack.Character.Playable
         {
             return null;
         }
+
+        public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 	public partial class GrappleProj : BaseProjectile
 	{
+		public static List<GrappleProj> AllGrapples=new();
+		public bool IsReeling = false;
 
-	}
+        public override void Initialize(ProjectileInfo projectileInfo)
+        {
+            base.Initialize(projectileInfo);
+			AllGrapples.Add(this);
+        }
 
-	public partial class ReelProj:BaseProjectile
-	{
+        public override void _PhysicsProcess(double delta)
+        {
+            (this as Node2D)._PhysicsProcess(delta);
+			if (IsReeling)
+			{
+				ProjectileInfo.Duration -= (float)delta;
+				if (ProjectileInfo.Duration <= 0f)
+				{
+					SetToDestroy = true;
+				}
+				PullPlayer();
+			}
+			else
+				Move(delta);
+        }
 
-	}
+		public void PullPlayer()
+		{
+			float speed = 100f;
+			Vector2 dir = (GlobalPosition - ProjectileInfo.Destination.Body.GlobalPosition).Normalized();
+			ProjectileInfo.Destination.Body.ExternalVelocityInput.Add(dir*speed);
+		}
+
+    }
 
 }

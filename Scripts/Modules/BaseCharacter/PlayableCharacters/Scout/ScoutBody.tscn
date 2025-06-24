@@ -9,7 +9,7 @@
 script = ExtResource("1_pf7dv")
 CharacterName = "Scout"
 Acceleration = 10.0
-Deceleration = 0.001
+Deceleration = 6.0
 StartingPrimary = "Scout_Pistols"
 StartingSecondary = "Scout_Shotgun"
 StartingUtility = "MELEE_SWARMER_SWIPE"

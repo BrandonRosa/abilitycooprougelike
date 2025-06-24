@@ -123,7 +123,7 @@ namespace BrannPack.Projectile
 
         }
 
-        public void Initialize(ProjectileInfo projectileInfo)
+        public virtual void Initialize(ProjectileInfo projectileInfo)
         {
             ProjectileInfo= projectileInfo;
             GD.Print(projectileInfo.ProjectileName);

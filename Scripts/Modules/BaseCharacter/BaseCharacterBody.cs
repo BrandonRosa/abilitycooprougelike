@@ -135,8 +135,10 @@ namespace BrannPack.Character
 
 
 		public EntityController Controller;
+		public List<Vector2> ExternalVelocityInput=new();
 		public Vector2 AimDirection;
 		public Vector2 MoveDirection;
+		private Vector2 _InputVelocity = Vector2.Zero;
 
 
 
@@ -166,8 +168,8 @@ namespace BrannPack.Character
 		public override void _PhysicsProcess(double delta)
 		{
 			base._PhysicsProcess(delta);
-			float CalculatedSpeed=MoveSpeed!=null? MoveSpeed.CalculateTotal():0f;
-
+			float CalculatedSpeed=MoveSpeed!=null? (MoveSpeed.CalculateTotal() * 100f ): 0f;
+			GD.Print("MS:" + CalculatedSpeed);
 			// Get input vector
 			Vector2 inputDirection = MoveDirection;
 			
@@ -175,22 +177,42 @@ namespace BrannPack.Character
 			// Normalize the direction to ensure consistent speed in all directions
 			if (inputDirection.Length() > 0)
 				inputDirection = inputDirection.Normalized();
-
-			// Calculate target velocity based on input
-			Vector2 targetVelocity = inputDirection * CalculatedSpeed;
-
-			float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
-			Velocity = Velocity.Lerp(targetVelocity*100f, t);
-
-			// Gradual deceleration when no input is given
-			if (inputDirection == Vector2.Zero)
+			if (inputDirection != Vector2.Zero)
 			{
+				// Calculate target velocity based on input
+				Vector2 targetVelocity = inputDirection * CalculatedSpeed;
+
+				var oldInputVel = _InputVelocity;
+				float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
+				_InputVelocity = _InputVelocity.Lerp(targetVelocity, t);
+				var inputDiff = _InputVelocity - oldInputVel;
+
+				Velocity += inputDiff;
+
+			}
+			// Gradual deceleration when no input is given
+			else
+			{
+
 				t = 1f - Mathf.Exp(-Deceleration * (float)delta);
 				Velocity = Velocity.Lerp(Vector2.Zero, t);
 			}
 
-			// Apply movement
-			MoveAndSlide();
+            // Accumulate external forces
+            Vector2 totalExternalVelocity = Vector2.Zero;
+            foreach (var force in ExternalVelocityInput)
+            {
+                totalExternalVelocity += force;
+            }
+
+            // Apply blended external velocity
+            Velocity += totalExternalVelocity * 1f;
+
+            // Clear the external forces for the next frame
+            ExternalVelocityInput.Clear();
+
+            // Apply movement
+            MoveAndSlide();
 
 			// Animate!
 			HandleAnimation(inputDirection);
