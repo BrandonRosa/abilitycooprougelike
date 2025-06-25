@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SpawnPoolDetails" load_steps=3 format=3 uid="uid://dt8fjeulv4oyk"]
+
+[ext_resource type="PackedScene" uid="uid://brmwienh1m7kq" path="res://Scripts/Modules/Projectile/StandardProjectiles/GrappleProjectile.tscn" id="1_p146c"]
+[ext_resource type="Script" uid="uid://b2ayrb55quhui" path="res://Scripts/Modules/Helpers/ResourcePooler/SpawnPoolDetails.cs" id="2_ljqmv"]
+
+[resource]
+script = ExtResource("2_ljqmv")
+SpawnScene = ExtResource("1_p146c")
+CodeName = "GrappleProjectile"
+Name = "GrappleProjectile"
+SpawnType = 0
+ShouldPool = true
+InitialPoolSize = 8
+Description = ""
+Lore = ""
+metadata/_custom_type_script = "uid://b2ayrb55quhui"

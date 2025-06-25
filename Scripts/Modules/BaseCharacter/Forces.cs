@@ -14,12 +14,13 @@ namespace BrannPack.Forces
 		public Vector2 FPosition { get; }
 
 		public Vector2 FVelocity { get; }
+
 	}
 	public abstract class Force
 	{
-		public Vector2 Velocity = Vector2.Zero;
-		public Vector2 dV = Vector2.Zero;
-		public bool SetToDelete = false;
+		public virtual Vector2 Velocity { get; set; } = Vector2.Zero;
+		public virtual Vector2 dV { get; set; } = Vector2.Zero;
+		public virtual bool SetToDelete { get; set; } = false;
 		public abstract Vector2 SetdV(double delta);
 	}
 
@@ -48,65 +49,79 @@ namespace BrannPack.Forces
 	{
 		public float Acceleration= 200f;
 		public float Deceleration=80f;
-		public float EaseOutRange = 100f;
-		public float StopRange = 20f;
-		public float MaxSpeed = 30f;
+		public float EaseOutRange = 150f;
+		public float StopRange =  5f;
+		public float MaxSpeed = 20f;
 		public float EaseInSpeed = 10f;
+		public float DeleteDistance = -1f;
 		public IForcable PullVictim;
 		public Node2D Puller;
-		public DestinationPullForce(IForcable pullVictim, Node2D puller, float maxSpeed = 30f, float easeInSpeed = 10f, float easeOutRange = 100f, float stopRange = 20f, float acceleration = 200f, float deceleration = 80f)
-        {
-            PullVictim = pullVictim;
-            Puller = puller;
-            MaxSpeed = maxSpeed;
-            EaseInSpeed = easeInSpeed;
-            EaseOutRange = easeOutRange;
-            StopRange = stopRange;
-            Acceleration = acceleration;
-            Deceleration = deceleration;
-        }
+		public DestinationPullForce(IForcable pullVictim, Node2D puller, float maxSpeed = 20f, float easeInSpeed = 10f, float easeOutRange = 150f, float stopRange = 5f, float acceleration = 200f, float deceleration = 80f, float deleteDistance=-1)
+		{
+			PullVictim = pullVictim;
+			Puller = puller;
+			MaxSpeed = maxSpeed;
+			EaseInSpeed = easeInSpeed;
+			EaseOutRange = easeOutRange;
+			StopRange = stopRange;
+			Acceleration = acceleration;
+			Deceleration = deceleration;
+			DeleteDistance = deleteDistance;
+		}
 
 		public override Vector2 SetdV(double delta)
 		{
 			var oldVel = Velocity;
-			var targetVelocity= CalculateGrappleVelocity(PullVictim.FPosition,Puller.GlobalPosition,PullVictim.FVelocity,MaxSpeed,EaseInSpeed,EaseOutRange,StopRange);
-            float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
-            Velocity = Velocity.Lerp(targetVelocity, t);
-			dV = Velocity - oldVel;
+			GD.Print("oldVel:" + oldVel);
+			Vector2 direction = Puller.GlobalPosition - PullVictim.FPosition;
+			GD.Print("Dist:" + direction.Length());
+			var targetVelocity= CalculateGrappleVelocity(direction, PullVictim.FVelocity, MaxSpeed,EaseInSpeed,EaseOutRange,StopRange);
+			float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
+			
+			GD.Print("Calc:" + Velocity + "-" + PullVictim.FVelocity);
+			dV = (targetVelocity-PullVictim.FVelocity.Dot(targetVelocity.Normalized()))(0,MaxSpeed);
+
+			if (direction.Length() < DeleteDistance)
+			{
+				SetToDelete = true;
+			}
 			return dV;
-        }
+		}
 
-		public static Vector2 CalculateGrappleVelocity(Vector2 currentPosition, Vector2 targetPosition,Vector2 currentVelocity, float maxSpeed, float easeInSpeed, float easeOutDistance, float stopDistance)
+		public static Vector2 CalculateGrappleVelocity(Vector2 direction,Vector2 currentVelocity, float maxSpeed, float easeInSpeed, float easeOutDistance, float stopDistance)
 		{
-			Vector2 direction = currentPosition.DirectionTo(targetPosition);
-			float distance = currentPosition.DistanceTo(targetPosition);
-			float currSpeed = currentVelocity.Dot(direction);
+			float distance = direction.Length();
 
-			if (distance <= 0.01f)
-				return Vector2.Zero;
+			return direction.Normalized() * maxSpeed;
+		}
+	}
 
-			float t;
+	public class FrictionalForce:Force
+	{
+		public IForcable ForceObject;
+		public float FrictionConstant = .5f;
+		public bool UseFriction=false;
+		public Vector2 IgnoredVelocity = Vector2.Zero;
+		
+		public FrictionalForce(IForcable forceObject,float frictionConstant=5f)
+		{
+			ForceObject = forceObject;
+			FrictionConstant = frictionConstant;
+		}
 
-			if (distance > easeOutDistance)
+		public override Vector2 SetdV(double delta)
+		{
+			if(!UseFriction)
 			{
-				// Ease-out zone
-				float remaining = distance - easeOutDistance;
-				float totalEaseOut = Mathf.Max(easeOutDistance, 0.001f); // Avoid divide by zero
-				t = Mathf.SmoothStep(1f, 0f, remaining / totalEaseOut);
+				dV = Vector2.Zero;
+				Velocity = Vector2.Zero;
+				return dV;
 			}
-			else if(currSpeed <maxSpeed)
-			{
-				// Ease-in zone
-				t = Mathf.SmoothStep(0f, 1f, currSpeed / maxSpeed);
-			}
-			else
-			{
-				// Constant zone
-				t = 1f;
-			}
+			var mov = ForceObject.FVelocity - IgnoredVelocity;
 
-			float speed = maxSpeed * t;
-			return direction * speed;
+			Velocity = -(mov) * FrictionConstant * (float)delta;
+			dV = Velocity;
+			return dV;
 		}
 	}
 }

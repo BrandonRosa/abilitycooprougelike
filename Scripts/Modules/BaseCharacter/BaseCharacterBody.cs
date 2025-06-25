@@ -137,6 +137,7 @@ namespace BrannPack.Character
 
 		public EntityController Controller;
 		public HashSet<Force> ExternalVelocityInput { get; set; }=  new HashSet<Force>();
+		private FrictionalForce _friction;
 
         public Vector2 FPosition =>GlobalPosition;
 
@@ -174,8 +175,11 @@ namespace BrannPack.Character
 		public override void _PhysicsProcess(double delta)
 		{
 			base._PhysicsProcess(delta);
+
+			var oldVel = Velocity;
+
 			float CalculatedSpeed=MoveSpeed!=null? (MoveSpeed.CalculateTotal() * 100f ): 0f;
-			GD.Print("MS:" + CalculatedSpeed);
+			
 			// Get input vector
 			Vector2 inputDirection = MoveDirection;
 			
@@ -212,18 +216,40 @@ namespace BrannPack.Character
             foreach (var force in ExternalVelocityInput)
             {
                 totalExternalVelocity += force.SetdV(delta);
-				if(force.SetToDelete)
+				if (force.SetToDelete)
+				{
 					delForces.Add(force);
+					GD.Print("DELL");
+				}
             }
 
 			delForces.ForEach(force => ExternalVelocityInput.Remove(force));
 
             // Apply blended external velocity
-            Velocity += totalExternalVelocity * 1f;
+            Velocity += totalExternalVelocity;
+			var velDiff = Velocity - oldVel;
+            
+			float angle = inputDirection.AngleTo(Velocity)*180f/Mathf.Pi;
 
-            // Clear the external forces for the next frame
-            ExternalVelocityInput.Clear();
+			if (_friction == null || _friction.ForceObject != this)
+				_friction = new FrictionalForce(this);
 
+			if (!_friction.UseFriction && totalExternalVelocity.Length() == 0f) //((inputDirection == Vector2.Zero) || ((135f < angle) && (angle < 225))) 
+                _friction.UseFriction = true;
+			
+					
+			_friction.IgnoredVelocity = _InputVelocity+totalExternalVelocity;
+			var fdV = _friction.SetdV(delta);
+			if (_friction.UseFriction && ((45 < angle && angle < 135) || (225 < angle && angle < 315)))
+				fdV=.8f*fdV.Rotated((((180f - Mathf.Abs(angle)) / 1.35f) * Mathf.Sign(angle) * MathF.PI / 180f));
+
+            if (fdV.Length() < 1)
+				_friction.UseFriction = false;
+			Velocity += fdV;
+			if (Velocity.Length() < 1.5f)
+				Velocity = Vector2.Zero;
+			if(Velocity.Length()>0)
+				GD.Print("Vel:" + Velocity.Length());
             // Apply movement
             MoveAndSlide();
 

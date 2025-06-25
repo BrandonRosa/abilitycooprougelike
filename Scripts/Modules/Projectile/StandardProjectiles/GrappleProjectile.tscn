@@ -1,13 +1,13 @@
 [gd_scene load_steps=4 format=3 uid="uid://brmwienh1m7kq"]
 
-[ext_resource type="Script" uid="uid://2j3m1xltq0oh" path="res://Scripts/Modules/Projectile/BaseProjectile.cs" id="1_4gxk2"]
+[ext_resource type="Script" uid="uid://ca06ybsaj5hi1" path="res://Scripts/Modules/Projectile/GrappleProjectile.cs" id="1_4gxk2"]
 [ext_resource type="Texture2D" uid="uid://ba0dyxaof48pg" path="res://icon.svg" id="2_kpdfl"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kc0td"]
 
-[node name="BasicEnemyBullet" type="Node2D"]
+[node name="GrappleProjectile" type="Node2D"]
 script = ExtResource("1_4gxk2")
-metadata/_custom_type_script = "uid://2j3m1xltq0oh"
+metadata/_custom_type_script = "uid://ca06ybsaj5hi1"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.15625, 0.15625)

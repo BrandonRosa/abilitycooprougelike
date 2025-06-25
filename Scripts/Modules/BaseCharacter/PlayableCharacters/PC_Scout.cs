@@ -124,11 +124,11 @@ namespace BrannPack.Character.Playable
 
 	public class ScoutGrappleHook : Ability<ScoutGrappleHook>
 	{
-        protected static RangeStat Range = new RangeStat(1000f, 3000f, 500f);
+        protected static RangeStat Range = new RangeStat(200f, 3000f, 500f);
         protected static DamageStat Damage = new DamageStat(0, 0f);
-        protected static CooldownStat Cooldown = new CooldownStat(8f);
-        protected static CooldownStat SpamCooldown = new CooldownStat(2f);
-        protected static ChargeStat Charges = new ChargeStat(2f);
+        protected static CooldownStat Cooldown = new CooldownStat(.1f);
+        protected static CooldownStat SpamCooldown = new CooldownStat(.5f);
+        protected static ChargeStat Charges = new ChargeStat(1f);
 
         public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
             {
@@ -155,15 +155,16 @@ namespace BrannPack.Character.Playable
 
         public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
         {
-            if (master.Body.CooldownHandler.IsOnCooldown((1, this.Index, 0)))
+            if (abilityUseInfo.PressState != InputPressState.JustPressed)
                 return;
-            var bullet = PoolManager.PoolManagerNode.Spawn<BaseProjectile>("BasicEnemyBullet", PoolManager.ProjectilesNode);
+            var bullet = PoolManager.PoolManagerNode.Spawn<BaseProjectile>("GrappleProjectile", PoolManager.ProjectilesNode);
             var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
             var rangestat = Range.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
             var cooldownStat = Cooldown.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
             bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "GrappleProjectile", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 15f, range: rangestat.CalculateTotal(), speed: 1500f));
-			float cooldown = cooldownStat.CalculateTotal();
-            master.Body.CooldownHandler.AddCooldown((1, this.Index, 0), cooldown);
+
+            abilitySlot.CCooldown.TryUseCharge();
+            abilitySlot.CCooldown.Reset();
         }
     }
 	

@@ -7,7 +7,7 @@
 script = ExtResource("1_ib25v")
 SpawnScene = ExtResource("1_4ysox")
 CodeName = "BasicEnemyBullet"
-Name = "BasicEnemyBullet"
+Name = "BasicEnemyBulelt"
 SpawnType = 1
 ShouldPool = true
 InitialPoolSize = 10
