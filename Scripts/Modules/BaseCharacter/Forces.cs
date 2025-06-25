@@ -8,11 +8,19 @@ using System.Threading.Tasks;
 
 namespace BrannPack.Forces
 {
+	public interface IForcable
+	{
+		public HashSet<Force> ExternalVelocityInput { get; set; }
+		public Vector2 FPosition { get; }
+
+		public Vector2 FVelocity { get; }
+	}
 	public abstract class Force
 	{
 		public Vector2 Velocity = Vector2.Zero;
-		public abstract Vector2 GetdV(double delta);
-		public abstract bool ShouldDelete();
+		public Vector2 dV = Vector2.Zero;
+		public bool SetToDelete = false;
+		public abstract Vector2 SetdV(double delta);
 	}
 
 	public class LerpForce:Force
@@ -26,36 +34,49 @@ namespace BrannPack.Forces
 			ToVelocity = toVelocity;
 		}
 
-		public override Vector2 GetdV(double delta)
+		public override Vector2 SetdV(double delta)
 		{
 			var oldVel = Velocity;
 			float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
 			Velocity = Velocity.Lerp(ToVelocity, t);
-			var dV = Velocity - oldVel;
+			dV = Velocity - oldVel;
 			return dV;
 		}
-
-		public override bool ShouldDelete() { return false; }
 	}
 
-	public class DestinationPullForce
+	public class DestinationPullForce:Force
 	{
 		public float Acceleration= 200f;
 		public float Deceleration=80f;
 		public float EaseOutRange = 100f;
 		public float StopRange = 20f;
-		public float MaxSpeed = 100f;
-		public float easeInSpeed = 10f;
-		public DestinationPullForce()
-		{
-		}
+		public float MaxSpeed = 30f;
+		public float EaseInSpeed = 10f;
+		public IForcable PullVictim;
+		public Node2D Puller;
+		public DestinationPullForce(IForcable pullVictim, Node2D puller, float maxSpeed = 30f, float easeInSpeed = 10f, float easeOutRange = 100f, float stopRange = 20f, float acceleration = 200f, float deceleration = 80f)
+        {
+            PullVictim = pullVictim;
+            Puller = puller;
+            MaxSpeed = maxSpeed;
+            EaseInSpeed = easeInSpeed;
+            EaseOutRange = easeOutRange;
+            StopRange = stopRange;
+            Acceleration = acceleration;
+            Deceleration = deceleration;
+        }
 
-		public  Vector2 GetdV(double delta, Vector2 currentPosition, Vector2 targetPosition)
+		public override Vector2 SetdV(double delta)
 		{
-			return Vector2.Zero;
-		}
+			var oldVel = Velocity;
+			var targetVelocity= CalculateGrappleVelocity(PullVictim.FPosition,Puller.GlobalPosition,PullVictim.FVelocity,MaxSpeed,EaseInSpeed,EaseOutRange,StopRange);
+            float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
+            Velocity = Velocity.Lerp(targetVelocity, t);
+			dV = Velocity - oldVel;
+			return dV;
+        }
 
-		public static Vector2 CalculateGrappleVelocity(Vector2 currentPosition, Vector2 targetPosition,Vector2 currentVelocity, float maxSpeed, float easeInSpeed, float easeOutDistance)
+		public static Vector2 CalculateGrappleVelocity(Vector2 currentPosition, Vector2 targetPosition,Vector2 currentVelocity, float maxSpeed, float easeInSpeed, float easeOutDistance, float stopDistance)
 		{
 			Vector2 direction = currentPosition.DirectionTo(targetPosition);
 			float distance = currentPosition.DistanceTo(targetPosition);

@@ -1,4 +1,5 @@
 using BrannPack.AbilityHandling;
+using BrannPack.Forces;
 using BrannPack.Helpers.Attacks;
 using BrannPack.Helpers.RecourcePool;
 using BrannPack.InputHelpers;
@@ -154,44 +155,17 @@ namespace BrannPack.Character.Playable
 
         public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
         {
-            throw new NotImplementedException();
+            if (master.Body.CooldownHandler.IsOnCooldown((1, this.Index, 0)))
+                return;
+            var bullet = PoolManager.PoolManagerNode.Spawn<BaseProjectile>("BasicEnemyBullet", PoolManager.ProjectilesNode);
+            var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
+            var rangestat = Range.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
+            var cooldownStat = Cooldown.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
+            bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "GrappleProjectile", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 15f, range: rangestat.CalculateTotal(), speed: 1500f));
+			float cooldown = cooldownStat.CalculateTotal();
+            master.Body.CooldownHandler.AddCooldown((1, this.Index, 0), cooldown);
         }
     }
-
-	public partial class GrappleProj : BaseProjectile
-	{
-		public static List<GrappleProj> AllGrapples=new();
-		public bool IsReeling = false;
-
-        public override void Initialize(ProjectileInfo projectileInfo)
-        {
-            base.Initialize(projectileInfo);
-			AllGrapples.Add(this);
-        }
-
-        public override void _PhysicsProcess(double delta)
-        {
-            (this as Node2D)._PhysicsProcess(delta);
-			if (IsReeling)
-			{
-				ProjectileInfo.Duration -= (float)delta;
-				if (ProjectileInfo.Duration <= 0f)
-				{
-					SetToDestroy = true;
-				}
-				PullPlayer();
-			}
-			else
-				Move(delta);
-        }
-
-		public void PullPlayer()
-		{
-			float speed = 100f;
-			Vector2 dir = (GlobalPosition - ProjectileInfo.Destination.Body.GlobalPosition).Normalized();
-			ProjectileInfo.Destination.Body.ExternalVelocityInput.Add(dir*speed);
-		}
-
-    }
+	
 
 }

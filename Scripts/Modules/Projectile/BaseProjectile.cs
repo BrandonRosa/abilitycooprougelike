@@ -191,10 +191,12 @@ namespace BrannPack.Projectile
                 SetToDestroy = true;
             }
             Move(delta);
-            
+            if (ProjectileInfo.Range <= 0)
+                SetToDestroy = true;
+
         }
 
-        public void Move(double delta)
+        public virtual void Move(double delta)
         {
             OnMove?.Invoke(this);
             if (ProjectileInfo.Direction != Vector2.Zero)
@@ -202,8 +204,7 @@ namespace BrannPack.Projectile
                 var movevect = ProjectileInfo.Direction.Normalized() * ProjectileInfo.Speed * (float)delta;
                 GlobalPosition += movevect;
                 ProjectileInfo.Range -= movevect.Length();
-                if (ProjectileInfo.Range <= 0)
-                    SetToDestroy = true;
+                
             }
 
         }

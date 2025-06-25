@@ -12,6 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using BrannPack.Helpers.RecourcePool;
 using BrannPack.Helpers.Initializers;
 using BrannPack.AbilityHandling;
+using BrannPack.Forces;
 
 
 
@@ -19,7 +20,7 @@ using BrannPack.AbilityHandling;
 namespace BrannPack.Character
 {
 	[GlobalClass]
-	public partial class BaseCharacterBody : CharacterBody2D, IPoolable
+	public partial class BaseCharacterBody : CharacterBody2D, IPoolable, IForcable
 	{
 		public static List<BaseCharacterBody> AllCharacters = new List<BaseCharacterBody>();
 
@@ -135,8 +136,13 @@ namespace BrannPack.Character
 
 
 		public EntityController Controller;
-		public List<Vector2> ExternalVelocityInput=new();
-		public Vector2 AimDirection;
+		public HashSet<Force> ExternalVelocityInput { get; set; }=  new HashSet<Force>();
+
+        public Vector2 FPosition =>GlobalPosition;
+
+		public Vector2 FVelocity => Velocity;
+
+        public Vector2 AimDirection;
 		public Vector2 MoveDirection;
 		private Vector2 _InputVelocity = Vector2.Zero;
 
@@ -177,33 +183,40 @@ namespace BrannPack.Character
 			// Normalize the direction to ensure consistent speed in all directions
 			if (inputDirection.Length() > 0)
 				inputDirection = inputDirection.Normalized();
-			if (inputDirection != Vector2.Zero)
+
+			Vector2 inputDiff = Vector2.Zero;
+            var oldInputVel = _InputVelocity;
+
+            if (inputDirection != Vector2.Zero)
 			{
 				// Calculate target velocity based on input
 				Vector2 targetVelocity = inputDirection * CalculatedSpeed;
 
-				var oldInputVel = _InputVelocity;
 				float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
 				_InputVelocity = _InputVelocity.Lerp(targetVelocity, t);
-				var inputDiff = _InputVelocity - oldInputVel;
-
-				Velocity += inputDiff;
 
 			}
 			// Gradual deceleration when no input is given
 			else
 			{
 
-				t = 1f - Mathf.Exp(-Deceleration * (float)delta);
-				Velocity = Velocity.Lerp(Vector2.Zero, t);
+				float t = 1f - Mathf.Exp(-Deceleration * (float)delta);
+                _InputVelocity = _InputVelocity.Lerp(Vector2.Zero, t);
 			}
+            inputDiff = _InputVelocity - oldInputVel;
+            Velocity += inputDiff;
 
             // Accumulate external forces
             Vector2 totalExternalVelocity = Vector2.Zero;
+			List<Force> delForces= new List<Force>();
             foreach (var force in ExternalVelocityInput)
             {
-                totalExternalVelocity += force;
+                totalExternalVelocity += force.SetdV(delta);
+				if(force.SetToDelete)
+					delForces.Add(force);
             }
+
+			delForces.ForEach(force => ExternalVelocityInput.Remove(force));
 
             // Apply blended external velocity
             Velocity += totalExternalVelocity * 1f;
