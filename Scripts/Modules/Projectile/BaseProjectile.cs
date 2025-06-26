@@ -49,6 +49,7 @@ namespace BrannPack.Projectile
         public event Action<IProjectile, Node> OnBodyCollision;
         public event Action<IProjectile, Node> OnOtherCollision;
         public event Action<IProjectile> OnMove;
+        public event Action<IProjectile> OnDestroy;
 
         public Area2D Area { get; set; }
 
@@ -114,6 +115,7 @@ namespace BrannPack.Projectile
         public event Action<IProjectile, Node> OnBodyCollision;
         public event Action<IProjectile, Node> OnOtherCollision;
         public event Action<IProjectile> OnMove;
+        public event Action<IProjectile> OnDestroy;
 
         public override void _Ready()
         {
@@ -167,6 +169,8 @@ namespace BrannPack.Projectile
         public virtual void Destroy()
         {
             IProjectile.InvokeGlobalDestroyed(this);
+            OnDestroy?.Invoke(this);
+            OnDestroy= null;
             SetToDestroy = false;
             PoolManager.PoolManagerNode.Return(ProjectileInfo.ProjectileName, this);
         }

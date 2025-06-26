@@ -40,6 +40,7 @@ namespace BrannPack.Helpers.Initializers
             _ = new ScoutShotGun();
             _ = new DualPistols();
             _= new ScoutGrappleHook();
+            _= new ScoutC4();
             _ = new SwarmerSmash();
 
             AfterRegisterAbilities?.Invoke();

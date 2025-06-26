@@ -1,4 +1,5 @@
 using BrannPack.Character;
+using BrannPack.Debugging;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -47,51 +48,79 @@ namespace BrannPack.Forces
 
 	public class DestinationPullForce:Force
 	{
-		public float Acceleration= 200f;
-		public float Deceleration=80f;
 		public float EaseOutRange = 150f;
 		public float StopRange =  5f;
+		public float MaxAcc = 20f;
 		public float MaxSpeed = 20f;
-		public float EaseInSpeed = 10f;
 		public float DeleteDistance = -1f;
+		public float deltaTime = 0f;
 		public IForcable PullVictim;
 		public Node2D Puller;
-		public DestinationPullForce(IForcable pullVictim, Node2D puller, float maxSpeed = 20f, float easeInSpeed = 10f, float easeOutRange = 150f, float stopRange = 5f, float acceleration = 200f, float deceleration = 80f, float deleteDistance=-1)
+		public DestinationPullForce(IForcable pullVictim, Node2D puller, float maxSpeed = 550f, float easeOutRange = 150f, float stopRange = 10f, float maxAcc = 300f, float deleteDistance=10f)
 		{
 			PullVictim = pullVictim;
 			Puller = puller;
+			MaxAcc = maxAcc;
 			MaxSpeed = maxSpeed;
-			EaseInSpeed = easeInSpeed;
 			EaseOutRange = easeOutRange;
 			StopRange = stopRange;
-			Acceleration = acceleration;
-			Deceleration = deceleration;
 			DeleteDistance = deleteDistance;
 		}
-
+		/// <summary>
+		/// NOT A FUCTION OF VELOCITY OUTSIDE OF OUTRANGE
+		/// dV IS THE NEW VELOCITY MINUS THE OLD ONE
+		/// </summary>
+		/// <param name="delta"></param>
+		/// <returns></returns>
 		public override Vector2 SetdV(double delta)
 		{
-			var oldVel = Velocity;
+            Vector2 direction = Puller.GlobalPosition - PullVictim.FPosition;
+            var oldVel = Velocity;
 			GD.Print("oldVel:" + oldVel);
-			Vector2 direction = Puller.GlobalPosition - PullVictim.FPosition;
-			GD.Print("Dist:" + direction.Length());
-			var targetVelocity= CalculateGrappleVelocity(direction, PullVictim.FVelocity, MaxSpeed,EaseInSpeed,EaseOutRange,StopRange);
-			float t = 1f - Mathf.Exp(-Acceleration * (float)delta); // exponential smoothing
+            GD.Print("Dist:" + direction.Length());
+            
 			
-			GD.Print("Calc:" + Velocity + "-" + PullVictim.FVelocity);
-			dV = (targetVelocity-PullVictim.FVelocity.Dot(targetVelocity.Normalized()))(0,MaxSpeed);
+			var targetVelocity= CalculateGrappleVelocity(direction, PullVictim.FVelocity, MaxAcc*deltaTime,EaseOutRange,StopRange).LimitLength(MaxSpeed);
+            //targetVelocity = (targetVelocity - PullVictim.FVelocity).LimitLength(Acceleration * (float)delta);
+            dV = (targetVelocity - oldVel);
+            Velocity = targetVelocity;
+            GD.Print("Calc:" + Velocity + "-" + oldVel+"="+dV);
+			
+			deltaTime += (float)delta;
 
 			if (direction.Length() < DeleteDistance)
 			{
 				SetToDelete = true;
+
 			}
+			if(true)
+			{
+                var DBL = new DebugLine();
+                DBL.Initialize(PullVictim.FPosition, (dV*(float)100f+PullVictim.FPosition), Colors.Red, 2, .2f);
+                var DBL2 = new DebugLine();
+                DBL2.Initialize(PullVictim.FPosition, (Velocity* (float)100f + PullVictim.FPosition), Colors.Green, 2, .2f);
+                ((Node2D)PullVictim).GetTree().Root.AddChild(DBL); // Absolute root of the scene tree
+                ((Node2D)PullVictim).GetTree().Root.AddChild(DBL2);
+            }
+
 			return dV;
 		}
 
-		public static Vector2 CalculateGrappleVelocity(Vector2 direction,Vector2 currentVelocity, float maxSpeed, float easeInSpeed, float easeOutDistance, float stopDistance)
+		public static Vector2 CalculateGrappleVelocity(Vector2 direction,Vector2 currentVelocity, float maxSpeed, float easeOutDistance, float stopDistance)
 		{
 			float distance = direction.Length();
-
+			float speed= maxSpeed;
+			if(distance < stopDistance)
+            {
+				var dot = currentVelocity.Dot(direction.Normalized());
+				if(dot>0)
+					direction =  dot* direction.Normalized();
+            }
+			else if (distance < easeOutDistance)
+			{
+				// Ease out the speed as we approach the target
+                speed = Mathf.Lerp(maxSpeed*2, 1, (easeOutDistance - distance) / easeOutDistance);
+			}
 			return direction.Normalized() * maxSpeed;
 		}
 	}

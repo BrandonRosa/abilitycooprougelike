@@ -192,6 +192,72 @@ namespace BrannPack.Helpers.Attacks
             return hitBodies;
         }
 
+        public static List<BaseCharacterBody> GetCollisionsInCircleArea(
+        Transform2D originTransform, float rotation,
+        float radius,
+        PhysicsDirectSpaceState2D spaceState,
+        bool isAnchoredOnEdge = false,
+        uint collisionMask = uint.MaxValue,
+        bool debug = true
+    )
+        {
+
+
+            // Build the box shape
+            CircleShape2D circle = new CircleShape2D
+            {
+                Radius = radius
+            };
+
+            // Handle rotation
+
+            // Calculate box transform
+            Vector2 position = originTransform.Origin;
+
+            if (isAnchoredOnEdge)
+            {
+                // Push the box forward by half height in its local up direction
+                Vector2 forward = new Vector2(0, 1).Rotated(rotation - (float)Math.PI / 2f);
+                position += forward * (radius);
+            }
+
+            Transform2D boxTransform = new Transform2D(rotation, position);
+
+            // Build the query
+            PhysicsShapeQueryParameters2D query = new PhysicsShapeQueryParameters2D
+            {
+                Shape = circle,
+                Transform = boxTransform,
+                CollisionMask = collisionMask,
+                CollideWithAreas = false,
+                CollideWithBodies = true
+            };
+
+            // Get results
+            var results = spaceState.IntersectShape(query);
+
+            if (debug)
+            {
+                // Draw the line for 0.5s using debug draw
+                var DBC = new DebugCircle();
+                DBC.Initialize(new Transform2D(rotation, position), circle.Radius, Colors.Red, 2);
+                GameDirector.instance.GetTree().Root.AddChild(DBC); // Absolute root of the scene tree
+            }
+
+            // Filter results and cast to PhysicsBody2D
+            List<BaseCharacterBody> hitBodies = new();
+
+            foreach (var result in results)
+            {
+                if (result["collider"].Obj is BaseCharacterBody charBody)
+                {
+                    hitBodies.Add(charBody);
+                }
+            }
+
+            return hitBodies;
+        }
+
         public static (bool IsSuccess, int SuccessfulRolls, int LuckUsed, int BadLuckUsed) RollWithProcAndLucks(float chance,float procChance, float luck, float badLuck)
 		{
 			int rerolls = (int)Mathf.Floor(luck) +(Roll(luck% 1f)?1:0);

@@ -94,4 +94,40 @@ namespace BrannPack.Debugging
 
     }
 
+    [GlobalClass]
+    public partial class DebugCircle : DebugShape
+    {
+        public float Radius { get; set; } = 0f;
+        public float LineWidth { get; set; } = 2f;
+
+        public bool IsHollow = true;
+
+        public override void _Ready()
+        {
+            SetProcess(true); // ensure _Process is running
+        }
+
+        public void Initialize(Transform2D transform, float radius, Color color, float lineWidth = 2f, float duration = 0.5f, bool isHollow = true)
+        {
+            Transform = transform;
+            Radius = radius;
+            BaseColor = color;
+            LineWidth = lineWidth;
+            Duration = duration;
+            IsHollow = isHollow;
+
+            QueueRedraw(); // trigger drawing
+        }
+
+        public override void _Draw()
+        {
+
+            if (IsHollow)
+                DrawCircle(Vector2.Zero, Radius, BaseColor, IsHollow,LineWidth);
+            else
+                DrawCircle(Vector2.Zero, Radius, BaseColor, IsHollow, LineWidth);
+        }
+
+    }
+
 }

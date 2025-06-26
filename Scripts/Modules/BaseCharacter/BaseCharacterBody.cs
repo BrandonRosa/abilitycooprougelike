@@ -13,6 +13,7 @@ using BrannPack.Helpers.RecourcePool;
 using BrannPack.Helpers.Initializers;
 using BrannPack.AbilityHandling;
 using BrannPack.Forces;
+using BrannPack.Debugging;
 
 
 
@@ -215,12 +216,14 @@ namespace BrannPack.Character
 			List<Force> delForces= new List<Force>();
             foreach (var force in ExternalVelocityInput)
             {
-                totalExternalVelocity += force.SetdV(delta);
-				if (force.SetToDelete)
-				{
-					delForces.Add(force);
-					GD.Print("DELL");
-				}
+                if (force.SetToDelete)
+                {
+                    delForces.Add(force);
+                    GD.Print("DELL");
+                }
+				else
+					totalExternalVelocity += force.SetdV(delta);
+				
             }
 
 			delForces.ForEach(force => ExternalVelocityInput.Remove(force));
@@ -243,9 +246,16 @@ namespace BrannPack.Character
 			if (_friction.UseFriction && ((45 < angle && angle < 135) || (225 < angle && angle < 315)))
 				fdV=.8f*fdV.Rotated((((180f - Mathf.Abs(angle)) / 1.35f) * Mathf.Sign(angle) * MathF.PI / 180f));
 
-            if (fdV.Length() < 1)
+            if (fdV.Length() < .1f || totalExternalVelocity.Length()>0)
 				_friction.UseFriction = false;
-			Velocity += fdV;
+			else
+			{
+                Velocity += fdV;
+                var DBL = new DebugLine();
+                DBL.Initialize(GlobalPosition, (fdV * (float)100f + GlobalPosition), Colors.Yellow, 2, .2f);
+                GetTree().Root.AddChild(DBL);
+            }
+			
 			if (Velocity.Length() < 1.5f)
 				Velocity = Vector2.Zero;
 			if(Velocity.Length()>0)

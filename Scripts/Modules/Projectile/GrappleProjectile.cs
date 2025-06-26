@@ -55,8 +55,8 @@ namespace BrannPack.Projectile
                 if (ProjectileInfo.Range <= 0)
                 {
                     IsReeling = true;
-                    Force = new DestinationPullForce(ProjectileInfo.Destination.Body, this, deleteDistance: 10f, stopRange: 10f, maxSpeed: 400f);
-
+                    Force = new DestinationPullForce(ProjectileInfo.Destination.Body, this);
+                    AllGrapples.FindAll(g => (g.ProjectileInfo.Source==ProjectileInfo.Source && g.ProjectileInfo.Destination == ProjectileInfo.Destination && g.IsReeling && g!=this)).ForEach(g => { g.IsReeling = true; g.ProjectileInfo.Duration = 0; });
                     ProjectileInfo.Destination.Body.ExternalVelocityInput.Add(Force);
                 }
             }
