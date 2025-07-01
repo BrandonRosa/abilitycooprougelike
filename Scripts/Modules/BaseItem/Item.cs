@@ -7,6 +7,7 @@ using BrannPack.Tiers;
 using BrannPack.Character;
 using BrannPack.Helpers.Initializers;
 using BrannPack.AbilityHandling;
+using BrannPack.ModifiableStats;
 
 
 namespace BrannPack.ItemHandling
@@ -97,13 +98,17 @@ namespace BrannPack.ItemHandling
             return null;
         }
 
+        //public static bool IfMasterHasItem() { }
+        public static ItemEffectModifier? IfMasterHasItemAndCheckStat(Item item,CharacterMaster master,Stat refreshingStat, Stat statToModify)
+        {
+            if (master.UsingInventory && refreshingStat == statToModify && master.Inventory.AllEffectiveItemCount.TryGetValue(item, out ItemEffectModifier iem))
+                return iem;
+            return null;
+        }
+
         public virtual void Init() { }
 
-        public void OnItemAdded(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems) { SetItemEffects(inventory,changes, totalItems, true); }
-
-        public void OnItemRemoved(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems) { SetItemEffects(inventory, changes, totalItems, false); }
-
-        public virtual void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true) { }
+        public virtual void ItemCountChangeBehavior(Inventory inventory,InventoryItemStack changed, bool IsAdded = true) { }
 
     }
     public class ErrorItem : Item<ErrorItem>
@@ -135,7 +140,7 @@ namespace BrannPack.ItemHandling
             base.Init();
         }
 
-        public override void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void ItemCountChangeBehavior(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             base.SetItemEffects(inventory, changes, totalItems, IsAdded);
         }

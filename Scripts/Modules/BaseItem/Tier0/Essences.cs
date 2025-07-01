@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using static BrannPack.Character.BaseCharacterBody;
+using static BrannPack.ModifiableStats.AbilityStats;
+using static BrannPack.ModifiableStats.CharacterStats;
 
 namespace AbilityCoopRougelike.Items
 {
@@ -95,7 +97,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Velocity";
-        public override string CodeName { get; init; } = "EO_MVSPD_UP";
+        public override string CodeName { get; init; } = "EO_MVSPD";
         public override string Description { get; init; } = "Slightly Increase Move Speed";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -108,9 +110,27 @@ namespace AbilityCoopRougelike.Items
 
         };
 
+        public override void Init()
+        {
+            base.Init();
+            StatsHolder<CharacterMaster>.GlobalRefreshAbilityStatVariable += SetStats;
+        }
 
-            //e.TopSpeedMultAdd += 0.03f; // 3% base regen boost
+        private void SetStats(CharacterMaster master, Stat stat, ModifiableStat modStat)
+        {
+            ItemEffectModifier? ans = Item.IfMasterHasItemAndCheckStat(this, master, stat, Stat.MoveSpeed);
+            if (ans?.Positive > 0f)
+                ((MoveSpeedStat)modStat).ChangeFlatSpeedPercentage(.03f * (float)ans?.Positive);
+        }
+
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
+        {
+
+            inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Range);
+        }
         
+        //e.TopSpeedMultAdd += 0.03f; // 3% base regen boost
+
     }
 
     public class EOInfluence : Item<EOInfluence>
@@ -120,7 +140,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Influence";
-        public override string CodeName { get; init; } = "EO_RANG_UP";
+        public override string CodeName { get; init; } = "EO_RANG";
         public override string Description { get; init; } = "Slightly Increase Range";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -134,7 +154,20 @@ namespace AbilityCoopRougelike.Items
 
         };
 
-        public override void SetItemEffects(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void Init()
+        {
+            base.Init();
+            StatsHolder<CharacterMaster>.GlobalRefreshAbilityStatVariable += SetStats;
+        }
+
+        private void SetStats(CharacterMaster master, Stat stat, ModifiableStat modStat)
+        {
+            ItemEffectModifier?  ans = Item.IfMasterHasItemAndCheckStat(this, master, stat, Stat.Range);
+            if (ans?.Positive>0f)
+                ((RangeStat)modStat).ChangeRangePercentage(.03f*(float)ans?.Positive);
+        }
+
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
         {
 
             inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Range);
@@ -152,7 +185,7 @@ namespace AbilityCoopRougelike.Items
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
         public override string Name { get; init; } = "Essence of Vigor";
-        public override string CodeName { get; init; } = "EO_CD_UP";
+        public override string CodeName { get; init; } = "EO_CD";
         public override string Description { get; init; } = "Slightly Reduce Cooldown";
         public override string AdvancedDescription { get; init; } = "";
         public override bool RequiresConfirmation { get; init; } = false;
@@ -171,7 +204,24 @@ namespace AbilityCoopRougelike.Items
         };
 
 
+        public override void Init()
+        {
+            base.Init();
+            StatsHolder<CharacterMaster>.GlobalRefreshAbilityStatVariable += SetStats;
+        }
 
+        private void SetStats(CharacterMaster master, Stat stat, ModifiableStat modStat)
+        {
+            ItemEffectModifier? ans = Item.IfMasterHasItemAndCheckStat(this, master, stat, Stat.Cooldown);
+            if (ans?.Positive > 0f)
+                ((CooldownStat)modStat).ChangeCooldownByPercent(-.03f * (float)ans?.Positive);
+        }
+
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
+        {
+
+            inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Range);
+        }
 
         //cooldownStat.ChangeCooldownByPercent(-0.05f * effects.Positive);
 
@@ -183,7 +233,7 @@ namespace AbilityCoopRougelike.Items
             public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
             public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
             public override string Name { get; init; } = "Essence of Strength";
-            public override string CodeName { get; init; } = "EO_DMGE_UP";
+            public override string CodeName { get; init; } = "EO_DMGE";
             public override string Description { get; init; } = "Slightly Increase Damage";
             public override string AdvancedDescription { get; init; } = "";
             public override bool RequiresConfirmation { get; init; } = false;

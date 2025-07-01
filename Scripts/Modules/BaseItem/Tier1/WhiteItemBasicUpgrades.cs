@@ -40,7 +40,7 @@ namespace BrannPack.Items
             AbilityStats.StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ModifyStat;
         }
 
-        public override void SetItemEffects(Inventory inventory, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void ItemCountChangeBehavior(Inventory inventory, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
             
@@ -86,7 +86,7 @@ namespace BrannPack.Items
             AbilityStats.StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ModifyStat;
         }
 
-        public override void SetItemEffects(Inventory inventory, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void ItemCountChangeBehavior(Inventory inventory, ItemEffectModifier itemsAdded, ItemEffectModifier totalItems, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
 

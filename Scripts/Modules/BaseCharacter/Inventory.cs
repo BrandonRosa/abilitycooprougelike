@@ -18,6 +18,7 @@ namespace BrannPack.ItemHandling
     public class Inventory
     {
         public static event Action<Inventory, InventoryItemStack> ItemsAdded;
+        public static event Action<Inventory, InventoryItemStack> ItemsRemoved;
 
         public static readonly ItemStackFilter HighlanderT0 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier0.instance).IsAllModifiers(Highlander.instance).Build();
         public static readonly ItemStackFilter HighlanderT1 = new ItemStackFilter.ItemStackFilterBuilder().WithAnyTiers(Tier1.instance).IsAllModifiers(Highlander.instance).Build();
@@ -87,6 +88,31 @@ namespace BrannPack.ItemHandling
             {
                 RefreshAllEffectivePartitions();
                 ItemsAdded?.Invoke(this, inventoryItemStack);
+                inventoryItemStack.Item.ItemCountChangeBehavior(this, inventoryItemStack, true);
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public bool TryRemoveItem(Item item, HashSet<ItemModifier> modifiers=null, float count = 1f, HashSet<InventoryBehavior> inventoryBehaviors= null) { return TryRemoveItem(new InventoryItemStack(item, modifiers, count, inventoryBehaviors)); }
+        public bool TryRemoveItem(InventoryItemStack inventoryItemStack)
+        {
+            bool ans = false;
+            if (inventoryItemStack.NeedsConfirmation && ConfirmationPartition.TryRemoveItem(inventoryItemStack))
+                ans = true;
+            else if (inventoryItemStack.ItemModifiers.Contains(Highlander.instance) && HighlanderPartitions.Any(partition => partition.TryRemoveItem(inventoryItemStack)))
+                ans = true;
+            else if (inventoryItemStack.Item.Tier == TierA.instance && ActiveItemPartition.TryRemoveItem(inventoryItemStack))
+                ans = true;
+            else if (StandardPartition.TryRemoveItem(inventoryItemStack))
+                ans = true;
+            if (ans)
+            {
+                RefreshAllEffectivePartitions();
+                ItemsRemoved?.Invoke(this, inventoryItemStack);
+                inventoryItemStack.Item.ItemCountChangeBehavior(this, inventoryItemStack,false);
 
                 return true;
             }
@@ -181,6 +207,43 @@ namespace BrannPack.ItemHandling
             return false;
         }
 
+        public bool TryRemoveItem(Item item, HashSet<ItemModifier> itemModifiers = null, float count = 1, HashSet<InventoryBehavior> inventoryBehaviors = null) { return TryRemoveItem(new InventoryItemStack(item, itemModifiers, count, inventoryBehaviors)); }
+
+        public bool TryRemoveItem(InventoryItemStack inventoryItemStack)
+        {
+            if (IsItemAllowed(inventoryItemStack))
+            {
+                GD.Print("INPART");
+                if (!ItemsInPartition.ContainsKey(inventoryItemStack.Item))
+                {
+                    //ItemsInPartition.Add(inventoryItemStack.Item, new List<InventoryItemStack>() { inventoryItemStack });
+                    return false;
+                }
+
+                foreach (InventoryItemStack iis in ItemsInPartition[inventoryItemStack.Item])
+                {
+                    float change = iis.Count;
+                    if (iis.TryRemoveItem(inventoryItemStack))
+                    {
+                        change -=iis.Count;
+                        if (iis.Count <= 0)
+                        {
+                            inventoryItemStack.Count = change;
+                            ItemsInPartition[inventoryItemStack.Item].Remove(iis);
+
+                        }
+                        return true;
+                    }
+                        
+                }
+
+                //If you made it this far, there is no home for this item. So we have to make one for it
+                //ItemsInPartition[inventoryItemStack.Item].Add(inventoryItemStack);
+                return false;
+            }
+            return false;
+        }
+
         public bool IsItemAllowed(InventoryItemStack itemStack)
         {
             return !IsFull() && IsItemApplicable(itemStack.Item);
@@ -247,6 +310,20 @@ namespace BrannPack.ItemHandling
         }
 
         public bool TryAddToStack(InventoryItemStack otherItemStack) { return TryAddToStack(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.Count, otherItemStack.InventoryBehaviors); }
+
+        public bool TryRemoveItem(Item otherItem, HashSet<ItemModifier> otherItemModifiers, float otherCount = 1f, HashSet<InventoryBehavior> otherInventoryBehavior = null)
+        {
+            if (otherInventoryBehavior == null)
+                otherInventoryBehavior = new HashSet<InventoryBehavior>() { PermanentItemBehavior.instance };
+
+            if (!CanItemStack(otherItem, otherItemModifiers, otherInventoryBehavior))
+                return false;
+
+            Count -= otherCount;
+            return true;
+        }
+
+        public bool TryRemoveItem(InventoryItemStack otherItemStack) { return TryRemoveItem(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.Count, otherItemStack.InventoryBehaviors); }
         public bool CanItemStack(Item otherItem, HashSet<ItemModifier> otherItemModifiers, HashSet<InventoryBehavior> otherInventoryBehavior) { return otherItem == Item && otherItemModifiers.SetEquals(ItemModifiers) && otherInventoryBehavior.SetEquals(InventoryBehaviors); }
 
         public bool CanItemStack(InventoryItemStack otherItemStack) { return CanItemStack(otherItemStack.Item, otherItemStack.ItemModifiers, otherItemStack.InventoryBehaviors); }
