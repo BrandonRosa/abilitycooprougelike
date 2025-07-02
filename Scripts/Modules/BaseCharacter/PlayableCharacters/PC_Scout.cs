@@ -163,7 +163,7 @@ namespace BrannPack.Character.Playable
             var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
             var rangestat = Range.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
             var cooldownStat = Cooldown.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
-            bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "GrappleProjectile", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 15f, range: rangestat.CalculateTotal(), speed: 1500f));
+            bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "GrappleProjectile", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 15f, range: rangestat.CalculateTotal(), speed: 1500f,bodyCollideBehavior:ProjectileCollideBehavior.Pierce));
 
             abilitySlot.CCooldown.TryUseCharge();
             abilitySlot.CCooldown.Reset();

@@ -134,7 +134,7 @@ namespace BrannPack.Projectile
             IProjectile.InvokeGlobalFired(this);
         }
 
-        public void Collide(Node body)
+        public virtual void Collide(Node body)
         {
             OnCollision?.Invoke(this, body);
             if (body is StaticBody2D staticBody)
