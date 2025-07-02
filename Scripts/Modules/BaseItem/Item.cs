@@ -140,10 +140,6 @@ namespace BrannPack.ItemHandling
             base.Init();
         }
 
-        public override void ItemCountChangeBehavior(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
-        {
-            base.SetItemEffects(inventory, changes, totalItems, IsAdded);
-        }
 
         public override string ToString()
         {

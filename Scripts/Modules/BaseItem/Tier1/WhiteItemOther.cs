@@ -126,7 +126,7 @@ namespace BrannPack.Items
             StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ApplyStats;
         }
 
-        public override void ItemCountChangeBehavior(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
         {
             inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.Lifesteal);
             inventory.InventoryOf.Stats.RecalculateByStatVariable(Stat.FireRate);

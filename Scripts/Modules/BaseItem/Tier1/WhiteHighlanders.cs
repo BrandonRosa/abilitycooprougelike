@@ -99,10 +99,10 @@ namespace BrannPack.Items
             
         }
 
-        
 
-        public override void ItemCountChangeBehavior(Inventory inventory, ItemEffectModifier changes, ItemEffectModifier totalItems, bool IsAdded = true)
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
         {
+
             inventory.InventoryOf.Utility.ThisAbilityStats.RecalculateByStatVariable(Stat.Charges);
         }
 
