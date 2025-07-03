@@ -14,7 +14,7 @@ using static BrannPack.Character.BaseCharacterBody;
 using static BrannPack.ModifiableStats.AbilityStats;
 using static BrannPack.ModifiableStats.CharacterStats;
 
-namespace AbilityCoopRougelike.Items
+namespace BrannPack.Items
 {
     public class EOLife : Item<EOLife>
     {
