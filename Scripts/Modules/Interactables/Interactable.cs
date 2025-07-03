@@ -1,5 +1,6 @@
 ﻿using BrannPack.Character;
 using BrannPack.InputHelpers;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,8 @@ namespace BrannPack.Interactable
         /// <returns>True if it can be activated, otherwise false.</returns>
         public virtual bool IsEnabled => true;
 
+        public virtual bool IsInRange => false;
+
         /// <summary>
         /// Called when a character enters interactive range.
         /// </summary>
@@ -34,5 +37,10 @@ namespace BrannPack.Interactable
         /// Called when a character exits interactive range.
         /// </summary>
         public virtual void OnExitInteractRange(BaseCharacterBody body) { }
+    }
+
+    public abstract partial class BaseInteractable : Area2D ,IInteractable
+    {
+        public abstract void Activate(BaseCharacterBody body, string actionKeyName, InputPressState inputPressState);
     }
 }
