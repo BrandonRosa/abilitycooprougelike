@@ -86,7 +86,7 @@ namespace BrannPack.Debugging
         public override void _Draw()
         {
             Rect2 rect = new Rect2(-Size/2f, Size);
-            if(IsHollow)
+            if(!IsHollow)
                 DrawRect(rect, BaseColor, IsHollow, LineWidth);
             else
                 DrawRect(rect, BaseColor, IsHollow);

@@ -14,6 +14,7 @@ using BrannPack.Helpers.Initializers;
 using BrannPack.AbilityHandling;
 using BrannPack.Forces;
 using BrannPack.Debugging;
+using BrannPack.Interactables;
 
 
 
@@ -137,6 +138,7 @@ namespace BrannPack.Character
 
 
 		public EntityController Controller;
+		public PlayerInteractiveArea InteractiveArea;
 		public HashSet<Force> ExternalVelocityInput { get; set; }=  new HashSet<Force>();
 		private FrictionalForce _friction;
 
@@ -219,7 +221,6 @@ namespace BrannPack.Character
                 if (force.SetToDelete)
                 {
                     delForces.Add(force);
-                    GD.Print("DELL");
                 }
 				else
 					totalExternalVelocity += force.SetdV(delta);
@@ -258,8 +259,8 @@ namespace BrannPack.Character
 			
 			if (Velocity.Length() < 1.5f)
 				Velocity = Vector2.Zero;
-			if(Velocity.Length()>0)
-				GD.Print("Vel:" + Velocity.Length());
+			//if(Velocity.Length()>0)
+			//	GD.Print("Vel:" + Velocity.Length());
             // Apply movement
             MoveAndSlide();
 
@@ -353,7 +354,6 @@ namespace BrannPack.Character
 			Armor armor = new Armor(0f, armorMax);
 			armor.MaxValue.AddFollowingMaxHealth(health.MaxValue);
 			AddHealthType(armor, HealthType.Armor);
-			GD.Print(armor.GetCurrentValue());
 
 			Shield shield = new Shield(0f, shieldMax);
 			AddHealthType(shield, HealthType.Shield);

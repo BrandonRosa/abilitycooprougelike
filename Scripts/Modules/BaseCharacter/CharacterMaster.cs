@@ -2,6 +2,7 @@ using BrannPack.AbilityHandling;
 using BrannPack.CooldownHandling;
 using BrannPack.DevConsole;
 using BrannPack.Helpers.Initializers;
+using BrannPack.Interactables;
 using BrannPack.ItemHandling;
 using BrannPack.ModifiableStats;
 using BrannPack.UI;
@@ -113,7 +114,13 @@ namespace BrannPack.Character
 				UsingInventory = true;
 			}
 			if (IsPlayerControlled)
+			{
 				UsingInventory = true;
+				var interArea = new PlayerInteractiveArea();
+
+                Body.AddChild(interArea);
+				Body.InteractiveArea = interArea;
+			}
 
 			//Set the abilities to the body's starting abilities
 			Primary = new AbilitySlot(this, Body.StartingPrimary, AbilitySlotType.Primary);

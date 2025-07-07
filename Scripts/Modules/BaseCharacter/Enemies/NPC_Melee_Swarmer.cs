@@ -82,7 +82,6 @@ namespace BrannPack.Character.NonPlayable
 			var list = AttackHelper.GetCollisionsInBoxArea(trans, master.Body.AimDirection.Angle(), size, size, master.Body.GetWorld2D().DirectSpaceState, true);
 			foreach (BaseCharacterBody characterBody in list)
 			{
-				GD.Print(characterBody.CharacterName);
 				if (master.CanDamageTeams.Contains(characterBody.CharacterMaster.Team))
 				{
 					DamageInfo info = new DamageInfo(master, characterBody.CharacterMaster, (1, this.Index, 0), damage, false);

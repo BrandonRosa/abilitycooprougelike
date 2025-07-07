@@ -39,7 +39,6 @@ namespace BrannPack.Character
 				
 				Vector2 mouseWorld = GetViewport().GetCamera2D().GetGlobalMousePosition();
 				aimDirection = (mouseWorld - OwnerBody.GlobalPosition).Normalized();
-				GD.Print("AIM" + aimDirection);
 			}
 			else
 			{
@@ -55,6 +54,7 @@ namespace BrannPack.Character
 			bool useUtility = @event.GetActionStrength("use_utility") > 0;
 			bool useSpecial = @event.GetActionStrength("use_special") > 0;
 			bool useUlt = @event.GetActionStrength("use_ult") > 0;
+			
 
 			if (usePrimary)
 				OwnerMaster.Primary.TryUseAbility(InputPressState.JustPressed);
@@ -94,6 +94,7 @@ namespace BrannPack.Character
 			bool useUtility = Input.GetActionStrength("use_utility_" + OwnerMaster.ControllerID) > 0;
 			bool useSpecial = Input.GetActionStrength("use_special_" + OwnerMaster.ControllerID) > 0;
 			bool useUlt = Input.GetActionStrength("use_ult_" + OwnerMaster.ControllerID) > 0;
+			bool useInteract1 = Input.GetActionStrength("interact1_" + OwnerMaster.ControllerID) > 0;
 
 			if (usePrimary)
 				OwnerMaster.Primary.TryUseAbility(InputPressState.JustPressed);
@@ -105,6 +106,8 @@ namespace BrannPack.Character
 				OwnerMaster.Special.TryUseAbility(InputPressState.JustPressed);
 			if (useUlt)
 				OwnerMaster.Ult.TryUseAbility(InputPressState.JustPressed);
+			if (useInteract1 && OwnerBody.InteractiveArea != null && OwnerBody.InteractiveArea.GetClosestInteractable() != null)
+				OwnerBody.InteractiveArea.GetClosestInteractable().Activate(OwnerBody, "interact1", InputPressState.JustPressed);
 
 			OwnerBody.MoveDirection = inputDirection;
 			OwnerBody.AimDirection = aimDirection;

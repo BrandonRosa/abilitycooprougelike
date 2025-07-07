@@ -76,15 +76,12 @@ namespace BrannPack.Forces
 		{
             Vector2 direction = Puller.GlobalPosition - PullVictim.FPosition;
             var oldVel = Velocity;
-			GD.Print("oldVel:" + oldVel);
-            GD.Print("Dist:" + direction.Length());
             
 			
 			var targetVelocity= CalculateGrappleVelocity(direction, PullVictim.FVelocity, MaxAcc*deltaTime,EaseOutRange,StopRange).LimitLength(MaxSpeed);
             //targetVelocity = (targetVelocity - PullVictim.FVelocity).LimitLength(Acceleration * (float)delta);
             dV = (targetVelocity - oldVel);
             Velocity = targetVelocity;
-            GD.Print("Calc:" + Velocity + "-" + oldVel+"="+dV);
 			
 			deltaTime += (float)delta;
 

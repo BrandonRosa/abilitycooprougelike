@@ -54,6 +54,7 @@ namespace BrannPack.ItemHandling
         public abstract string CodeName { get; init; }
         public abstract string Description { get; init; }
         public abstract string AdvancedDescription { get; init; }
+        public virtual Texture2D WorldTexture { get; init; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/ItemTextures/ErrorItemDisplay.png");
 
         public abstract bool RequiresConfirmation { get; init; }
         public abstract bool IsSharable { get; init; }

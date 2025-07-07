@@ -11,6 +11,8 @@ using BrannPack.Directors;
 using static BrannPack.ModifiableStats.CharacterStats;
 using static BrannPack.ModifiableStats.AbilityStats;
 using BrannPack.ModifiableStats;
+using BrannPack.ItemHandling;
+using BrannPack.Interactables;
 
 namespace BrannPack.DevConsole
 {
@@ -29,6 +31,7 @@ namespace BrannPack.DevConsole
         {
             Limbo.Console.Sharp.LimboConsole.RegisterCommand(new Godot.Callable(this,MethodName._DamageAllMasters), "damageall", "Damages all masters");
             Limbo.Console.Sharp.LimboConsole.RegisterCommand(new Godot.Callable(this,MethodName._AddBaseMaxHealthByTypeToAllMasters), "addmaxhealthtoall", "Adds max health to all masters");
+            Limbo.Console.Sharp.LimboConsole.RegisterCommand(new Godot.Callable(this,MethodName._SpawnItemPickup), "spawn_item", "Create Item Pickup");
 
             StatsHolder<CharacterMaster>.GlobalRefreshAbilityStatVariable+=(master, stat,modstat) =>
             {
@@ -115,6 +118,32 @@ namespace BrannPack.DevConsole
 
                 }
                 
+            }
+        }
+
+        public void _SpawnItemPickup(string itemname)
+        {
+            GD.Print("AAAA1");
+            Item item = Item.ItemRegistry.Get(itemname);
+            InventoryItemStack stack = new InventoryItemStack(item, null, 1);
+            ItemPickup ip = new ItemPickup();
+            ip.ItemStack = stack;
+            GD.Print("ATTEMPT " + ip.ItemStack.Item.Name);
+            foreach (var master in CharacterMaster.AllMasters)
+            {
+                if(master.IsPlayerControlled)
+                {
+                    var player = master.Body; // or master.GetBody(), depending on your setup
+                    if (player != null)
+                    {
+                        ip.Position = player.GlobalPosition; // If 2D
+                                                             // Add to scene
+                        GetTree().Root.AddChild(ip); // or a dedicated node like GetNode("World")
+                        break; // Only spawn for the first player
+                    }
+                }
+
+
             }
         }
     }

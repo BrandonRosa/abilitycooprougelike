@@ -57,7 +57,6 @@ namespace BrannPack.Items
 
         private void HighDamageHit(CharacterMaster source, CharacterMaster victim, DamageInfo damageInfo, EventChain eventChain)
         {
-            GD.Print("TestHit:", damageInfo.Damage);
             if (source.UsingInventory && damageInfo.Damage > requiredDamage && !source.Body.CooldownHandler.IsOnCooldown((0, instance.Index, 10))
                 && source.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {

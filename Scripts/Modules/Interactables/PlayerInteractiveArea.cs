@@ -1,5 +1,6 @@
 ﻿using BrannPack.Character;
-using BrannPack.Interactable;
+using BrannPack.GameDirectrs;
+using BrannPack.ItemHandling;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -13,14 +14,32 @@ namespace BrannPack.Interactables
     {
         private readonly HashSet<IInteractable> interactablesInRange = new();
 
+        protected CollisionShape2D ColShape;
+
+        public float Radius
+        {
+            get => (ColShape.Shape as CircleShape2D).Radius;
+            set
+            {
+                if(ColShape==null)
+                    ColShape = new CollisionShape2D() { Shape = (new CircleShape2D() { Radius = value }) };
+                else
+                    ColShape.Shape = new CircleShape2D() { Radius = value };
+            }
+        }
         public override void _Ready()
         {
-             AreaEntered += OnBodyEntered;
-            AreaEntered += OnBodyExited;
+            AreaEntered += OnBodyEntered;
+            AreaExited += OnBodyExited;
+            Radius = 100f;
+            CollisionMask = GameDirector.CollisionLayers.Interactable;
+            CollisionLayer = GameDirector.CollisionLayers.Interactable;
+            AddChild(ColShape);
         }
 
         private void OnBodyEntered(Node2D node)
         {
+            GD.Print("ENTERED");
             if (node is IInteractable interactable)
             {
                 interactablesInRange.Add(interactable);
@@ -30,6 +49,7 @@ namespace BrannPack.Interactables
 
         private void OnBodyExited(Node2D node)
         {
+            GD.Print("EXIT");
             if (node is IInteractable interactable)
             {
                 interactablesInRange.Remove(interactable);

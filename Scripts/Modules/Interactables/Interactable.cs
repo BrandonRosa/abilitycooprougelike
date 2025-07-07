@@ -1,4 +1,5 @@
 ﻿using BrannPack.Character;
+using BrannPack.GameDirectrs;
 using BrannPack.InputHelpers;
 using Godot;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrannPack.Interactable
+namespace BrannPack.Interactables
 {
     public interface IInteractable
     {
@@ -39,8 +40,7 @@ namespace BrannPack.Interactable
         public virtual void OnExitInteractRange(BaseCharacterBody body) { }
     }
 
-    public abstract partial class BaseInteractable : Area2D ,IInteractable
-    {
-        public abstract void Activate(BaseCharacterBody body, string actionKeyName, InputPressState inputPressState);
-    }
+   
+
+    
 }
