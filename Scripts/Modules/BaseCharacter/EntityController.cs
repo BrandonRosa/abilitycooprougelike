@@ -117,14 +117,18 @@ namespace BrannPack.Character
     {
         Idle,
         Chase,
-        Attack,
         Flee,
-        Patrol,
-		Assist
+        Roam
     }
+	public enum AIInfoAquisitionType
+	{
+        None,Clue,LOS,Command
+	}
     public partial class EnemyAIController:EntityController
 	{
-		public static Vector2? GlobalSwarmLocation;
+		public static float LOSInfoDuration=4f;
+		public static float GossipClueDuration = 6f;
+		public static float CommandDuration = 360f;
 		public static bool WouldAIUseAbility(EnemyAIController controller,AbilitySlot abilitySlot,float targetDistance,float currentHealthPercent,bool hasLOS)
 		{
 			var ability = abilitySlot.AbilityInstance;
@@ -140,18 +144,16 @@ namespace BrannPack.Character
 		}
 
 		public float EnemyProximityRadius;
-		public float GossipRadius;
-		public float LOSRadius;
-		public bool IsLeader;
-
+		public (float,float) LOSRadius;
+		
 		public NavigationAgent2D NavigationAgent2D;
-		public BaseCharacterBody AcquiredTarget;
-		public Vector2? FinalMoveLocation;
-		public EnemyAIController ClosestLeadingLeader;
+
+        public AIInfoAquisitionType InfoAquisitionType;
+		public float InfoDuration;
+        public BaseCharacterBody AcquiredTarget;
+        public Vector2? FinalMoveLocation;
+
 		public bool HasLOSThisFrame = false;
-		public (Vector2 location, float duration)? AccurateLocationInfo;
-		public (Vector2 location, float duration)? EstimatedLocationInfo;
-		public (Vector2 location, float duration)? OverrideLocationInfo;
 		public AIState AIState;
 		public void ObtainTarget()
 		{
@@ -160,71 +162,40 @@ namespace BrannPack.Character
 			List<BaseCharacterBody> TargetsInProximity=new();
 			List<BaseCharacterBody> TargetsInLOSRange=new();
 			bool isTargetInLOS = false;
-			//Check To See if target is still valid
-			if (AcquiredTarget != null && !TargetsInProximity.Contains(AcquiredTarget) && !TargetsInLOSRange.Contains(AcquiredTarget))
+			if (InfoDuration <= 0)
 			{
-				AcquiredTarget = null;
-			}
-			//else if (IsTargetInLOS())
-			//{
-			//	isTargetInLOS = true;
-   //             //set AccurateLocation to target Location
-   //         }
-			else if(/*Check if target is in proximity*/false)
-			{
-				//Set estimated location to target location with offset
-			}
-			else if (/*get first target in TargetsInLOSRange that are in LOS*/ false)
-			{
-				//set new target and set isTargetInLOS to true
-				//set AccurateLocation to target Location
-			}
-			else if (TargetsInProximity.Count > 0)
-			{
-				//pick a random target
-				//Get target location and randomize it a bit to make it a guess
-			}
-
-			if(AcquiredTarget!=null && IsLeader)
-			{
-				//Get all allies within gossip range and if they dont have a valid leader, set this as the leader
-			}
-
-				Vector2? updatedFinalMove = null;
-			if (OverrideLocationInfo != null)
-			{
-				//Go to override Location
-				updatedFinalMove = OverrideLocationInfo?.location;
-
-			}
-			else if (AccurateLocationInfo!=null)
-			{
-                //set final move to accurate location
-                
-                //Update accuratelocation for nearby allies within gossip radius that have the same target
-
-            }
-			else if(ClosestLeadingLeader!=null /*also check if CLL has the same target or if this has no target*/)
-			{
-				//if ClosestLeadingLeader (CLL) has AccurateLocationInfo, copy it. else if it has Estimated copy it
-			}
-			else if(GlobalSwarmLocation!=null)
-			{
-				//if ther ii a global swarm location, go there
-			}
-			else if (EstimatedLocationInfo != null)
-			{
-				// Go to estimated location
-			}
-
-			if (IsLeader && FinalMoveLocation != null)
-			{
-				//Update ClosestLeadingLeader for all allies in proximity
-			}
-
-			// if final location hasnt been set, set the AIState to Patrol for 1.5s and set a random location
-			//if target is in any of the abilities range, set to attack if character can
-			//if there is a location in mind set to chase and move there.
+				switch(AIState)
+				{
+					//Update TargetsInProximity and Targets inLOS
+					case AIState.Chase:
+						if(TargetsInProximity.Count>0)
+						{
+							if (TargetsInProximity.Contains(AcquiredTarget))
+								InfoDuration = LOSInfoDuration;
+							else
+							{
+								AcquiredTarget = TargetsInProximity[0];
+								FinalMoveLocation = AcquiredTarget.GlobalTransform.Origin;
+								InfoDuration = LOSInfoDuration;
+							}
+						}
+						break;
+					case AIState.Roam:
+						if(TargetsInLOSRange.Count>0)
+						{
+							AcquiredTarget = TargetsInLOSRange[0];
+                            FinalMoveLocation = AcquiredTarget.GlobalTransform.Origin;
+                            InfoDuration = LOSInfoDuration;
+							AIState = AIState.Chase;
+						}
+						break;
+					case AIState.Flee:
+						AIState = AIState.Roam;
+						AcquiredTarget = null;
+						FinalMoveLocation = null;
+						//Set roaming location...
+						break;
+				}
 		}
 
 		public void TryUseAbilities()
