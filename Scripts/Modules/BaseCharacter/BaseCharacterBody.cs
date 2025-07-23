@@ -293,7 +293,7 @@ namespace BrannPack.Character
 			base._Process(delta);
 			if (CharacterMaster?.Controller != null)
 			{
-				CharacterMaster.Controller.UpdateInput();
+				CharacterMaster.Controller.UpdateInput(delta);
 				HealthBar.UpdateUIHealthInfo();
 			   FloatingHealthBar.UpdateHealthBar();
 			}

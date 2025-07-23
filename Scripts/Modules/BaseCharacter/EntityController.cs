@@ -18,7 +18,7 @@ namespace BrannPack.Character
 		public BaseCharacterBody OwnerBody;
 		public CharacterMaster OwnerMaster;
 
-		public abstract void UpdateInput();
+		public abstract void UpdateInput(double delta);
 
 	}
 
@@ -70,7 +70,7 @@ namespace BrannPack.Character
 			OwnerBody.MoveDirection = inputDirection;
 			OwnerBody.AimDirection = aimDirection;
 		}
-		public override void UpdateInput()
+		public override void UpdateInput(double delta)
 		{
 			//if (Input.Device != OwnerMaster.ControllerID)
 			//    return;
@@ -116,9 +116,9 @@ namespace BrannPack.Character
     public enum AIState
     {
         Idle,
+        Roam,
         Chase,
-        Flee,
-        Roam
+        Flee
     }
 	public enum AIInfoAquisitionType
 	{
@@ -129,6 +129,9 @@ namespace BrannPack.Character
 		public static float LOSInfoDuration=4f;
 		public static float GossipClueDuration = 6f;
 		public static float CommandDuration = 360f;
+
+		public static float UpdateTargetInterval = 0.5f;
+		public static float UpdateMoveDirectionInterval = 0.5f;
 		public static bool WouldAIUseAbility(EnemyAIController controller,AbilitySlot abilitySlot,float targetDistance,float currentHealthPercent,bool hasLOS)
 		{
 			var ability = abilitySlot.AbilityInstance;
@@ -143,32 +146,60 @@ namespace BrannPack.Character
 				&& (hint.HealthPercentBounds==null || (hint.HealthPercentBounds?.Min<= currentHealthPercent && hint.HealthPercentBounds?.Max>= currentHealthPercent)));
 		}
 
-		public float EnemyProximityRadius;
+		public float TimeUntilNextTargetUpdate = UpdateTargetInterval;
+		public float TimeUntilNextMoveDirectionUpdate = UpdateMoveDirectionInterval;
+
+		public float EnemyGossipRadius;
 		public (float,float) LOSRadius;
 		
 		public NavigationAgent2D NavigationAgent2D;
 
+        public AIState AIState;
         public AIInfoAquisitionType InfoAquisitionType;
 		public float InfoDuration;
         public BaseCharacterBody AcquiredTarget;
         public Vector2? FinalMoveLocation;
 
 		public bool HasLOSThisFrame = false;
-		public AIState AIState;
+		
+
+
+		public bool SetState(bool OverrideNaturalOrder, AIState state, AIInfoAquisitionType IAT, float infoDuration, BaseCharacterBody target = null, Vector2? finalMoveLocation = null)
+        {
+            if(OverrideNaturalOrder)
+			{
+				AIState= state;
+				InfoAquisitionType = IAT;
+				InfoDuration = infoDuration;
+				AcquiredTarget = target;
+				FinalMoveLocation = finalMoveLocation;
+				return true;
+			}
+			else if(IAT>InfoAquisitionType)
+			{
+				AIState = state;
+				InfoAquisitionType = IAT;
+				InfoDuration = infoDuration;
+				AcquiredTarget = target;
+				FinalMoveLocation = finalMoveLocation;
+				return true;
+
+			}
+			return false;
+        }
 		public void ObtainTarget()
 		{
-			List<BaseCharacterBody> AlliesInProximity;
-			List<BaseCharacterBody> AlliesInGossipRange;
+			List<BaseCharacterBody> AlliesInGossipRange=new();
 			List<BaseCharacterBody> TargetsInProximity=new();
 			List<BaseCharacterBody> TargetsInLOSRange=new();
 			bool isTargetInLOS = false;
 			if (InfoDuration <= 0)
 			{
-				switch(AIState)
+				switch (AIState)
 				{
 					//Update TargetsInProximity and Targets inLOS
 					case AIState.Chase:
-						if(TargetsInProximity.Count>0)
+						if (TargetsInProximity.Count > 0)
 						{
 							if (TargetsInProximity.Contains(AcquiredTarget))
 								InfoDuration = LOSInfoDuration;
@@ -178,14 +209,24 @@ namespace BrannPack.Character
 								FinalMoveLocation = AcquiredTarget.GlobalTransform.Origin;
 								InfoDuration = LOSInfoDuration;
 							}
+
+                            InfoAquisitionType = AIInfoAquisitionType.LOS;
+                        }
+						else
+						{
+							AIState=AIState.Roam;
+							AcquiredTarget = null;
+							FinalMoveLocation = null;//Make a wander script
+							InfoDuration = LOSInfoDuration;
+							InfoAquisitionType= AIInfoAquisitionType.None;
 						}
 						break;
 					case AIState.Roam:
-						if(TargetsInLOSRange.Count>0)
+						if (TargetsInLOSRange.Count > 0)
 						{
 							AcquiredTarget = TargetsInLOSRange[0];
-                            FinalMoveLocation = AcquiredTarget.GlobalTransform.Origin;
-                            InfoDuration = LOSInfoDuration;
+							FinalMoveLocation = AcquiredTarget.GlobalTransform.Origin;
+							InfoDuration = LOSInfoDuration;
 							AIState = AIState.Chase;
 						}
 						break;
@@ -196,6 +237,64 @@ namespace BrannPack.Character
 						//Set roaming location...
 						break;
 				}
+			}
+			if(AcquiredTarget!=null && AIState==AIState.Chase)
+			{
+				foreach(var ally in AlliesInGossipRange)
+				{
+					((EnemyAIController)ally.Controller)?.SetState(false, AIState, AIInfoAquisitionType.Clue, GossipClueDuration, AcquiredTarget, FinalMoveLocation);
+				}
+			}
+		}
+		public void UpdateMoveLocation()
+		{
+			switch(AIState)
+			{ 
+                case AIState.Idle:
+                    OwnerBody.MoveDirection = Vector2.Zero;
+                    break;
+                case AIState.Roam:
+                    if (FinalMoveLocation.HasValue)
+                    {
+                        OwnerBody.MoveDirection = NavigationAgent2D.GetNextPathPosition().Normalized(); // Move towards the next path position in the navigation agent.
+                    }
+                    else
+                    {
+                        OwnerBody.MoveDirection = Vector2.Zero; // No final move location, stop moving.
+                    }
+                    break;
+                case AIState.Chase:
+					if (AcquiredTarget != null)
+					{
+                        NavigationAgent2D.SetTargetPosition(AcquiredTarget.GlobalPosition);
+                        OwnerBody.MoveDirection = NavigationAgent2D.GetNextPathPosition().Normalized();
+                    }
+					else if (FinalMoveLocation.HasValue) // If no target, but a final move location is set, move towards it.
+					{
+                        NavigationAgent2D.SetTargetPosition(FinalMoveLocation.Value);
+                        OwnerBody.MoveDirection = NavigationAgent2D.GetNextPathPosition().Normalized();
+                    }
+					else
+					{
+						OwnerBody.MoveDirection = Vector2.Zero; // No target, stop moving.
+						AIState = AIState.Idle;
+						InfoAquisitionType = AIInfoAquisitionType.None; // Reset info acquisition type since we're idle.
+						InfoDuration = 0; // Reset info duration since we're idle.
+					}
+                    break;
+                case AIState.Flee:
+                    if (AcquiredTarget != null)
+                    {
+                        Vector2 fleeDirection = (OwnerBody.GlobalPosition - AcquiredTarget.GlobalPosition).Normalized();
+                        OwnerBody.MoveDirection = fleeDirection;
+                    }
+                    else
+                    {
+                        OwnerBody.MoveDirection = Vector2.Zero; // No target, stop moving.
+                    }
+                    break;
+
+			}
 		}
 
 		public void TryUseAbilities()
@@ -246,9 +345,18 @@ namespace BrannPack.Character
 			OwnerBody.MoveDirection = (NavigationAgent2D.GetNextPathPosition() - OwnerBody.GlobalPosition).Normalized();
 		}
 
-		public override void UpdateInput()
+		public override void UpdateInput(double delta)
 		{
-			TryUseAbilities();
+			TimeUntilNextTargetUpdate -= (float)delta;
+            TimeUntilNextMoveDirectionUpdate -= (float)delta;
+			InfoDuration-= (float)delta;
+			if (InfoDuration <= 0)
+				ObtainTarget();
+			if(TimeUntilNextTargetUpdate <= 0)
+			{
+				   TimeUntilNextTargetUpdate = UpdateTargetInterval;
+			}
+            TryUseAbilities();
 		}
 	}
 }
