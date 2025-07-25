@@ -162,7 +162,12 @@ namespace BrannPack.Character
 
 		public bool HasLOSThisFrame = false;
 		
+		public void InitializeNavAgent()
+		{
+			NavigationAgent2D=new();
 
+			OwnerBody.AddChild(NavigationAgent2D);
+		}
 
 		public bool SetState(bool OverrideNaturalOrder, AIState state, AIInfoAquisitionType IAT, float infoDuration, BaseCharacterBody target = null, Vector2? finalMoveLocation = null)
         {
@@ -256,7 +261,7 @@ namespace BrannPack.Character
                 case AIState.Roam:
                     if (FinalMoveLocation.HasValue)
                     {
-                        OwnerBody.MoveDirection = NavigationAgent2D.GetNextPathPosition().Normalized(); // Move towards the next path position in the navigation agent.
+                        OwnerBody.MoveDirection = (NavigationAgent2D.GetNextPathPosition() - OwnerBody.GlobalPosition).Normalized(); // Move towards the next path position in the navigation agent.
                     }
                     else
                     {
@@ -267,12 +272,12 @@ namespace BrannPack.Character
 					if (AcquiredTarget != null)
 					{
                         NavigationAgent2D.SetTargetPosition(AcquiredTarget.GlobalPosition);
-                        OwnerBody.MoveDirection = NavigationAgent2D.GetNextPathPosition().Normalized();
+						OwnerBody.MoveDirection = (NavigationAgent2D.GetNextPathPosition() - OwnerBody.GlobalPosition).Normalized();
                     }
 					else if (FinalMoveLocation.HasValue) // If no target, but a final move location is set, move towards it.
 					{
                         NavigationAgent2D.SetTargetPosition(FinalMoveLocation.Value);
-                        OwnerBody.MoveDirection = NavigationAgent2D.GetNextPathPosition().Normalized();
+                        OwnerBody.MoveDirection = (NavigationAgent2D.GetNextPathPosition() - OwnerBody.GlobalPosition).Normalized();
                     }
 					else
 					{
@@ -357,6 +362,7 @@ namespace BrannPack.Character
 				   TimeUntilNextTargetUpdate = UpdateTargetInterval;
 			}
             TryUseAbilities();
-		}
+            
+        }
 	}
 }
