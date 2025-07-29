@@ -8,7 +8,9 @@ using BrannPack.Tiers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.Character.BaseCharacterBody;
@@ -108,12 +110,16 @@ namespace BrannPack.Items
 
         private void ModifyChargeStat(AbilitySlot abilitySlot, Stat variable, ModifiableStat stat)
         {
-            if(abilitySlot.SlotType == AbilitySlotType.Utility && variable==Stat.Charges && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (abilitySlot.SlotType != AbilitySlotType.Utility)
+                return;
+            ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, abilitySlot.Owner, variable, Stat.Charges);
+            if (chargeMod?.Positive > 0f)
             {
-                float charges = 1f * effects.Positive / Highlander.instance.itemEffectModifier.Positive;
-                //abilitySlot.ThisAbilityStats.GetStatByVariable<ChargeStat>(Stat.Charges)
+                float charges = 1f * chargeMod.Value.Positive / Highlander.instance.itemEffectModifier.Positive;
                 ((ChargeStat)stat).ChangeAdditionalCharges(charges);
             }
+
+
         }
 
         private void ModifyMoveSpeed(CharacterMaster master, Stat variable, ModifiableStat stat)

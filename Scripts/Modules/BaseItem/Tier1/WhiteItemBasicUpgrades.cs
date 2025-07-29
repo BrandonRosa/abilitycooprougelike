@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static BrannPack.Character.BaseCharacterBody;
+using static BrannPack.ModifiableStats.AbilityStats;
+using static Godot.WebSocketPeer;
 
 namespace BrannPack.Items
 {
@@ -18,7 +20,7 @@ namespace BrannPack.Items
         public override ItemSubTier SubTier { get; init; } = null;
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
-        public override string Name { get; init; } = "";
+        public override string Name { get; init; } = "Rapid Rounds Oil";
         public override string CodeName { get; init; } = "PRIM_FR_UP";
         public override string Description { get; init; } = "Increase the firerate on your primary ability";
         public override string AdvancedDescription { get; init; } = "";
@@ -67,7 +69,7 @@ namespace BrannPack.Items
         public override ItemSubTier SubTier { get; init; } = null;
         public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
         public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
-        public override string Name { get; init; } = "";
+        public override string Name { get; init; } = "Arccell Pack";
         public override string CodeName { get; init; } = "SEC_CHRG_UP";
         public override string Description { get; init; } = "Gain a charge on your secondary ability";
         public override string AdvancedDescription { get; init; } = "";
@@ -106,4 +108,100 @@ namespace BrannPack.Items
             }
         }
     }
+
+    public class AbUpUtilityDuration : Item<AbUpUtilityDuration>
+    {
+        public override ItemTier Tier { get; init; } = Tier1.instance;
+        public override ItemSubTier SubTier { get; init; } = null;
+        public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
+        public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
+        public override string Name { get; init; } = "";
+        public override string CodeName { get; init; } = "UTIL_DUR_UP";
+        public override string Description { get; init; } = "Increase the duration of your utility.";
+        public override string AdvancedDescription { get; init; } = "";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = true;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
+        {
+            {EffectTag.IsDurationEnabler,3 },
+            {EffectTag.IsUtility,3 },
+            {EffectTag.IsUtilityDep,2 },
+            {EffectTag.IsUtilityEnabler,3 }
+        };
+
+        public override void Init()
+        {
+            AbilityStats.StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ModifyStat;
+        }
+
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
+        {
+            // Ensure the event is only subscribed once
+
+
+            inventory.InventoryOf.Utility.ThisAbilityStats.RecalculateByStatVariable(Stat.Duration);
+        }
+
+        private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
+        {
+            if (slot.SlotType != AbilitySlotType.Utility)
+                return;
+            ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, slot.Owner, casv, Stat.Duration);
+            if (chargeMod?.Positive > 0f)
+            {
+                float extraduration = .05f * chargeMod.Value.Positive;
+                ((DurationStat)modStat).ChangeDurationPercentage(extraduration);
+            }
+
+        }
+    }
+
+    public class AbUpSpecialRange : Item<AbUpSpecialRange>
+    {
+        public override ItemTier Tier { get; init; } = Tier1.instance;
+        public override ItemSubTier SubTier { get; init; } = null;
+        public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[0];
+        public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[0];
+        public override string Name { get; init; } = "Standard Issue Binoculars";
+        public override string CodeName { get; init; } = "SPEC_RANG_UP";
+        public override string Description { get; init; } = "Increase the range of your special.";
+        public override string AdvancedDescription { get; init; } = "";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = true;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
+        {
+            {EffectTag.IsRangeEnabler,3 },
+            {EffectTag.IsUtility,3 },
+            {EffectTag.IsSpecialDep,2 },
+            {EffectTag.IsSpecialEnabler,3 }
+       
+        };
+
+        public override void Init()
+        {
+            AbilityStats.StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ModifyStat;
+        }
+
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
+        {
+            // Ensure the event is only subscribed once
+
+
+            inventory.InventoryOf.Special.ThisAbilityStats.RecalculateByStatVariable(Stat.Range);
+        }
+
+        private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
+        {
+            if (slot.SlotType != AbilitySlotType.Special)
+                return;
+            ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, slot.Owner, casv, Stat.Range);
+            if (chargeMod?.Positive > 0f)
+            {
+                float extrarange = .06f * chargeMod.Value.Positive;
+                ((DurationStat)modStat).ChangeDurationPercentage(extrarange);
+            }
+
+        }
+    }
+
 }
