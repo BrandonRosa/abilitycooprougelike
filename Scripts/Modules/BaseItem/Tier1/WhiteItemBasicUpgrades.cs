@@ -198,10 +198,57 @@ namespace BrannPack.Items
             if (chargeMod?.Positive > 0f)
             {
                 float extrarange = .06f * chargeMod.Value.Positive;
-                ((DurationStat)modStat).ChangeDurationPercentage(extrarange);
+                ((RangeStat)modStat).ChangeRangePercentage(extrarange);
             }
 
         }
     }
 
+    public class AbUpUltDamage : Item<AbUpUltDamage>
+    {
+        public override ItemTier Tier { get; init; } = Tier1.instance;
+        public override ItemSubTier SubTier { get; init; } = null;
+        public override ItemModifier[] DefaultModifiers { get; init; } = new ItemModifier[1] {Highlander.instance};
+        public override ItemModifier[] PossibleModifiers { get; init; } = new ItemModifier[1] {Highlander.instance};
+        public override string Name { get; init; } = "Addrenaline Pack";
+        public override string CodeName { get; init; } = "ULT_DMG_UP";
+        public override string Description { get; init; } = "Increase the damage of your ult.";
+        public override string AdvancedDescription { get; init; } = "";
+        public override bool RequiresConfirmation { get; init; } = false;
+        public override bool IsSharable { get; init; } = false;
+        public override Dictionary<EffectTag, int> EffectWeight { get; init; } = new Dictionary<EffectTag, int>
+        {
+            {EffectTag.IsDamageEnabler,3 },
+            {EffectTag.IsAttack,3 },
+            {EffectTag.IsUltDep,2 },
+            {EffectTag.IsUltEnabler,3 }
+
+        };
+
+        public override void Init()
+        {
+            AbilityStats.StatsHolder<AbilitySlot>.GlobalRefreshAbilityStatVariable += ModifyStat;
+        }
+
+        public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
+        {
+            // Ensure the event is only subscribed once
+
+
+            inventory.InventoryOf.Ult.ThisAbilityStats.RecalculateByStatVariable(Stat.Damage);
+        }
+
+        private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
+        {
+            if (slot.SlotType != AbilitySlotType.Ult)
+                return;
+            ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, slot.Owner, casv, Stat.Damage);
+            if (chargeMod?.Positive > 0f)
+            {
+                float extradamage = .10f * chargeMod.Value.Positive;
+                ((DamageStat)modStat).ChangeAdditionalDamage(extradamage);
+            }
+
+        }
+    }
 }
