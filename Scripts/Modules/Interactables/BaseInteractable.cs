@@ -16,11 +16,14 @@ namespace BrannPack.Interactables
     {
         public Action<BaseCharacterBody, string, InputPressState> OnActivate;
         public static Action<BaseInteractable, BaseCharacterBody, string, InputPressState> OnGlobalActivate;
+        public bool IsEnabled { get; set; } = false;
         public override void _Ready()
         {
             base._Ready();
             CollisionMask = GameDirector.CollisionLayers.Interactable;
             CollisionLayer = GameDirector.CollisionLayers.Interactable;
+           
+            
         }
         public virtual void SetCircleInteractable(float radius, bool replaceAllOthers = true)
         {

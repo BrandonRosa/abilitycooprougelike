@@ -25,9 +25,9 @@ namespace BrannPack.Interactables
         /// Checks if the interactable can be activated.
         /// </summary>
         /// <returns>True if it can be activated, otherwise false.</returns>
-        public virtual bool IsEnabled => true;
+        public abstract bool IsEnabled { get; set; }
 
-        public virtual bool IsInRange => false;
+        public bool IsInRange => false;
 
         /// <summary>
         /// Called when a character enters interactive range.

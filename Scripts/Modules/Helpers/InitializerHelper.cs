@@ -52,6 +52,7 @@ namespace BrannPack.Helpers.Initializers
 
             Item _ = new ErrorItem();
             _ = new OnHighDamage_DealMoreAndArmor();
+            _ = new AbUpPrimaryFireRate();
 
             AfterRegisterItems?.Invoke();
         }

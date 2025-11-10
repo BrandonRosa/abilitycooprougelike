@@ -121,11 +121,11 @@ namespace BrannPack.DevConsole
             }
         }
 
-        public void _SpawnItemPickup(string itemname)
+        public void _SpawnItemPickup(string itemname,float amount=1f)
         {
             GD.Print("AAAA1");
             Item item = Item.ItemRegistry.Get(itemname);
-            InventoryItemStack stack = new InventoryItemStack(item, null, 1);
+            InventoryItemStack stack = new InventoryItemStack(item, null, amount);
             ItemPickup ip = new ItemPickup();
             ip.ItemStack = stack;
             GD.Print("ATTEMPT " + ip.ItemStack.Item.Name);

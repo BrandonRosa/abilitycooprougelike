@@ -46,7 +46,7 @@ namespace BrannPack.Items
         public override void ItemCountChangeBehavior(Inventory inventory, InventoryItemStack itemStack, bool IsAdded = true)
         {
             // Ensure the event is only subscribed once
-
+                
 
             inventory.InventoryOf.Primary.ThisAbilityStats.RecalculateByStatVariable(Stat.FireRate);
         }
@@ -57,7 +57,7 @@ namespace BrannPack.Items
             {
                 if (modStat is AbilityStats.FireRateStat FirerateStat)
                 {
-                    FirerateStat.ChangeFireRatePercentage(.15f * effects.Positive);
+                    FirerateStat.ChangeFireRatePercentage(.10f * effects.Positive);
                 }
             }
         }
