@@ -114,7 +114,8 @@ namespace BrannPack.CooldownHandling
 
             foreach (var (key, cooldown) in Cooldowns)
             {
-                cooldown.Update(deltaTime);
+                if(!cooldown.IgnoreStandardTimeReduction)
+                    cooldown.Update(deltaTime);
                 if (cooldown.IsExpired && cooldown.RemoveFromHandlerOnCompletion)
                     toRemove.Add(key);
             }
@@ -137,6 +138,7 @@ namespace BrannPack.CooldownHandling
         protected float elapsedTime;
         public virtual float PercentageComplete => elapsedTime/Duration;
         public bool IsPaused = false;
+        public bool IgnoreStandardTimeReduction = false;
 
         public bool RemoveFromHandlerOnCompletion;
         public bool ResetAndPauseOnCompletion;
@@ -194,6 +196,7 @@ namespace BrannPack.CooldownHandling
             TrackedMaxCharges = chargeStat;
             TrackedCooldown = cooldownStat;
             cooldownStat.ChangedTotal += UpdateDuration;
+            IgnoreStandardTimeReduction = cooldownStat.DisableStandardTimeScale;
         }
 
         public void SetCooldownStat(ModifiableStats.AbilityStats.CooldownStat cooldownStat)
@@ -204,6 +207,7 @@ namespace BrannPack.CooldownHandling
             TrackedCooldown = cooldownStat;
             cooldownStat.ChangedTotal += UpdateDuration;
             UpdateDuration(cooldownStat.CalculateTotal(),old);
+            IgnoreStandardTimeReduction = cooldownStat.DisableStandardTimeScale;
         }
 
         private void UpdateDuration(float newValue, float oldValue)

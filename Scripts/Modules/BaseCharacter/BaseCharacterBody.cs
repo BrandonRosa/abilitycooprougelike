@@ -550,7 +550,7 @@ namespace BrannPack.Character
 
 	public class EventChain
 	{
-		List<EventInfo> EventInfos=new List<EventInfo>();
+		public List<EventInfo> EventInfos=new List<EventInfo>();
 
 		public bool TryAddEventInfo(EventInfo eventInfo)
 		{
@@ -631,10 +631,14 @@ namespace BrannPack.Character
 		public InputPressState PressState;
         public Vector2? Origin;
         public Vector2? DirectionTo;
+		public AbilitySlot AbilitySlot;
+		public AbilitySlotType AbilitySlotType;
+		public Ability AbilityInstance;
         public AbilityUseInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
-			InputPressState pressState, Vector2? origin = null, Vector2? directionTo = null)
-			: base(source, destination, key) => (PressState,Origin,DirectionTo) = (pressState,origin,directionTo);
+			InputPressState pressState, Vector2? origin = null, Vector2? directionTo = null, AbilitySlot abilitySlot=null, AbilitySlotType abilitySlotType=AbilitySlotType.Other,Ability abilityInstance=null)
+			: base(source, destination, key) => (PressState,Origin,DirectionTo,AbilitySlot,AbilitySlotType,AbilityInstance) = (pressState,origin,directionTo,abilitySlot,abilitySlotType,abilityInstance);
 	}
+
 
 	
 

@@ -12,18 +12,18 @@ using static BrannPack.ModifiableStats.AbilityStats;
 
 namespace BrannPack.AbilityHandling
 {
-    public struct AIAbilityHint
-    {
-        public (float Min, float Max)? UseRangeOverrideBounds;   // If set, overrides the activation range
-        public (float Min, float Max)? RangeUseMultiplierBounds; // Multiply actual ability range for looser AI use
-        public (float Min, float Max)? HealthPercentBounds;      // Only use when AI HP is above this
+	public struct AIAbilityHint
+	{
+		public (float Min, float Max)? UseRangeOverrideBounds;   // If set, overrides the activation range
+		public (float Min, float Max)? RangeUseMultiplierBounds; // Multiply actual ability range for looser AI use
+		public (float Min, float Max)? HealthPercentBounds;      // Only use when AI HP is above this
 
-        public bool RequiresLOS;             // If true, Only uses the ability when target is in LOS
-        public bool IsPanicButton;           // Use when AI is panicking or fleeing
+		public bool RequiresLOS;             // If true, Only uses the ability when target is in LOS
+		public bool IsPanicButton;           // Use when AI is panicking or fleeing
 		public bool ContinueWindupIfTargetLost;
-    }
+	}
 
-    public class AbilitySlot
+	public class AbilitySlot
 	{
 		public CharacterMaster Owner;
 
@@ -82,7 +82,7 @@ namespace BrannPack.AbilityHandling
 			Windup.Duration = newvalue;
 		}
 
-        public void SetAbilityUpgrade(AbilityUpgrade abilityUpgrade,bool enabled)
+		public void SetAbilityUpgrade(AbilityUpgrade abilityUpgrade,bool enabled)
 		{
 			if (enabled)
 			{
@@ -106,7 +106,7 @@ namespace BrannPack.AbilityHandling
 		{
 			if(IsUsable)
 			{
-				var info = new AbilityUseInfo(Owner, Owner, (-1, -1, -1), pressState);
+				var info = new AbilityUseInfo(Owner, Owner, (-1, -1, -1), pressState,abilitySlot:this,abilitySlotType:this.SlotType,abilityInstance:this.AbilityInstance);
 				BeforeAbilitySlotUse?.Invoke(this);
 				AbilityInstance.UseAbility(Owner, this, info,null);
 				AfterAbilitySlotUse?.Invoke(this);
@@ -136,6 +136,7 @@ namespace BrannPack.AbilityHandling
 			if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
 			instance = this as T;
 			instance.SetIndex();
+			instance.Init();
 			Ability.AbilityRegistry.Register(instance);
 			
 		}
@@ -168,6 +169,8 @@ namespace BrannPack.AbilityHandling
 		//private image ArtWork;
 
 		private static List<AbilityUpgrade> AbilityUpgrades;
+
+		public virtual void Init() { }
 
 		public abstract void UseAbility(CharacterMaster master,AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain);
 		public abstract BaseCharacterBody UpdateTarget();
@@ -245,7 +248,7 @@ namespace BrannPack.AbilityHandling
 
 	public enum AbilitySlotType
 	{
-		Primary,Secondary,Utility,Special,Ult, Equipment
+		Primary,Secondary,Utility,Special,Ult, Equipment,Other
 	}
 
 	public enum AbilityStat

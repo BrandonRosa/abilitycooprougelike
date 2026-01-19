@@ -156,6 +156,7 @@ namespace BrannPack.Character
 
 		public static event Action<CharacterMaster,CharacterMaster, DamageInfo, EventChain> BeforeDealDamage;
 
+
 		public void DealDamage(CharacterMaster victim, DamageInfo damageInfo,EventChain eventChain)
 		{
 			BeforeDealDamage?.Invoke(this, victim, damageInfo, eventChain);
@@ -205,6 +206,17 @@ namespace BrannPack.Character
 		}
 
 		public void AfterAttack(AttackInfo attackInfo, EventChain eventChain) { AfterAttackEvent?.Invoke(this, attackInfo, eventChain); }
+
+		public AbilitySlot LocateAbility(Ability abilityInstance)
+		{
+			if(Primary.AbilityInstance == abilityInstance) return Primary;
+			if (Secondary.AbilityInstance == abilityInstance) return Secondary;
+            if (Utility.AbilityInstance == abilityInstance) return Utility;
+            if (Special.AbilityInstance == abilityInstance) return Special;
+            if (Ult.AbilityInstance == abilityInstance) return Ult;
+            if (Equipment.AbilityInstance == abilityInstance) return Equipment;
+            return null;
+		}
 	}
 
 	

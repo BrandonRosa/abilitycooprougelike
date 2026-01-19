@@ -946,20 +946,22 @@ namespace BrannPack.ModifiableStats
 		//CooldownIncreased Is different though. Instead well do it like this: 50%+50%=100%
 		public partial class CooldownStat : ModifiableStat<CooldownStat>
 		{
-			public float CooldownScaling;
+			public bool DisableStandardTimeScale = false;
+            public float CooldownScaling;
 			public float MinimumCooldown = 0f;
 
 			public float AdditionalCooldown = 0f;
 			public float CooldownPercentIncrease = 0f;
 			public List<float> CooldownPercentDecreases = new List<float>();
 
-			public CooldownStat(float baseValue, float minimumCooldown = .1f,float cooldownScaling=1f) : base(baseValue) => (CooldownScaling, MinimumCooldown) = (cooldownScaling, minimumCooldown);
+			public CooldownStat(float baseValue, float minimumCooldown = .1f,float cooldownScaling=1f,bool disableStandardTimeScale=false) : base(baseValue) => (CooldownScaling, MinimumCooldown,DisableStandardTimeScale) = (cooldownScaling, minimumCooldown,disableStandardTimeScale);
 
 			public override void SetBase(CooldownStat stat)
 			{
 				BaseValue = stat.BaseValue;
 				CooldownScaling = stat.CooldownScaling;
 				MinimumCooldown = stat.MinimumCooldown;
+				DisableStandardTimeScale = stat.DisableStandardTimeScale;
 			}
 
 			protected override float TotalValueMath() { return Mathf.Max(MinimumCooldown, BaseValue + AdditionalCooldown * CooldownScaling) * (1f + CooldownPercentIncrease - (1f - CooldownPercentDecreases.Aggregate(1f, (total, next) => total * next))); }
@@ -996,7 +998,8 @@ namespace BrannPack.ModifiableStats
 			public override CooldownStat Copy()
 			{
 				CooldownStat newCombinedStat = new CooldownStat(BaseValue, CooldownScaling, MinimumCooldown);
-				newCombinedStat.AdditionalCooldown = AdditionalCooldown;
+                newCombinedStat.DisableStandardTimeScale = DisableStandardTimeScale;
+                newCombinedStat.AdditionalCooldown = AdditionalCooldown;
 
 				newCombinedStat.CooldownPercentDecreases = new List<float>(CooldownPercentDecreases);
 				newCombinedStat.CooldownPercentIncrease = CooldownPercentIncrease;
