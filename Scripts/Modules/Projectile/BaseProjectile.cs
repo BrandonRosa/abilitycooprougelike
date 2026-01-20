@@ -1,4 +1,5 @@
-﻿using BrannPack.Character;
+﻿using BrannPack.AbilityHandling;
+using BrannPack.Character;
 using BrannPack.Helpers.RecourcePool;
 using Godot;
 using System;
@@ -16,9 +17,9 @@ namespace BrannPack.Projectile
     public class ProjectileInfo:DamageInfo
     {
         public ProjectileInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
-             float damage, bool isCrit, Vector2 directionFrom = default, StatsHolder stats = null,
+             float damage, bool isCrit, Vector2 directionFrom = default, StatsHolder stats = null, EffectSourceType actionSourceType = EffectSourceType.Other, bool isSourcePsudo = false,
              string projectileName = "BaseProjectile", Vector2 direction = default, Vector2 position = default, float speed = 1000f, float duration = 5f, float range = 1000f, float collisionsLeft = 1f, ProjectileCollideBehavior bodyCollideBehavior=ProjectileCollideBehavior.Destroy, ProjectileCollideBehavior terrainCollideBehavior = ProjectileCollideBehavior.Destroy)
-             : base(source, destination, key, damage, isCrit, directionFrom, stats) =>
+             : base(source, destination, key, damage, isCrit, directionFrom, stats,actionSourceType,isSourcePsudo) =>
             (ProjectileName, Direction, Position, Speed, Duration, Range, CollisionsLeft,BodyCollideBehavior,TerrainCollideBehavior) = (
                 projectileName, direction, position, speed, duration, range, collisionsLeft,bodyCollideBehavior,terrainCollideBehavior);
 

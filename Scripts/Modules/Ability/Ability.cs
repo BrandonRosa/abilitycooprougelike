@@ -27,7 +27,7 @@ namespace BrannPack.AbilityHandling
 	{
 		public CharacterMaster Owner;
 
-		public AbilitySlotType SlotType;
+		public EffectSourceType SlotType;
 		public Ability AbilityInstance;
 		public HashSet<AbilityUpgrade> CurrentUpgrades;
 
@@ -46,7 +46,7 @@ namespace BrannPack.AbilityHandling
 		public static event Action<AbilitySlot> BeforeAbilitySlotUse;
 		public static event Action<AbilitySlot> AfterAbilitySlotUse;
 
-		public AbilitySlot(CharacterMaster owner,string abilityCodeName, AbilitySlotType slotType)
+		public AbilitySlot(CharacterMaster owner,string abilityCodeName, EffectSourceType slotType)
 		{
 			Owner = owner;
 			AbilityInstance = Ability.AbilityRegistry.Get(abilityCodeName);
@@ -102,13 +102,14 @@ namespace BrannPack.AbilityHandling
 			//Update ThisAbilityStats BaseStats with stats
 			
 		}
-		public bool TryUseAbility(InputPressState pressState)
+		public bool TryUseAbility(InputPressState pressState,EventChain chain=null)
 		{
 			if(IsUsable)
 			{
-				var info = new AbilityUseInfo(Owner, Owner, (-1, -1, -1), pressState,abilitySlot:this,abilitySlotType:this.SlotType,abilityInstance:this.AbilityInstance);
+				var info = new AbilityUseInfo(Owner, Owner, (-1, -1, -1), pressState,abilitySlot:this);
+				chain ??= new EventChain(info);
 				BeforeAbilitySlotUse?.Invoke(this);
-				AbilityInstance.UseAbility(Owner, this, info,null);
+				AbilityInstance.UseAbility(Owner, this, info,chain);
 				AfterAbilitySlotUse?.Invoke(this);
 				return true;
 			}
@@ -246,13 +247,9 @@ namespace BrannPack.AbilityHandling
 
 
 
-	public enum AbilitySlotType
+	public enum EffectSourceType //AKA EffectSourceType
 	{
-		Primary,Secondary,Utility,Special,Ult, Equipment,Other
+		Primary,Secondary,Utility,Special,Ult, Equipment,Other,Item, StatusEffect
 	}
 
-	public enum AbilityStat
-	{
-		Damage, CritChance, CritDamage, FireRate, ProjectileSpeed, Charges, Range, Duration, Chance, ProcChance, PositiveEffect,NegativeEffect
-	}
 }

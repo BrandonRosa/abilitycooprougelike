@@ -54,17 +54,17 @@ namespace BrannPack.Character.Playable
 
 		public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo = null, EventChain eventChain = null)
 		{
-            //Damage Scaling Per Charge
-            //Every Charged shot deals 50% more damage than the last
-            //=x+(x-1)*.5 =1.5x-.5   =.5(3x-1)
-            if (master.Body.CooldownHandler.IsOnCooldown((1, this.Index, 0)))
+			//Damage Scaling Per Charge
+			//Every Charged shot deals 50% more damage than the last
+			//=x+(x-1)*.5 =1.5x-.5   =.5(3x-1)
+			if (master.Body.CooldownHandler.IsOnCooldown((1, this.Index, 0)))
 				return;
 			float consumedCharges = abilitySlot.CCooldown.CurrentCharges;
-            var bullet=PoolManager.PoolManagerNode.Spawn<BaseProjectile>("BasicEnemyBullet", PoolManager.ProjectilesNode);
+			var bullet=PoolManager.PoolManagerNode.Spawn<BaseProjectile>("BasicEnemyBullet", PoolManager.ProjectilesNode);
 			var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
 			var rangestat = BulletRange.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
 			var fireratestat = FireRate.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<FireRateStat>(Stat.FireRate));
-			bullet.Initialize(new ProjectileInfo(master, null, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "BasicEnemyBullet", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: float.MaxValue, range: rangestat.CalculateTotal(),speed:1500f));
+			bullet.Initialize(new ProjectileInfo(master, null, (1, this.Index, 0), damagestat.CalculateTotal(), false, actionSourceType:abilityUseInfo.AbilitySlot.SlotType,isSourcePsudo:false,projectileName: "BasicEnemyBullet", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: float.MaxValue, range: rangestat.CalculateTotal(),speed:1500f));
 			float cooldown=1f / (fireratestat.CalculateTotal());
 			master.Body.CooldownHandler.AddCooldown((1, this.Index, 0), cooldown);
 		}
@@ -73,7 +73,7 @@ namespace BrannPack.Character.Playable
 	public class MercenaryPierceShot : Ability<MercenaryPierceShot>
 	{
 		//private float BlastWidth = 15;
-		protected static float CooldownReductionPerHit = .2f;
+		protected static float CooldownReductionPerDamage = .2f/2f;
 		protected static RangeStat BulletRange = new RangeStat(100f, 500f, .5f);
 		protected static DamageStat Damage = new DamageStat(60, .9f);
 		protected static CooldownStat Cooldown = new CooldownStat(8f,disableStandardTimeScale:true);
@@ -96,67 +96,34 @@ namespace BrannPack.Character.Playable
 		public override string AdvancedDescription { get; protected set; }
 		public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
 
-        public override void Init()
-        {
-            base.Init();
+		public override void Init()
+		{
+			base.Init();
 			CharacterMaster.AfterTakeDamage += OnAfterTakeDamage;
-        }
-
-		public static bool IsChainViable(EventChain chain,AttackInfo potentialReduction)
-		{
-            if (chain==null)
-				return false;
-            int index=chain.EventInfos.Count - 1;
-			bool? lastAbilityUseIsPrimary=null;
-			bool alreadyHit = false;
-            while (!alreadyHit && (!lastAbilityUseIsPrimary.HasValue || lastAbilityUseIsPrimary.Value) && index>=0)
-			{
-				if(!lastAbilityUseIsPrimary.HasValue && chain.EventInfos[index] is AbilityUseInfo abilityUse)
-                {
-                    if (abilityUse.AbilitySlotType==AbilitySlotType.Primary)
-                    {
-                        lastAbilityUseIsPrimary = true;
-                    }
-					else
-					{
-                        lastAbilityUseIsPrimary = false;
-						return false;
-                    }
-                }
-				else if (chain.EventInfos[index] is AttackInfo attackInfo)
-                {
-					if (attackInfo.IsSimilarEvent(potentialReduction))
-					{
-						alreadyHit = true;
-						return false;
-					}
-                }
-
-                index--;
-			}
-
-			return true;
-
-        }
-		private void OnAfterTakeDamage(CharacterMaster victim, CharacterMaster attacker, DamageInfo info, EventChain chain)
-		{
-			AbilitySlot foundAbility = attacker.LocateAbility(this);
-
-            if (foundAbility!=null)
-			{
-				AttackInfo attackInfo= new AttackInfo(attacker, victim, (1, this.Index, 1),false, null);
-                if (IsChainViable(chain,attackInfo))
-				{
-					foundAbility.CCooldown.Update(CooldownReductionPerHit);
-
-					//NEED TO MAKE AN ATTACK EVENT AND BROADCAST IT
-					//ATTACK EVENT NEEDS TO CHAIN TO END OF CHAIN
-                }
-			}
 		}
 
-        //public AbilityUpgrade SSG_U1_Cooldown=
-        public override BaseCharacterBody UpdateTarget()
+		
+		private void OnAfterTakeDamage(CharacterMaster victim, CharacterMaster attacker, DamageInfo info, EventChain chain)
+		{
+			if(info.ActionSourceType==EffectSourceType.Primary)
+			{
+				AbilitySlot foundAbility = attacker.LocateAbility(this);
+
+				if (foundAbility != null)
+				{
+					float finalReduction = info.Damage*CooldownReductionPerDamage;
+					foundAbility.CCooldown.Update(finalReduction);
+					
+					//NEED TO MAKE AN ATTACK EVENT AND BROADCAST IT
+					//ATTACK EVENT NEEDS TO CHAIN TO END OF CHAIN
+
+				}
+			}
+			
+		}
+
+		//public AbilityUpgrade SSG_U1_Cooldown=
+		public override BaseCharacterBody UpdateTarget()
 		{
 			return null;
 		}

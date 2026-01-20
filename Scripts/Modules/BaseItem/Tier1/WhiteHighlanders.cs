@@ -110,7 +110,7 @@ namespace BrannPack.Items
 
         private void ModifyChargeStat(AbilitySlot abilitySlot, Stat variable, ModifiableStat stat)
         {
-            if (abilitySlot.SlotType != AbilitySlotType.Utility)
+            if (abilitySlot.SlotType != EffectSourceType.Utility)
                 return;
             ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, abilitySlot.Owner, variable, Stat.Charges);
             if (chargeMod?.Positive > 0f)
@@ -132,7 +132,7 @@ namespace BrannPack.Items
 
         private void OnUseItemEffect(AbilitySlot abilitySlot)
         {
-            if (abilitySlot.SlotType==AbilitySlotType.Utility && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects)
+            if (abilitySlot.SlotType==EffectSourceType.Utility && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects)
                 && !abilitySlot.Owner.Cooldowns.IsOnCooldown((0, instance.Index, 1)))
             {
                 CharacterMaster master = abilitySlot.Owner;

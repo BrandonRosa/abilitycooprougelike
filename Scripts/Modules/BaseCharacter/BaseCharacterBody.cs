@@ -550,19 +550,30 @@ namespace BrannPack.Character
 
 	public class EventChain
 	{
-		public List<EventInfo> EventInfos=new List<EventInfo>();
+		public EventInfo StartingEvent;
+		public EventInfo LatestEvent;
+		public HashSet<(int SourceType, int SourceIndex, int SourceEffect)> ProcdEvents=new HashSet<(int SourceType, int SourceIndex, int SourceEffect)>();
 
-		public bool TryAddEventInfo(EventInfo eventInfo)
+        public EventChain(EventInfo startingEvent)
+        {
+            StartingEvent = startingEvent;
+            LatestEvent = startingEvent;
+            ProcdEvents.Add(startingEvent.Key);
+        }
+
+        public bool TryAddProcdEvent(EventInfo eventInfo)
 		{
-			if (!EventInfos.Any(info => info.IsSimilarEvent(eventInfo)))
-			{
-				EventInfos.Add(eventInfo);
-				return true;
-			}
-			return false;
+            if (!ProcdEvents.Contains(eventInfo.Key))
+            {
+                ProcdEvents.Add(eventInfo.Key);
+				LatestEvent = eventInfo;
+                return true;
+            }
+            return false;
 		}
 	}
-	public abstract class EventInfo
+
+    public abstract class EventInfo
 	{
 		public CharacterMaster Source;
 		public CharacterMaster Destination;
@@ -581,23 +592,27 @@ namespace BrannPack.Character
 		public float Damage;
 		public bool IsCrit;
 		public Vector2 DirectionFrom;
-		public StatsHolder Stats;
-		public DamageInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
-			float damage, bool isCrit, Vector2 directionFrom=default,StatsHolder stats=null)
+        public bool IsSourcePsudo;
+        public EffectSourceType ActionSourceType;
+        public StatsHolder Stats;
+		
+        public DamageInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
+			float damage, bool isCrit, Vector2 directionFrom=default,StatsHolder stats=null,EffectSourceType actionSourceType=EffectSourceType.Other,bool isSourcePsudo=false)
 			: base(source, destination, key) =>
-			(Damage, IsCrit, DirectionFrom,Stats) = (damage, isCrit, directionFrom,stats);
+			(Damage, IsCrit, DirectionFrom,Stats,ActionSourceType,IsSourcePsudo) = (damage, isCrit, directionFrom,stats,actionSourceType,isSourcePsudo);
 
 	}
 
-	//Use this when LAUNCHING an attack. For example, launching a rocket
-	public class AttackInfo: EventInfo
+    //Use this when LAUNCHING an attack/ability/heal. For example, launching a rocket. Or Leaping towards an enemy.Its the cause to the effect. 
+    public class ActionInfo: EventInfo
 	{
 		public bool IsCrit;
 		public Vector2 Origin;
 		public Vector2 DirectionTo;
-
-		public StatsHolder Stats;
-		public AttackInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
+		public bool IsSourcePsudo;
+		public EffectSourceType ActionSourceType;
+        public StatsHolder Stats;
+		public ActionInfo(CharacterMaster source, CharacterMaster destination, (int sourceType, int sourceIndex, int sourceEffect) key,
 			bool isCrit, StatsHolder stats=null,Vector2 origin=default, Vector2 directionTo= default)
 			: base(source, destination, key) =>
 			(IsCrit, Stats,Origin, DirectionTo) = (isCrit, stats,origin,directionTo);
@@ -609,10 +624,12 @@ namespace BrannPack.Character
 		public EffectivenessStat AdditionalHealingEfficiency = null;
 		public HealthCategories Catagory = HealthCategories.Health;
 		public HealthType HealthType = default;
+        public bool IsSourcePsudo;
+        public EffectSourceType ActionSourceType;
 
-		public HealingInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
-			float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCategories catagory = HealthCategories.Health)
-			: base(source, destination, key) => (HealingAmount, AdditionalHealingEfficiency, Catagory) = (healingAmount, additionalHealingEffeciency, catagory);
+        public HealingInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
+			float healingAmount, EffectivenessStat additionalHealingEffeciency = null, HealthCategories catagory = HealthCategories.Health, EffectSourceType actionSourceType = EffectSourceType.Other, bool isSourcePsudo = false)
+			: base(source, destination, key) => (HealingAmount, AdditionalHealingEfficiency, Catagory,ActionSourceType,IsSourcePsudo) = (healingAmount, additionalHealingEffeciency, catagory,actionSourceType,isSourcePsudo);
 	}
 
 	public class HealthChangeInfo: EventInfo
@@ -632,11 +649,9 @@ namespace BrannPack.Character
         public Vector2? Origin;
         public Vector2? DirectionTo;
 		public AbilitySlot AbilitySlot;
-		public AbilitySlotType AbilitySlotType;
-		public Ability AbilityInstance;
         public AbilityUseInfo(CharacterMaster source, CharacterMaster destination, (int, int, int) key,
-			InputPressState pressState, Vector2? origin = null, Vector2? directionTo = null, AbilitySlot abilitySlot=null, AbilitySlotType abilitySlotType=AbilitySlotType.Other,Ability abilityInstance=null)
-			: base(source, destination, key) => (PressState,Origin,DirectionTo,AbilitySlot,AbilitySlotType,AbilityInstance) = (pressState,origin,directionTo,abilitySlot,abilitySlotType,abilityInstance);
+			InputPressState pressState, Vector2? origin = null, Vector2? directionTo = null, AbilitySlot abilitySlot=null)
+			: base(source, destination, key) => (PressState,Origin,DirectionTo,AbilitySlot) = (pressState, origin, directionTo, abilitySlot);
 	}
 
 

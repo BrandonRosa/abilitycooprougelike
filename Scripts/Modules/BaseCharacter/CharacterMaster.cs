@@ -123,17 +123,17 @@ namespace BrannPack.Character
 			}
 
 			//Set the abilities to the body's starting abilities
-			Primary = new AbilitySlot(this, Body.StartingPrimary, AbilitySlotType.Primary);
+			Primary = new AbilitySlot(this, Body.StartingPrimary, EffectSourceType.Primary);
 			Primary.SetAbilityStats();
-			Secondary = new AbilitySlot(this, Body.StartingSecondary, AbilitySlotType.Secondary);
+			Secondary = new AbilitySlot(this, Body.StartingSecondary, EffectSourceType.Secondary);
 			Secondary.SetAbilityStats();
-			Utility = new AbilitySlot(this, Body.StartingUtility, AbilitySlotType.Utility);
+			Utility = new AbilitySlot(this, Body.StartingUtility, EffectSourceType.Utility);
 			Utility.SetAbilityStats();
-			Special = new AbilitySlot(this, Body.StartingSpecial, AbilitySlotType.Special);
+			Special = new AbilitySlot(this, Body.StartingSpecial, EffectSourceType.Special);
 			Special.SetAbilityStats();
-			Ult = new AbilitySlot(this, Body.StartingUlt, AbilitySlotType.Ult);
+			Ult = new AbilitySlot(this, Body.StartingUlt, EffectSourceType.Ult);
 			Ult.SetAbilityStats();
-			Equipment = new AbilitySlot(this, Body.StartingEquipment, AbilitySlotType.Equipment);
+			Equipment = new AbilitySlot(this, Body.StartingEquipment, EffectSourceType.Equipment);
 			Equipment.SetAbilityStats();
 
 			Body.CharacterMaster = this;
@@ -195,9 +195,9 @@ namespace BrannPack.Character
 			AfterTakeDamage?.Invoke(this, dealer, damageInfo, eventChain);
 		}
 
-		public static event Action<CharacterMaster,AttackInfo, EventChain> BeforeAttackEvent;
-		public static event Action<CharacterMaster, AttackInfo, EventChain> AfterAttackEvent;
-		public void BeforeAttack(AttackInfo attackInfo,EventChain eventChain)
+		public static event Action<CharacterMaster,ActionInfo, EventChain> BeforeAttackEvent;
+		public static event Action<CharacterMaster, ActionInfo, EventChain> AfterAttackEvent;
+		public void BeforeAttack(ActionInfo attackInfo,EventChain eventChain)
 		{
 			BeforeAttackEvent?.Invoke(this,attackInfo, eventChain);
 			
@@ -205,7 +205,7 @@ namespace BrannPack.Character
 			//AfterAttack
 		}
 
-		public void AfterAttack(AttackInfo attackInfo, EventChain eventChain) { AfterAttackEvent?.Invoke(this, attackInfo, eventChain); }
+		public void AfterAttack(ActionInfo attackInfo, EventChain eventChain) { AfterAttackEvent?.Invoke(this, attackInfo, eventChain); }
 
 		public AbilitySlot LocateAbility(Ability abilityInstance)
 		{

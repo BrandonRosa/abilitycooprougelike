@@ -183,7 +183,7 @@ namespace BrannPack.StatusEffectHandling
         }
     }
 
-
+    //Just Use effect type enum lol
     public enum StatusEffectTag
     {
         //Basic Category

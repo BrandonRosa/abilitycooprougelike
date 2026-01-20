@@ -53,7 +53,7 @@ namespace BrannPack.Items
 
         private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
         {
-            if (slot.Owner.UsingInventory && casv == Stat.FireRate && slot.SlotType==AbilitySlotType.Primary && slot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (slot.Owner.UsingInventory && casv == Stat.FireRate && slot.SlotType==EffectSourceType.Primary && slot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if (modStat is AbilityStats.FireRateStat FirerateStat)
                 {
@@ -99,7 +99,7 @@ namespace BrannPack.Items
 
         private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
         {
-            if (slot.Owner.UsingInventory && casv == Stat.Charges && slot.SlotType == AbilitySlotType.Secondary && slot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
+            if (slot.Owner.UsingInventory && casv == Stat.Charges && slot.SlotType == EffectSourceType.Secondary && slot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if (modStat is AbilityStats.ChargeStat ChargeStat)
                 {
@@ -144,7 +144,7 @@ namespace BrannPack.Items
 
         private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
         {
-            if (slot.SlotType != AbilitySlotType.Utility)
+            if (slot.SlotType != EffectSourceType.Utility)
                 return;
             ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, slot.Owner, casv, Stat.Duration);
             if (chargeMod?.Positive > 0f)
@@ -192,7 +192,7 @@ namespace BrannPack.Items
 
         private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
         {
-            if (slot.SlotType != AbilitySlotType.Special)
+            if (slot.SlotType != EffectSourceType.Special)
                 return;
             ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, slot.Owner, casv, Stat.Range);
             if (chargeMod?.Positive > 0f)
@@ -240,7 +240,7 @@ namespace BrannPack.Items
 
         private void ModifyStat(AbilitySlot slot, Stat casv, ModifiableStat modStat)
         {
-            if (slot.SlotType != AbilitySlotType.Ult)
+            if (slot.SlotType != EffectSourceType.Ult)
                 return;
             ItemEffectModifier? chargeMod = Item.IfMasterHasItemAndCheckStat(this, slot.Owner, casv, Stat.Damage);
             if (chargeMod?.Positive > 0f)

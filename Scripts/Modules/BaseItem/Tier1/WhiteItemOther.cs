@@ -72,7 +72,7 @@ namespace BrannPack.Items
                 attackstat.SetStat(Stat.Damage, instDamage);
                 attackstat.SetStat(Stat.Cooldown, instCooldown);
 
-                AttackInfo attackInfo = new AttackInfo(source, victim, (0, instance.Index, 0), damageInfo.IsCrit, attackstat);
+                ActionInfo attackInfo = new ActionInfo(source, victim, (0, instance.Index, 0), damageInfo.IsCrit, attackstat);
 
 
                 source.BeforeAttack(attackInfo, eventChain);
@@ -81,7 +81,7 @@ namespace BrannPack.Items
                 source.Body.CooldownHandler.AddCooldown((0, instance.Index, 10), cooldownDuration);
 
                 damageInfo.Damage += instDamage.CalculateTotal();
-                eventChain?.TryAddEventInfo(attackInfo);
+                eventChain?.TryAddProcdEvent(attackInfo);
 
                 float addedArmor = initialArmor + (effects.Positive - 1f) * armorPerStack;
 
@@ -133,7 +133,7 @@ namespace BrannPack.Items
 
         private void ApplyStats(AbilitySlot abilitySlot, Stat statType, ModifiableStat stat)
         {
-            if(abilitySlot.Owner.UsingInventory && abilitySlot.SlotType==AbilitySlotType.Primary && (statType==Stat.Lifesteal || statType==Stat.FireRate)
+            if(abilitySlot.Owner.UsingInventory && abilitySlot.SlotType==EffectSourceType.Primary && (statType==Stat.Lifesteal || statType==Stat.FireRate)
                 && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects))
             {
                 if(statType==Stat.Lifesteal)
