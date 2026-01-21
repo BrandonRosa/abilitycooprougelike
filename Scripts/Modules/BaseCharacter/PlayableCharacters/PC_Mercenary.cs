@@ -1,4 +1,5 @@
 using BrannPack.AbilityHandling;
+using BrannPack.CooldownHandling;
 using BrannPack.Forces;
 using BrannPack.Helpers.Attacks;
 using BrannPack.Helpers.RecourcePool;
@@ -157,110 +158,139 @@ namespace BrannPack.Character.Playable
 
 	//public class ScoutGrappleHook : Ability<ScoutGrappleHook>
 	//{
- //       protected static RangeStat Range = new RangeStat(400f, 3000f, 500f);
- //       protected static DamageStat Damage = new DamageStat(0, 0f);
- //       protected static CooldownStat Cooldown = new CooldownStat(.1f);
- //       protected static CooldownStat SpamCooldown = new CooldownStat(.5f);
- //       protected static ChargeStat Charges = new ChargeStat(1f);
+	//       protected static RangeStat Range = new RangeStat(400f, 3000f, 500f);
+	//       protected static DamageStat Damage = new DamageStat(0, 0f);
+	//       protected static CooldownStat Cooldown = new CooldownStat(.1f);
+	//       protected static CooldownStat SpamCooldown = new CooldownStat(.5f);
+	//       protected static ChargeStat Charges = new ChargeStat(1f);
 
- //       public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
- //           {
- //               { Stat.Range, Range },
- //               { Stat.Damage, Damage },
- //               { Stat.Cooldown, Cooldown },
- //               { Stat.Charges, Charges },
- //               {Stat.SpamCooldown, SpamCooldown },
- //           },
- //          new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
- //       {
- //       };
- //       public override string Name { get; protected set; } = "Grapple Hook";
- //       public override string CodeName { get; protected set; } = "Scout_Grapple";
- //       public override string Description { get; protected set; }
- //       public override string AdvancedDescription { get; protected set; }
- //       public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
+	//       public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
+	//           {
+	//               { Stat.Range, Range },
+	//               { Stat.Damage, Damage },
+	//               { Stat.Cooldown, Cooldown },
+	//               { Stat.Charges, Charges },
+	//               {Stat.SpamCooldown, SpamCooldown },
+	//           },
+	//          new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
+	//       {
+	//       };
+	//       public override string Name { get; protected set; } = "Grapple Hook";
+	//       public override string CodeName { get; protected set; } = "Scout_Grapple";
+	//       public override string Description { get; protected set; }
+	//       public override string AdvancedDescription { get; protected set; }
+	//       public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
 
- //       //public AbilityUpgrade SSG_U1_Cooldown=
- //       public override BaseCharacterBody UpdateTarget()
- //       {
- //           return null;
- //       }
+	//       //public AbilityUpgrade SSG_U1_Cooldown=
+	//       public override BaseCharacterBody UpdateTarget()
+	//       {
+	//           return null;
+	//       }
 
- //       public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
- //       {
- //           if (abilityUseInfo.PressState != InputPressState.JustPressed)
- //               return;
- //           var bullet = PoolManager.PoolManagerNode.Spawn<BaseProjectile>("GrappleProjectile", PoolManager.ProjectilesNode);
- //           var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
- //           var rangestat = Range.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
- //           var cooldownStat = Cooldown.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
- //           bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "GrappleProjectile", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 15f, range: rangestat.CalculateTotal(), speed: 1500f,bodyCollideBehavior:ProjectileCollideBehavior.Pierce));
+	//       public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
+	//       {
+	//           if (abilityUseInfo.PressState != InputPressState.JustPressed)
+	//               return;
+	//           var bullet = PoolManager.PoolManagerNode.Spawn<BaseProjectile>("GrappleProjectile", PoolManager.ProjectilesNode);
+	//           var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
+	//           var rangestat = Range.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
+	//           var cooldownStat = Cooldown.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
+	//           bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "GrappleProjectile", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 15f, range: rangestat.CalculateTotal(), speed: 1500f,bodyCollideBehavior:ProjectileCollideBehavior.Pierce));
 
- //           abilitySlot.CCooldown.TryUseCharge();
- //           abilitySlot.CCooldown.Reset();
- //       }
- //   }
+	//           abilitySlot.CCooldown.TryUseCharge();
+	//           abilitySlot.CCooldown.Reset();
+	//       }
+	//   }
 
-	//public class ScoutC4:Ability<ScoutC4>
-	//{
- //       protected static RangeStat Range = new RangeStat(150f, 300f, 100f);
- //       protected static DamageStat Damage = new DamageStat(350, 4f);
- //       protected static CooldownStat Cooldown = new CooldownStat(.1f);
- //       protected static CooldownStat SpamCooldown = new CooldownStat(.5f);
- //       protected static ChargeStat Charges = new ChargeStat(1f);
+	public class RainOfBullets : Ability<RainOfBullets>
+	{
+		protected static RangeStat Range = new RangeStat(200f, 300f, 100f);
+		protected static DurationStat Duration = new DurationStat(3f, 7f, .5f);
+        protected static DamageStat Damage = new DamageStat(0, 1f);
+		protected static CooldownStat Cooldown = new CooldownStat(160f);
+		protected static CooldownStat SpamCooldown = new CooldownStat(1f);
+		protected static ChargeStat Charges = new ChargeStat(1f);
 
- //       public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
- //           {
- //               { Stat.Range, Range },
- //               { Stat.Damage, Damage },
- //               { Stat.Cooldown, Cooldown },
- //               { Stat.Charges, Charges },
- //               {Stat.SpamCooldown, SpamCooldown },
- //           },
- //          new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
- //       {
- //       };
- //       public override string Name { get; protected set; } = "C4";
- //       public override string CodeName { get; protected set; } = "Scout_C4";
- //       public override string Description { get; protected set; }
- //       public override string AdvancedDescription { get; protected set; }
- //       public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
+		public override StatsByCritera<AbilityUpgrade> Stats { get; protected set; } = new StatsByCritera<AbilityUpgrade>(new Dictionary<Stat, ModifiableStat>()
+			{
+				{ Stat.Range, Range },
+				{ Stat.Damage, Damage },
+				{ Stat.Cooldown, Cooldown },
+				{ Stat.Charges, Charges },
+				{Stat.SpamCooldown, SpamCooldown },
+			},
+		   new Dictionary<AbilityUpgrade, Dictionary<Stat, ModifiableStat>>())
+		{
+		};
+		public override string Name { get; protected set; } = "Rain Of Bulelts";
+		public override string CodeName { get; protected set; } = "MERCENARY_BULLETRAIN";
+		public override string Description { get; protected set; }
+		public override string AdvancedDescription { get; protected set; }
+		public override Texture2D Icon { get; protected set; } = GD.Load<Texture2D>("res://Assets/PlaceholderAssets/AbilityIcons/Phase_Blast.png");
 
- //       //public AbilityUpgrade SSG_U1_Cooldown=
- //       public override BaseCharacterBody UpdateTarget()
- //       {
- //           return null;
- //       }
+		//public AbilityUpgrade SSG_U1_Cooldown=
+		public override BaseCharacterBody UpdateTarget()
+		{
+			return null;
+		}
 
- //       public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
- //       {
- //           if (abilityUseInfo.PressState != InputPressState.JustPressed)
- //               return;
- //           var bullet = PoolManager.PoolManagerNode.Spawn<BaseProjectile>("C4", PoolManager.ProjectilesNode);
-	//		bullet.OnDestroy += DetonateC4;
- //           var damagestat = Damage.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<DamageStat>(Stat.Damage));
- //           var rangestat = Range.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<RangeStat>(Stat.Range));
- //           var cooldownStat = Cooldown.GetCombinedStat(abilitySlot.ThisAbilityStats.GetStatByVariable<CooldownStat>(Stat.Cooldown));
- //           bullet.Initialize(new ProjectileInfo(master, master, (1, this.Index, 0), damagestat.CalculateTotal(), false, projectileName: "C4", direction: master.Body.AimDirection, position: master.Body.GlobalPosition, duration: 3f, range: rangestat.CalculateTotal()/2, speed:0f));
+		public override void UseAbility(CharacterMaster master, AbilitySlot abilitySlot, AbilityUseInfo abilityUseInfo, EventChain eventChain)
+		{
+			if (abilityUseInfo.PressState != InputPressState.JustPressed)
+				return;
+			
+			
+		}
 
- //           abilitySlot.CCooldown.TryUseCharge();
- //           abilitySlot.CCooldown.Reset();
- //       }
 
-	//	public void DetonateC4(IProjectile c4)
- //       {
-	//		var master = c4.ProjectileInfo.Source;
-	//		var list=AttackHelper.GetCollisionsInCircleArea(((Node2D)c4).GetGlobalTransform(), 0f,c4.ProjectileInfo.Range, master.Body.GetWorld2D().DirectSpaceState);
-	//		foreach(var body in list)
-	//		{
- //               if (master.CanDamageTeams.Contains(body.CharacterMaster.Team))
- //               {
- //                   DamageInfo info = new DamageInfo(master, body.CharacterMaster, (1, this.Index, 0), c4.ProjectileInfo.Damage, false);
- //                   master.DealDamage(body.CharacterMaster, info, null);
- //               }
- //           }
-	//	}
- //   }
-	
+	}
+
+	public partial class RainOfBulletsHandler:Node
+	{
+		public Cooldown Duration { get; protected set; }
+		public float DamagePercent { get; protected set; }
+		public float FireRatePercentIncrease { get; protected set; }
+		public float CooldownPercentDecrease { get; protected set; }
+        public float Range { get; protected set; }
+
+		public AbilitySlot AbilitySlot { get; protected set; }
+
+        public override void _Ready()
+        {
+            base._Ready();
+            //AbilitySlot.BeforeAbilitySlotUse += AbilitySlot_BeforeAbilitySlotUse;
+            AbilitySlot.ThisAbilityStats.RefreshAbilityStatVariable += ThisAbilityStats_RefreshAbilityStatVariable;
+            AbilitySlot.ThisAbilityStats.RecalculateAllStats();
+        }
+
+        public override void _ExitTree()
+        {
+            AbilitySlot.ThisAbilityStats.RefreshAbilityStatVariable -= ThisAbilityStats_RefreshAbilityStatVariable;
+            base._ExitTree();
+        }
+
+        private void ThisAbilityStats_RefreshAbilityStatVariable(Stat arg1, ModifiableStat arg2)
+		{
+			switch (arg1)
+			{
+				case Stat.Damage:
+					((DamageStat)arg2).AdditionalDamage += ((DamageStat)arg2).BaseValue * DamagePercent;
+					break;
+				case Stat.FireRate:
+					((FireRateStat)arg2).FireRateUpPercentage += FireRatePercentIncrease;
+					break;
+				case Stat.Cooldown:
+					((CooldownStat)arg2).CooldownPercentDecreases.Add(CooldownPercentDecrease);
+					break;
+			}
+		}
+
+        //Redirect attack to nearby enemies. If there are no nearby enemies, do not allot ability use. 
+        private void AbilitySlot_BeforeAbilitySlotUse(AbilitySlot obj)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 
 }
