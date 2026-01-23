@@ -44,6 +44,7 @@ namespace BrannPack.Helpers.Initializers
 
             _= new SMG();
             _= new MercenaryPierceShot();
+            _ = new RainOfBullets();
 
             _ = new SwarmerSmash();
 

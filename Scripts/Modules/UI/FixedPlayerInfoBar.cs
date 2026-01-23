@@ -18,7 +18,8 @@ namespace BrannPack.UI
 
         public override void _Ready()
         {
-            if(CharacterMaster == null)
+            
+            if (CharacterMaster == null)
             {
                 GD.PrintErr("CharacterMaster is not set for FixedPlayerInfoBar. Please assign a CharacterMaster instance.");
                 return;

@@ -130,7 +130,7 @@ namespace BrannPack.Items
             }
         }
 
-        private void OnUseItemEffect(AbilitySlot abilitySlot)
+        private void OnUseItemEffect(AbilitySlot abilitySlot,AbilityUseInfo info,EventChain chain)
         {
             if (abilitySlot.SlotType==EffectSourceType.Utility && abilitySlot.Owner.Inventory.AllEffectiveItemCount.TryGetValue(this, out ItemEffectModifier effects)
                 && !abilitySlot.Owner.Cooldowns.IsOnCooldown((0, instance.Index, 1)))

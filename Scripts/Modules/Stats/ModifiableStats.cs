@@ -1156,8 +1156,8 @@ namespace BrannPack.ModifiableStats
 			{
 				foreach (DurationStat stat in addStat)
 				{
-
-					DurationDownPercentages.AddRange(stat.DurationDownPercentages);
+					if(stat== null) continue;
+                    DurationDownPercentages.AddRange(stat.DurationDownPercentages);
 					DurationFlatPercentage += stat.DurationFlatPercentage;
 
 				}

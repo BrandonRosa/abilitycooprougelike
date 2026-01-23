@@ -176,6 +176,12 @@ namespace BrannPack.CooldownHandling
             }
         }
 
+        public virtual void UpdateCooldownWithNewDuration(float newDuration)
+        {
+            elapsedTime = PercentageComplete * newDuration;
+            Duration = newDuration;
+        }
+
         public virtual void Reset()
         {
             elapsedTime = 0f;
@@ -245,6 +251,17 @@ namespace BrannPack.CooldownHandling
             
             return true;
         }
+
+        public float TryDepleteCharges()
+        {
+            if (CurrentCharges <= 0f)
+                return 0;
+            float chargesDepleted = CurrentCharges;
+            CurrentCharges =0;
+            return chargesDepleted;
+        }
+
+
 
         public void MaxOut()
         {

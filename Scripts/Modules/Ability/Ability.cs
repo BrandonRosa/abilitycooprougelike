@@ -43,8 +43,8 @@ namespace BrannPack.AbilityHandling
 
 		public bool IsUsable=>CurrentCharges>0;
 
-		public static event Action<AbilitySlot> BeforeAbilitySlotUse;
-		public static event Action<AbilitySlot> AfterAbilitySlotUse;
+		public static event Action<AbilitySlot,AbilityUseInfo,EventChain> BeforeAbilitySlotUse;
+		public static event Action<AbilitySlot, AbilityUseInfo, EventChain> AfterAbilitySlotUse;
 
 		public AbilitySlot(CharacterMaster owner,string abilityCodeName, EffectSourceType slotType)
 		{
@@ -108,9 +108,9 @@ namespace BrannPack.AbilityHandling
 			{
 				var info = new AbilityUseInfo(Owner, Owner, (-1, -1, -1), pressState,abilitySlot:this);
 				chain ??= new EventChain(info);
-				BeforeAbilitySlotUse?.Invoke(this);
+				BeforeAbilitySlotUse?.Invoke(this,info,chain);
 				AbilityInstance.UseAbility(Owner, this, info,chain);
-				AfterAbilitySlotUse?.Invoke(this);
+				AfterAbilitySlotUse?.Invoke(this,info,chain);
 				return true;
 			}
 			return false;

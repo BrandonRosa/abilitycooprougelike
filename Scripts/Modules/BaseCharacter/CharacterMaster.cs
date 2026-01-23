@@ -118,7 +118,7 @@ namespace BrannPack.Character
 				UsingInventory = true;
 				var interArea = new PlayerInteractiveArea();
 
-                Body.AddChild(interArea);
+				Body.AddChild(interArea);
 				Body.InteractiveArea = interArea;
 			}
 
@@ -211,11 +211,11 @@ namespace BrannPack.Character
 		{
 			if(Primary.AbilityInstance == abilityInstance) return Primary;
 			if (Secondary.AbilityInstance == abilityInstance) return Secondary;
-            if (Utility.AbilityInstance == abilityInstance) return Utility;
-            if (Special.AbilityInstance == abilityInstance) return Special;
-            if (Ult.AbilityInstance == abilityInstance) return Ult;
-            if (Equipment.AbilityInstance == abilityInstance) return Equipment;
-            return null;
+			if (Utility.AbilityInstance == abilityInstance) return Utility;
+			if (Special.AbilityInstance == abilityInstance) return Special;
+			if (Ult.AbilityInstance == abilityInstance) return Ult;
+			if (Equipment.AbilityInstance == abilityInstance) return Equipment;
+			return null;
 		}
 	}
 
